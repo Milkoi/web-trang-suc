@@ -1,4 +1,4 @@
-Đề tài: Xây dựng Website bán trang sức 
+Đề tài: Xây dựng Website bán trang sức (Nhóm 14)
 
 Họ và tên Sinh viên:
 + Lê Minh Quân, MSSV: 23810310115
