@@ -15,3 +15,33 @@ Họ và tên Sinh viên:
 - [Statistics](docs/srs/statistics.md)
 - [Payment (VNPay)](docs/srs/payment.md)
 - [Content Management](docs/srs/content.md)
+
+### 👤 User Functions
+- [Trang chủ](docs/srs/user/trangchu.md)
+- [Danh mục sản phẩm](docs/srs/user/danhmucsanpham.md)
+- [Chi tiết sản phẩm](docs/srs/user/chitietsanpham.md)
+- [Đăng ký](docs/srs/user/dangky.md)
+- [Đăng nhập](docs/srs/user/dangnhap.md)
+- [Tìm kiếm sản phẩm](docs/srs/user/timkiemsp.md)
+- [Giỏ hàng](docs/srs/user/giohang.md)
+- [Đặt hàng](docs/srs/user/dathang.md)
+- [Thanh toán VNPay](docs/srs/user/thanhtoan.md)
+- [Theo dõi đơn hàng](docs/srs/user/theodoidonhang.md)
+- [Thông tin cá nhân](docs/srs/user/thongtincanhan.md)
+
+---
+
+### 🔐 Authentication
+- [User Login](docs/srs/user/dangnhap.md)
+- [User Register](docs/srs/user/dangky.md)
+
+---
+
+### 💳 Payment
+- [VNPay](docs/srs/user/thanhtoan.md)
+
+---
+
+### 📦 Order
+- [Checkout](docs/srs/user/dathang.md)
+- [Tracking](docs/srs/user/theodoidonhang.md)
