@@ -3,7 +3,7 @@
 **Mã chức năng:** AUTH-01  
 **Trạng thái:** Draft / Review  
 **Người soạn thảo:** [Le Minh Quan]  
-**Vai trò:** Lead Researcher / Developer
+**Vai trò:** Developer
 
 ---
 
