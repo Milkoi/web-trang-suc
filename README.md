@@ -10,3 +10,8 @@ Họ và tên Sinh viên:
 - [Category](docs/srs/category.md)
 - [Product](docs/srs/product.md)
 - [Order](docs/srs/order.md)
+- [Customer](docs/srs/customer.md)
+- [Promotion](docs/srs/promotion.md)
+- [Statistics](docs/srs/statistics.md)
+- [Payment (VNPay)](docs/srs/payment.md)
+- [Content Management](docs/srs/content.md)
