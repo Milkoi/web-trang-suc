@@ -1,96 +1,194 @@
-# Software Requirement Specification (SRS)
+# 📄 SOFTWARE REQUIREMENT SPECIFICATION (SRS)
 ## Chức năng: Trang chủ (Home Page)
-**Mã chức năng:** HOME-01  
-**Trạng thái:** Draft / Review  
-**Người soạn thảo:** Trần Minh Nguyệt  
-**Vai trò:** Lead Researcher / Developer
+
+- **Mã chức năng:** HOME-01  
+- **Trạng thái:** Draft / Review  
+- **Người soạn thảo:** Trần Minh Nguyệt  
+- **Vai trò:** Lead Researcher / Developer  
+- **Ngày cập nhật:** 03/04/2026  
 
 ---
 
-### 1. Mô tả tổng quan (Description)
+## 1. Mô tả tổng quan (Description)
+
 Trang chủ là điểm tiếp cận đầu tiên của người dùng khi truy cập hệ thống. Hiển thị các banner quảng cáo, danh mục sản phẩm nổi bật, sản phẩm gợi ý và các chương trình khuyến mãi đang chạy nhằm tối ưu trải nghiệm khám phá sản phẩm.
 
 ---
 
-### 2. Luồng nghiệp vụ (User Workflow)
+## 2. Actors (Tác nhân)
+
+| Actor | Mô tả |
+|------|------|
+| Guest User | Người dùng chưa đăng nhập |
+| Authenticated User | Người dùng đã đăng nhập |
+| System | Website |
+| Admin | Quản trị viên (quản lý nội dung hiển thị) |
+
+---
+
+## 3. Preconditions (Điều kiện trước)
+
+- Hệ thống đã có dữ liệu:
+  - banners
+  - categories
+  - products
+  - promotions
+- API hoạt động bình thường
+- Server/CDN có thể truy cập ảnh
+
+---
+
+## 4. Luồng nghiệp vụ (User Workflow)
+
+### 4.1 Luồng chính (Happy Path)
 
 | Bước | Hành động người dùng | Phản hồi hệ thống |
 | :--- | :--- | :--- |
-| 1 | Truy cập URL `/` hoặc `/home` | Render trang chủ: Banner, danh mục, sản phẩm nổi bật, khuyến mãi. |
-| 2 | Xem Banner carousel | Tự động chuyển slide mỗi 5 giây; người dùng có thể click để chuyển tay. |
-| 3 | Click vào danh mục | Chuyển hướng đến trang danh mục sản phẩm `/category/{slug}`. |
-| 4 | Click vào sản phẩm | Chuyển hướng đến trang chi tiết sản phẩm `/product/{id}`. |
-| 5 | Click "Thêm vào giỏ" trên card sản phẩm | Thêm sản phẩm vào giỏ hàng (không rời trang), cập nhật badge số lượng trên icon giỏ. |
-| 6 | Cuộn trang (Infinite scroll / Load more) | Tải thêm sản phẩm gợi ý theo batch (12 sản phẩm/lần). |
+| 1 | Truy cập URL `/` hoặc `/home` | Render trang chủ |
+| 2 | Xem Banner carousel | Auto slide 5s |
+| 3 | Click danh mục | Redirect `/category/{slug}` |
+| 4 | Click sản phẩm | Redirect `/product/{id}` |
+| 5 | Click "Thêm vào giỏ" | Thêm vào cart + update badge |
+| 6 | Cuộn trang | Load thêm sản phẩm (12/lần) |
 
 ---
 
-### 3. Yêu cầu dữ liệu (Data Requirements)
+### 4.2 Luồng lỗi hệ thống
 
-#### 3.1. Dữ liệu hiển thị
+| Trường hợp | Xử lý |
+|-----------|------|
+| API lỗi | Hiển thị fallback UI |
+| Timeout | Hiển thị skeleton + retry |
+| Server down | Hiển thị trang lỗi |
 
-| Thành phần | Nguồn dữ liệu | Số lượng hiển thị |
+---
+
+## 5. Yêu cầu dữ liệu (Data Requirements)
+
+### 5.1 Dữ liệu hiển thị
+
+| Thành phần | Nguồn dữ liệu | Số lượng |
 | :--- | :--- | :--- |
-| Banner quảng cáo | Bảng `banners` (status = active) | Tối đa 5 banner |
-| Danh mục nổi bật | Bảng `categories` (featured = true) | Tối đa 8 danh mục |
-| Sản phẩm bán chạy | Bảng `products` ORDER BY `sold_count` DESC | 12 sản phẩm |
-| Sản phẩm mới nhất | Bảng `products` ORDER BY `created_at` DESC | 12 sản phẩm |
-| Banner khuyến mãi | Bảng `promotions` (active, còn hạn) | Tối đa 3 banner |
+| Banner | `banners` | ≤ 5 |
+| Danh mục | `categories` | ≤ 8 |
+| Sản phẩm bán chạy | `products` | 12 |
+| Sản phẩm mới | `products` | 12 |
+| Khuyến mãi | `promotions` | ≤ 3 |
 
-#### 3.2. Cấu trúc dữ liệu - Bảng `banners`
+---
+
+### 5.2 Cấu trúc bảng `banners`
 
 | Cột | Kiểu | Mô tả |
 | :--- | :--- | :--- |
-| `id` | bigint, PK | |
-| `title` | varchar(255) | Tiêu đề banner |
-| `image_url` | varchar(500) | Đường dẫn ảnh |
-| `link_url` | varchar(500), nullable | URL khi click vào banner |
-| `sort_order` | int | Thứ tự hiển thị |
-| `status` | enum('active','inactive') | |
-| `starts_at` | timestamp, nullable | Thời gian bắt đầu hiển thị |
-| `ends_at` | timestamp, nullable | Thời gian kết thúc hiển thị |
+| id | bigint | PK |
+| title | varchar(255) | |
+| image_url | varchar(500) | |
+| link_url | varchar(500) | |
+| sort_order | int | |
+| status | enum | active/inactive |
+| starts_at | timestamp | |
+| ends_at | timestamp | |
 
 ---
 
-### 4. Ràng buộc kỹ thuật (Technical Constraints)
+## 6. API Specification
+
+| API | Method | Mô tả |
+|-----|--------|------|
+| `/api/home` | GET | Lấy dữ liệu trang chủ |
+| `/api/products?type=best-seller` | GET | Sản phẩm bán chạy |
+| `/api/products?type=new` | GET | Sản phẩm mới |
+| `/api/categories/featured` | GET | Danh mục nổi bật |
+
+### Pagination
+- `page`
+- `limit`
+- `has_more`
+
+---
+
+## 7. Business Rules
+
+- Banner chỉ hiển thị khi:
+  - status = active
+  - trong thời gian hợp lệ
+- Sản phẩm phải có:
+  - giá hợp lệ
+  - ảnh hợp lệ
+- Không cho thêm sản phẩm hết hàng vào giỏ
+- Sản phẩm không tồn tại → không hiển thị
+
+---
+
+## 8. Ràng buộc kỹ thuật (Technical Constraints)
 
 | Hạng mục | Yêu cầu |
 | :--- | :--- |
-| Caching | Cache dữ liệu trang chủ (banner, danh mục) trong **Redis/Memcached**, TTL = 5 phút |
-| Performance | Thời gian tải trang (LCP) < **2.5 giây** trên kết nối 4G |
-| Hình ảnh | Sử dụng **lazy loading** và định dạng **WebP**; cung cấp fallback JPG/PNG |
-| SEO | Trang chủ phải render được phía server (SSR hoặc SSG) để tối ưu SEO |
-| Responsive | Hỗ trợ breakpoint: Mobile (<768px), Tablet (768–1024px), Desktop (>1024px) |
+| Caching | Redis/Memcached (TTL = 5 phút) |
+| Performance | LCP < 2.5s |
+| Hình ảnh | Lazy loading + WebP |
+| SEO | SSR hoặc SSG |
+| Responsive | Mobile / Tablet / Desktop |
 
 ---
 
-### 5. Trường hợp ngoại lệ & Xử lý lỗi (Edge Cases)
+## 9. Edge Cases
 
 | # | Trường hợp | Xử lý |
 | :--- | :--- | :--- |
-| E01 | Không có banner nào active | Ẩn section banner, không hiển thị khoảng trống |
-| E02 | Sản phẩm hết hàng trên card | Hiển thị badge *"Hết hàng"*, vô hiệu hóa nút "Thêm vào giỏ" |
-| E03 | Lỗi tải ảnh sản phẩm/banner | Hiển thị ảnh placeholder mặc định |
-| E04 | Người dùng chưa đăng nhập nhấn "Thêm vào giỏ" | Redirect đến `/login` kèm `redirect_back` param, hoặc cho phép thêm vào giỏ tạm (guest cart) |
-| E05 | Mất kết nối khi load thêm sản phẩm | Hiển thị nút *"Thử lại"* thay vì spinner vô hạn |
+| E01 | Không có banner | Ẩn section |
+| E02 | Hết hàng | Disable nút |
+| E03 | Lỗi ảnh | Placeholder |
+| E04 | Chưa login | Redirect hoặc guest cart |
+| E05 | Mất mạng | Retry button |
 
 ---
 
-### 6. Giao diện (UI/UX)
+## 10. UI/UX
 
-- **Header cố định (Sticky):** Logo, thanh tìm kiếm, icon giỏ hàng (kèm badge số lượng), menu tài khoản.
-- **Banner Carousel:** Auto-play, có indicator dots, hỗ trợ swipe trên mobile.
-- **Section danh mục:** Hiển thị dạng grid icon + tên; có nút "Xem tất cả" dẫn đến `/categories`.
-- **Card sản phẩm:** Ảnh, tên, giá gốc, giá khuyến mãi (nếu có), rating sao, nút "Thêm vào giỏ".
-- **Footer:** Links thông tin, mạng xã hội, phương thức thanh toán được chấp nhận.
+- Header sticky
+- Banner carousel
+- Grid danh mục
+- Card sản phẩm
+- Footer đầy đủ
 
 ---
 
-### 7. Các màn hình liên quan (Related Screens)
+## 11. Related Screens
 
-| Màn hình | Mã chức năng | Mô tả |
+| Màn hình | Mã | Mô tả |
 | :--- | :--- | :--- |
-| Danh mục sản phẩm | PROD-01 | Xem sản phẩm theo danh mục |
-| Chi tiết sản phẩm | PROD-02 | Xem chi tiết một sản phẩm |
-| Giỏ hàng | CART-01 | Quản lý giỏ hàng |
-| Tìm kiếm | SEARCH-01 | Tìm kiếm sản phẩm |
+| Danh mục | PROD-01 | |
+| Chi tiết | PROD-02 | |
+| Giỏ hàng | CART-01 | |
+| Tìm kiếm | SEARCH-01 | |
+
+---
+
+## 12. Logging & Monitoring
+
+- Log API request/response
+- Log lỗi load dữ liệu
+- Theo dõi performance
+
+---
+
+## 13. Non-functional Requirements
+
+- LCP < 2.5s
+- TTFB < 500ms
+- Hỗ trợ ≥ 1000 user đồng thời
+- SEO score > 90
+
+---
+
+## 14. Acceptance Criteria
+
+- Trang load đầy đủ dữ liệu
+- Không lỗi UI
+- Click điều hướng đúng
+- Không crash khi lỗi API
+- Hiển thị đúng responsive
+
+---
