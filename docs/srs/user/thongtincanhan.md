@@ -2,8 +2,8 @@
 ## Chức năng: Thông tin cá nhân (User Profile)
 **Mã chức năng:** USER-01  
 **Trạng thái:** Draft / Review  
-**Người soạn thảo:** Trần Minh Nguyệt 
-**Vai trò:**  Developer
+**Người soạn thảo:** Trần Minh Nguyệt  
+**Vai trò:** Developer
 
 ---
 
