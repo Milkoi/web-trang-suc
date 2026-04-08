@@ -59,17 +59,8 @@ const Navbar: React.FC = () => {
           {/* Left: Nav Links */}
           <nav className="navbar__nav navbar__nav--left">
             <Link to="/" className="navbar__link">Trang Chủ</Link>
+            <Link to="/about" className="navbar__link">Giới Thiệu</Link>
             <Link to="/products" className="navbar__link">Sản Phẩm</Link>
-            <div className="navbar__dropdown">
-              <span className="navbar__link">Danh Mục</span>
-              <div className="navbar__dropdown-menu">
-                <Link to="/products?category=necklace">Dây Chuyền</Link>
-                <Link to="/products?category=ring">Nhẫn</Link>
-                <Link to="/products?category=bracelet">Lắc Tay</Link>
-                <Link to="/products?category=anklet">Lắc Chân</Link>
-                <Link to="/products?category=earring">Bông Tai</Link>
-              </div>
-            </div>
           </nav>
 
           {/* Center: Logo */}
@@ -138,12 +129,8 @@ const Navbar: React.FC = () => {
         {menuOpen && (
           <div className="navbar__mobile-menu">
             <Link to="/" onClick={() => setMenuOpen(false)}>Trang Chủ</Link>
+            <Link to="/about" onClick={() => setMenuOpen(false)}>Giới Thiệu</Link>
             <Link to="/products" onClick={() => setMenuOpen(false)}>Tất Cả Sản Phẩm</Link>
-            <Link to="/products?category=necklace" onClick={() => setMenuOpen(false)}>Dây Chuyền</Link>
-            <Link to="/products?category=ring" onClick={() => setMenuOpen(false)}>Nhẫn</Link>
-            <Link to="/products?category=bracelet" onClick={() => setMenuOpen(false)}>Lắc Tay</Link>
-            <Link to="/products?category=anklet" onClick={() => setMenuOpen(false)}>Lắc Chân</Link>
-            <Link to="/products?category=earring" onClick={() => setMenuOpen(false)}>Bông Tai</Link>
             {!isAuthenticated && (
               <button onClick={() => { openAuth('login'); setMenuOpen(false); }}>Đăng Nhập</button>
             )}

@@ -6,6 +6,7 @@ import Footer from './components/layout/Footer';
 import CartDrawer from './components/layout/CartDrawer';
 import AuthModal from './components/auth/AuthModal';
 import HomePage from './pages/customer/HomePage';
+import AboutPage from './pages/customer/AboutPage';
 import ProductsPage from './pages/customer/ProductsPage';
 import ProductDetailPage from './pages/customer/ProductDetailPage';
 import CheckoutPage from './pages/customer/CheckoutPage';
@@ -25,6 +26,7 @@ function App() {
             <Routes>
               {/* Home has full-height hero so no padding needed */}
               <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
               <Route path="/products" element={<ProductsPage />} />
               <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />

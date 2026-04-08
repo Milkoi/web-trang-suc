@@ -129,7 +129,7 @@ const HomePage: React.FC = () => {
             Hơn 20 năm kinh nghiệm trong nghề kim hoàn, chúng tôi tự hào mang đến 
             những tác phẩm trang sức đẳng cấp, được chế tác thủ công bởi những nghệ nhân tài hoa nhất Việt Nam.
           </p>
-          <Link to="#" className="btn-gold">
+          <Link to="/about" className="btn-gold">
             Về Chúng Tôi
           </Link>
         </div>

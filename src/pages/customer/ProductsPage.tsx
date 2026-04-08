@@ -90,18 +90,6 @@ const ProductsPage: React.FC = () => {
 
   return (
     <div className="products-page page-content">
-      {/* Breadcrumb */}
-      <div className="products-page__breadcrumb">
-        <div className="container">
-          <nav className="breadcrumb">
-            <a href="/">Trang chủ</a>
-            <span>/</span>
-            <span>Sản phẩm</span>
-            {searchQuery && <><span>/</span><span>"{searchQuery}"</span></>}
-          </nav>
-        </div>
-      </div>
-
       {/* Page Header */}
       <div className="products-page__header">
         <div className="container">
