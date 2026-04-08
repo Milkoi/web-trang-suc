@@ -1,0 +1,67 @@
+footer{
+    background-color: #f8f4ef;
+    width: 100%;
+}
+.cuoit{
+    display: flex;
+    width: 100%;
+}
+.cot{
+    width: 20%;
+    margin-left: 4%;
+}
+footer .cot1 img{
+    height:100px;
+    width: 50%;
+    margin-top: 15%;
+}
+.cot .d{
+    margin-top: 5%;
+    font-size: 17px;
+}
+.cot hr{
+    margin-top: 5%;
+}
+.cot h5{
+    color:#ce0505;
+    margin-top: 15%;
+    font-size: 17px;
+}
+.cot p{
+    font-size: 17px;
+    margin-top: 5%;
+    cursor: pointer;
+}
+.cot button{
+    padding:10px;
+    width:100%;
+    background-color: white;
+    border:1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.cot button:hover{
+    background-color: #c01b1b;
+    color:white;
+}
+.chan{
+    height: 18px;
+    font-size: 18px;
+    background-color: rgb(233, 218, 199);
+    margin-top: 2%;
+    text-align: center;
+}
+.cot p:hover{
+    color: #c01b1b;
+}
+
+@media only screen and (min-width: 600px) and (max-width: 800px){
+     footer{
+        border: solid;
+    }
+    footer .chan{
+        position: absolute;
+        bottom: 55px;
+        width: 100%;
+    }
+}
