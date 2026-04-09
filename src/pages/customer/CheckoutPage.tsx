@@ -82,7 +82,7 @@ const CheckoutPage: React.FC = () => {
           {/* Logo */}
           <div className="checkout-logo">
             <Link to="/" className="checkout-logo__link">
-              <span className="checkout-logo__text">LUXELUM</span>
+              <span className="checkout-logo__text">VELMORA</span>
               <span className="checkout-logo__sub">JEWELRY HOUSE</span>
             </Link>
           </div>

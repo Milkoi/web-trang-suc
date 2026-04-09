@@ -15,7 +15,7 @@ const AboutPage: React.FC = () => {
         </div>
         <div className="about-hero__content container">
           <p className="section__subtitle" style={{ color: 'var(--color-gold-light)', marginBottom: '1rem', display: 'block' }}>Về Chúng Tôi</p>
-          <h1 className="about-hero__title">LUXELUM<br />Jewelry House</h1>
+          <h1 className="about-hero__title">VELMORA<br />Jewelry House</h1>
           <p className="about-hero__desc">
             Hành trình kiến tạo vẻ đẹp vĩnh cửu từ những viên đá quý tráng lệ nhất.
           </p>
@@ -30,11 +30,11 @@ const AboutPage: React.FC = () => {
               <h2 className="section__title" style={{ textAlign: 'left', marginBottom: '1.5rem' }}>Khởi Nguồn Đam Mê</h2>
               <div className="divider" style={{ margin: '0 0 2rem 0' }} />
               <p>
-                Được thành lập vào năm 2005, LUXELUM mang trong mình sứ mệnh tôn vinh vẻ đẹp Á Đông thông qua những tuyệt tác trang sức tinh xảo. Chúng tôi tin rằng mỗi món trang sức không chỉ là phụ kiện, mà còn là một câu chuyện, một di sản được lưu truyền qua nhiều thế hệ.
+                Được thành lập vào năm 2005, VELMORA mang trong mình sứ mệnh tôn vinh vẻ đẹp Á Đông thông qua những tuyệt tác trang sức tinh xảo. Chúng tôi tin rằng mỗi món trang sức không chỉ là phụ kiện, mà còn là một câu chuyện, một di sản được lưu truyền qua nhiều thế hệ.
               </p>
               <br />
               <p>
-                Từ một xưởng chế tác nhỏ giữa lòng thủ đô, LUXELUM đã chuyển mình thành thương hiệu trang sức cao cấp hàng đầu, nơi kỹ thuật thủ công truyền thống kết hợp hoàn hảo cùng công nghệ chế tác hiện đại.
+                Từ một xưởng chế tác nhỏ giữa lòng thủ đô, VELMORA đã chuyển mình thành thương hiệu trang sức cao cấp hàng đầu, nơi kỹ thuật thủ công truyền thống kết hợp hoàn hảo cùng công nghệ chế tác hiện đại.
               </p>
             </div>
             <div className="about-story__image-wrap">

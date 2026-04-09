@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
             {/* Brand Column */}
             <div className="footer__col footer__brand">
               <div className="footer__logo">
-                <span className="footer__logo-text">LUXELUM</span>
+                <span className="footer__logo-text">VELMORA</span>
                 <span className="footer__logo-sub">JEWELRY HOUSE</span>
               </div>
               <p className="footer__brand-desc">
@@ -119,7 +119,7 @@ const Footer: React.FC = () => {
       <div className="footer__bottom">
         <div className="container">
           <div className="footer__bottom-inner">
-            <p className="footer__copyright">© 2025 LUXELUM. Tất cả quyền được bảo lưu.</p>
+            <p className="footer__copyright">© 2025 VELMORA. Tất cả quyền được bảo lưu.</p>
             <div className="footer__payments">
               <span className="footer__payment-icon">VISA</span>
               <span className="footer__payment-icon">MC</span>

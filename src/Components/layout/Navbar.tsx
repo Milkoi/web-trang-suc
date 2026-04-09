@@ -65,7 +65,7 @@ const Navbar: React.FC = () => {
 
           {/* Center: Logo */}
           <Link to="/" className="navbar__logo">
-            <span className="navbar__logo-text">LUXELUM</span>
+            <span className="navbar__logo-text">VELMORA</span>
             <span className="navbar__logo-sub">JEWELRY HOUSE</span>
           </Link>
 

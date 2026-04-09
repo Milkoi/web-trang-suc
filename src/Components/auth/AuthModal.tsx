@@ -63,7 +63,7 @@ const AuthModal: React.FC = () => {
         </button>
 
         <div className="auth-modal__logo">
-          <span className="auth-modal__logo-text">LUXELUM</span>
+          <span className="auth-modal__logo-text">VELMORA</span>
           <span className="auth-modal__logo-sub">JEWELRY HOUSE</span>
         </div>
 
