@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './store/CartContext';
 import { AuthProvider } from './store/AuthContext';
-import Navbar from './components/layout/Navbar';
-import Footer from './components/layout/Footer';
-import CartDrawer from './components/layout/CartDrawer';
-import AuthModal from './components/auth/AuthModal';
+import Navbar from './Components/layout/Navbar';
+import Footer from './Components/layout/Footer';
+import CartDrawer from './Components/layout/CartDrawer';
+import AuthModal from './Components/auth/AuthModal';
 import HomePage from './pages/customer/HomePage';
 import AboutPage from './pages/customer/AboutPage';
 import ProductsPage from './pages/customer/ProductsPage';

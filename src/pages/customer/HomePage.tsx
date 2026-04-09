@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ProductCard from '../../components/product/ProductCard';
+import ProductCard from '../../Components/product/ProductCard';
 import { products } from '../../data/products';
 import './HomePage.css';
 

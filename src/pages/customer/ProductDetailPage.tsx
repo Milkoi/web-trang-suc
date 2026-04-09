@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { products } from '../../data/products';
 import { useCart } from '../../store/CartContext';
-import ProductCard from '../../components/product/ProductCard';
+import ProductCard from '../../Components/product/ProductCard';
 import './ProductDetailPage.css';
 
 const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';

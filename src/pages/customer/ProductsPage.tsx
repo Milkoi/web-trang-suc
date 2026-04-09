@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import ProductCard from '../../components/product/ProductCard';
-import ProductFilter from '../../components/product/ProductFilter';
+import ProductCard from '../../Components/product/ProductCard';
+import ProductFilter from '../../Components/product/ProductFilter';
 import { products } from '../../data/products';
 import { ProductFilters, SortOption } from '../../types';
 import './ProductsPage.css';
