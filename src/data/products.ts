@@ -82,8 +82,8 @@ export const products: Product[] = [
     category: 'anklet',
     material: 'gold',
     images: [
-      'https://images.unsplash.com/photo-1624643490064-6e3af86aef16?w=600&q=80',
-      'https://images.unsplash.com/photo-1598560917807-1bae44bd2be8?w=600&q=80',
+      'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&q=80',
+      'https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=600&q=80',
     ],
     description: 'Lắc chân vàng hồng 14k với hạt charm tinh tế, thiết kế mảnh mai nữ tính.',
     inStock: true,
@@ -137,8 +137,8 @@ export const products: Product[] = [
     category: 'bracelet',
     material: 'gold',
     images: [
-      'https://images.unsplash.com/photo-1566570218567-20f4b5ed2b00?w=600&q=80',
-      'https://images.unsplash.com/photo-1573408301185-9519f94815b1?w=600&q=80',
+      'https://images.unsplash.com/photo-1589128777073-263566ae5e4d?w=600&q=80',
+      'https://images.unsplash.com/photo-1561828995-aa79a2db86dd?w=600&q=80',
     ],
     description: 'Lắc tay vàng 14k với 3 charm cỏ 4 lá mang ý nghĩa may mắn và thịnh vượng.',
     inStock: true,
@@ -174,8 +174,8 @@ export const products: Product[] = [
     category: 'necklace',
     material: 'gold',
     images: [
-      'https://images.unsplash.com/photo-1573408301185-9519f94815b1?w=600&q=80',
       'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600&q=80',
+      'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&q=80',
     ],
     description: 'Dây chuyền vàng 18k khắc tên theo yêu cầu, món quà ý nghĩa cho người thân.',
     inStock: true,
@@ -192,8 +192,8 @@ export const products: Product[] = [
     category: 'ring',
     material: 'silver',
     images: [
-      'https://images.unsplash.com/photo-1601121141499-bf26f0b5e001?w=600&q=80',
-      'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&q=80',
+      'https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&q=80',
+      'https://images.unsplash.com/photo-1589674781759-c21c37956a44?w=600&q=80',
     ],
     description: 'Nhẫn bạc 925 gắn đá ruby tự nhiên, thiết kế cocktail quyến rũ và cá tính.',
     inStock: true,
