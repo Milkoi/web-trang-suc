@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { products } from '../../data/products';
 import { useCart } from '../../store/CartContext';
+import { useFavorites } from '../../store/FavoritesContext';
 import ProductCard from '../../Components/product/ProductCard';
 import './ProductDetailPage.css';
 
@@ -18,6 +19,7 @@ const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const product = products.find(p => p.id === Number(id));
   const { addToCart } = useCart();
+  const { isFavorite, toggleFavorite } = useFavorites();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -139,17 +141,19 @@ const ProductDetailPage: React.FC = () => {
             {/* Description */}
             <p className="product-detail__desc">{product.description}</p>
 
-            {/* Quantity + Add to Cart */}
-            {product.inStock && (
-              <div className="product-detail__actions">
-                <div className="product-detail__qty">
-                  <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
-                  <span>{quantity}</span>
-                  <button onClick={() => setQuantity(q => q + 1)}>+</button>
-                </div>
+            {/* Actions (Always show Favorite, only show Add to Cart if inStock) */}
+            <div className="product-detail__actions">
+              {product.inStock && (
+                <>
+                  <div className="product-detail__qty">
+                    <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
+                    <span>{quantity}</span>
+                    <button onClick={() => setQuantity(q => q + 1)}>+</button>
+                  </div>
                 <button
                   className={`btn-primary product-detail__add-btn ${added ? 'added' : ''}`}
                   onClick={handleAddToCart}
+                  style={{ flex: 1 }}
                 >
                   {added ? (
                     <>
@@ -160,8 +164,25 @@ const ProductDetailPage: React.FC = () => {
                     </>
                   ) : 'Thêm vào giỏ hàng'}
                 </button>
-              </div>
-            )}
+                </>
+              )}
+
+              <button
+                onClick={() => toggleFavorite(product)}
+                aria-label="Thêm vào yêu thích"
+                style={{
+                  width: '48px', height: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  border: '1px solid var(--color-border)', borderRadius: '4px', cursor: 'pointer',
+                  background: 'transparent', transition: 'all 0.3s ease',
+                  color: isFavorite(product.id) ? 'var(--color-gold)' : 'var(--color-text)',
+                  borderColor: isFavorite(product.id) ? 'var(--color-gold)' : 'var(--color-border)'
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                  <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                </svg>
+              </button>
+            </div>
 
             {/* Features */}
             <div className="product-detail__features">
