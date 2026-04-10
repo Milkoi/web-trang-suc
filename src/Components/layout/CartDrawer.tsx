@@ -7,7 +7,7 @@ const formatPrice = (price: number) =>
   new Intl.NumberFormat('vi-VN').format(price) + '₫';
 
 const CartDrawer: React.FC = () => {
-  const { state, closeCart, removeFromCart, updateQuantity, applyDiscount, subtotal, total, toggleItemSelected, toggleAllSelected } = useCart();
+  const { state, closeCart, removeFromCart, updateQuantity, applyDiscount, subtotal, total, toggleItemSelected, toggleAllSelected, clearSelectedItems } = useCart();
   const [discountInput, setDiscountInput] = useState('');
   const [discountError, setDiscountError] = useState('');
   const [discountSuccess, setDiscountSuccess] = useState('');
@@ -263,30 +263,42 @@ const CartDrawer: React.FC = () => {
             {cartAlert && (
               <div className="cart-drawer__consult-modal" style={{ zIndex: 1100 }}>
                 <div className="cart-drawer__consult-overlay" onClick={() => { if (cartAlert.type === 'alert') setCartAlert(null); }}></div>
-                <div className="cart-drawer__consult-content" style={{ width: '80%', padding: '24px' }}>
-                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '18px', marginBottom: '12px', color: 'var(--color-charcoal)', fontWeight: 500 }}>
+                <div className="cart-drawer__consult-content" style={{ width: '85%', maxWidth: '340px', padding: '36px 28px', borderRadius: '12px', textAlign: 'center' }}>
+                  {cartAlert.type === 'confirm' ? (
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-muted)" strokeWidth="1" style={{ margin: '0 auto 16px', display: 'block' }}>
+                      <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                      <line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line>
+                    </svg>
+                  ) : (
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--color-gold)" strokeWidth="1.5" style={{ margin: '0 auto 16px', display: 'block' }}>
+                      <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                    </svg>
+                  )}
+                  
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '12px', color: 'var(--color-charcoal)', fontWeight: 400, letterSpacing: '0.5px' }}>
                     {cartAlert.type === 'alert' ? 'Thông báo' : 'Xác nhận xóa'}
                   </h3>
-                  <p style={{ fontSize: '14px', lineHeight: 1.5, color: 'var(--color-muted)', marginBottom: '24px' }}>
+                  <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--color-muted)', marginBottom: '32px' }}>
                     {cartAlert.message}
                   </p>
-                  <div style={{ display: 'flex', gap: '12px' }}>
+                  
+                  <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                     {cartAlert.type === 'confirm' && (
                        <button 
-                         className="btn-outline" 
-                         style={{ flex: 1, padding: '10px', fontSize: '12px' }} 
+                         style={{ flex: 1, padding: '12px', fontSize: '13px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '4px', cursor: 'pointer', color: 'var(--color-charcoal)' }} 
                          onClick={() => setCartAlert(null)}>
-                         Hủy bỏ
+                         Hủy
                        </button>
                     )}
                     <button 
                       className="btn-primary" 
                       style={{ 
                         flex: 1, 
-                        padding: '10px', 
-                        fontSize: '12px', 
-                        background: cartAlert.type === 'confirm' ? 'var(--color-error)' : 'var(--color-charcoal)', 
-                        borderColor: cartAlert.type === 'confirm' ? 'var(--color-error)' : 'var(--color-charcoal)' 
+                        padding: '12px', 
+                        fontSize: '13px', 
+                        background: 'var(--color-charcoal)', 
+                        borderColor: 'var(--color-charcoal)',
+                        borderRadius: '4px'
                       }} 
                       onClick={() => {
                         if (cartAlert.type === 'confirm' && cartAlert.onConfirm) {
@@ -294,7 +306,7 @@ const CartDrawer: React.FC = () => {
                         }
                         setCartAlert(null);
                       }}>
-                      {cartAlert.type === 'confirm' ? 'Đồng ý' : 'Đã hiểu'}
+                      {cartAlert.type === 'confirm' ? 'Xóa' : 'Đã hiểu'}
                     </button>
                   </div>
                 </div>

@@ -138,7 +138,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [state.items, isAuthenticated, user?.id]);
 
-  const selectedItems = state.items.filter(i => i.selected);
+  const selectedItems = state.items.filter((i: CartItem) => i.selected);
   const totalItems = state.items.reduce((sum: number, i: CartItem) => sum + i.quantity, 0);
   const subtotal = selectedItems.reduce((sum: number, i: CartItem) => sum + i.product.price * i.quantity, 0);
   const total = subtotal * (1 - state.discountAmount);
