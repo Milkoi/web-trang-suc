@@ -101,10 +101,10 @@ const CartDrawer: React.FC = () => {
             </div>
             <div className="cart-drawer__items">
               {state.items.map(item => (
-                <div key={item.product.id} className="cart-item" style={{ position: 'relative', paddingLeft: '40px' }}>
+                <div key={item.product.id} className="cart-item" style={{ position: 'relative', paddingLeft: '52px' }}>
                   <input 
                     type="checkbox" 
-                    style={{ position: 'absolute', left: '24px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer' }} 
+                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer' }} 
                     checked={!!item.selected}
                     onChange={() => toggleItemSelected(item.product.id)}
                   />
@@ -124,7 +124,11 @@ const CartDrawer: React.FC = () => {
                       </div>
                       <button
                         className="cart-item__remove"
-                        onClick={() => removeFromCart(item.product.id)}
+                        onClick={() => setCartAlert({
+                          message: `Bạn có chắc muốn xóa "${item.product.name}" khỏi giỏ hàng?`,
+                          type: 'confirm',
+                          onConfirm: () => removeFromCart(item.product.id)
+                        })}
                         aria-label="Xóa"
                       >
                         Xóa
