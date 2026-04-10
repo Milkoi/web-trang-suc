@@ -25,7 +25,7 @@ const CheckoutSuccess: React.FC = () => (
         Cảm ơn bạn!
       </h1>
       <p style={{ fontSize: '15px', color: 'var(--color-muted)', lineHeight: 1.7, marginBottom: '36px' }}>
-        Đơn hàng của bạn đã được xác nhận. Chúng tôi sẽ gửi email xác nhận và thông tin theo dõi đơn hàng sớm nhất.
+        Đơn hàng của bạn đã được xác nhận. Bạn có thể theo dõi thông tin đơn hàng tại mục đơn hàng <Link to="/orders" style={{color: 'var(--color-gold)', textDecoration: 'underline'}}>(tại đây)</Link>.
       </p>
       <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
         <Link to="/" className="btn-primary">Tiếp Tục Mua Sắm</Link>

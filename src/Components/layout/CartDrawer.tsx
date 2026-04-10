@@ -7,10 +7,11 @@ const formatPrice = (price: number) =>
   new Intl.NumberFormat('vi-VN').format(price) + '₫';
 
 const CartDrawer: React.FC = () => {
-  const { state, closeCart, removeFromCart, updateQuantity, applyDiscount, subtotal, total } = useCart();
+  const { state, closeCart, removeFromCart, updateQuantity, applyDiscount, subtotal, total, toggleItemSelected, toggleAllSelected } = useCart();
   const [discountInput, setDiscountInput] = useState('');
   const [discountError, setDiscountError] = useState('');
   const [discountSuccess, setDiscountSuccess] = useState('');
+  const [showConsultModal, setShowConsultModal] = useState(false);
   const navigate = useNavigate();
 
   const handleApplyDiscount = () => {
@@ -27,7 +28,16 @@ const CartDrawer: React.FC = () => {
     }
   };
 
-  const handleCheckout = () => {
+  const handleCheckoutClick = () => {
+    if (state.items.filter(i => i.selected).length === 0) {
+       alert("Vui lòng chọn ít nhất một sản phẩm để thanh toán.");
+       return;
+    }
+    setShowConsultModal(true);
+  };
+
+  const proceedToCheckout = () => {
+    setShowConsultModal(false);
     closeCart();
     navigate('/checkout');
   };
@@ -70,9 +80,24 @@ const CartDrawer: React.FC = () => {
         ) : (
           <>
             {/* Items */}
+            <div className="cart-drawer__items-header" style={{ display: 'flex', alignItems: 'center', padding: '12px 24px', borderBottom: '1px solid #eee' }}>
+              <input 
+                  type="checkbox" 
+                  style={{ marginRight: '12px', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer' }}
+                  checked={state.items.length > 0 && state.items.every(i => i.selected)}
+                  onChange={(e) => toggleAllSelected(e.target.checked)}
+              /> 
+              <span style={{ fontSize: '14px', fontWeight: '500' }}>Chọn tất cả ({state.items.length} sản phẩm)</span>
+            </div>
             <div className="cart-drawer__items">
               {state.items.map(item => (
-                <div key={item.product.id} className="cart-item">
+                <div key={item.product.id} className="cart-item" style={{ position: 'relative', paddingLeft: '40px' }}>
+                  <input 
+                    type="checkbox" 
+                    style={{ position: 'absolute', left: '24px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer' }} 
+                    checked={!!item.selected}
+                    onChange={() => toggleItemSelected(item.product.id)}
+                  />
                   <div className="cart-item__image">
                     <img src={item.product.images[0]} alt={item.product.name} />
                   </div>
@@ -164,7 +189,7 @@ const CartDrawer: React.FC = () => {
 
             {/* Actions */}
             <div className="cart-drawer__actions">
-              <button className="btn-primary cart-drawer__checkout-btn" onClick={handleCheckout}>
+              <button className="btn-primary cart-drawer__checkout-btn" onClick={handleCheckoutClick}>
                 Thanh Toán Ngay
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
@@ -174,6 +199,27 @@ const CartDrawer: React.FC = () => {
                 ← Tiếp Tục Mua Sắm
               </button>
             </div>
+            
+            {/* Consultation Modal */}
+            {showConsultModal && (
+              <div className="cart-drawer__consult-modal">
+                <div className="cart-drawer__consult-overlay" onClick={() => setShowConsultModal(false)}></div>
+                <div className="cart-drawer__consult-content">
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '22px', marginBottom: '16px', color: 'var(--color-charcoal)', fontWeight: 400 }}>Tư Vấn Chuyên Sâu</h3>
+                  <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--color-muted)', marginBottom: '24px' }}>
+                    Trang sức là ngôn ngữ của sự tinh tế. Quý khách có muốn chuyên gia của VELMORA hỗ trợ tư vấn thêm về kích cỡ, chất liệu hay phối đồ qua <strong style={{ color: 'var(--color-gold)' }}>Hotline: 1900 8888</strong> trước khi đặt hàng không?
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <button className="btn-outline" style={{ fontSize: '13px', padding: '12px', pointerEvents: 'none', cursor: 'default' }}>
+                      Có, tôi cần tư vấn thêm
+                    </button>
+                    <button className="btn-primary" style={{ fontSize: '13px', padding: '12px' }} onClick={proceedToCheckout}>
+                      Không, tiến hành thanh toán
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

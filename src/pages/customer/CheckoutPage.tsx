@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../store/CartContext';
+import { useAuth } from '../../store/AuthContext';
 import { CheckoutForm } from '../../types';
 import './CheckoutPage.css';
 
@@ -21,8 +22,10 @@ const INITIAL_FORM: CheckoutForm = {
 };
 
 const CheckoutPage: React.FC = () => {
-  const { state, subtotal, total, clearCart } = useCart();
+  const { state, subtotal, total, clearSelectedItems } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const selectedItems = state.items.filter(i => i.selected);
   const [step, setStep] = useState<Step>('shipping');
   const [form, setForm] = useState<CheckoutForm>(INITIAL_FORM);
   const [cardNum, setCardNum] = useState('');
@@ -48,9 +51,27 @@ const CheckoutPage: React.FC = () => {
   const handlePayNow = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    // Simulate payment processing
     await new Promise(r => setTimeout(r, 2000));
-    clearCart();
+
+    // Save order
+    if (user) {
+      const now = new Date().toISOString();
+      const newOrder = {
+        id: `ORD-${Date.now().toString().slice(-6)}`,
+        date: now,
+        paymentDate: now,
+        items: selectedItems,
+        total: total,
+        status: 'Đang xử lý'
+      };
+      
+      const savedOrders = localStorage.getItem(`orders_${user.id}`);
+      const orders = savedOrders ? JSON.parse(savedOrders) : [];
+      orders.unshift(newOrder);
+      localStorage.setItem(`orders_${user.id}`, JSON.stringify(orders));
+    }
+
+    clearSelectedItems();
     navigate('/checkout/success');
   };
 
@@ -60,7 +81,7 @@ const CheckoutPage: React.FC = () => {
   const formatExpiry = (v: string) =>
     v.replace(/\D/g, '').replace(/^(.{2})/, '$1/').slice(0, 5);
 
-  if (state.items.length === 0 && !isProcessing) {
+  if (selectedItems.length === 0 && !isProcessing) {
     return (
       <div className="page-content checkout-empty">
         <div>
@@ -446,7 +467,7 @@ const CheckoutPage: React.FC = () => {
           <div className="checkout-summary">
             {/* Items */}
             <div className="checkout-summary__items">
-              {state.items.map(item => (
+              {selectedItems.map(item => (
                 <div key={item.product.id} className="checkout-summary__item">
                   <div className="checkout-summary__item-image">
                     <img src={item.product.images[0]} alt={item.product.name} />

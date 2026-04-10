@@ -16,11 +16,11 @@ export interface Product {
   sku: string;
 }
 
-// Cart types
 export interface CartItem {
   product: Product;
   quantity: number;
   size?: string;
+  selected?: boolean;
 }
 
 export interface Cart {

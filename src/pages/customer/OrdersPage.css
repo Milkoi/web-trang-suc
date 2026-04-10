@@ -1,0 +1,129 @@
+.orders-page {
+  padding: 60px 24px;
+  background: var(--color-bg);
+  min-height: 80vh;
+}
+
+.orders-page__inner.wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.orders-page__title {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  margin-bottom: 32px;
+  color: var(--color-charcoal);
+  text-align: center;
+}
+
+.order-card {
+  background: var(--color-surface);
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.order-card__header {
+  padding: 16px 24px;
+  background: #fafafa;
+  border-bottom: 1px solid #ebebeb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-card__id {
+  font-weight: 600;
+  margin-right: 16px;
+  color: var(--color-charcoal);
+}
+
+.order-card__date {
+  color: var(--color-muted);
+  font-size: 14px;
+}
+
+.order-card__status {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.order-card__status.status-processing {
+  background: rgba(201, 169, 110, 0.1);
+  color: var(--color-gold);
+}
+
+.order-card__status.status-completed {
+  background: rgba(46, 204, 113, 0.1);
+  color: #27ae60;
+}
+
+.order-card__items {
+  padding: 0 24px;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  padding: 20px 0;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.order-item__image {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  background: #f9f9f9;
+  border-radius: 4px;
+  margin-right: 16px;
+}
+
+.order-item__info {
+  flex: 1;
+}
+
+.order-item__name {
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--color-charcoal);
+}
+
+.order-item__qty {
+  font-size: 14px;
+  color: var(--color-muted);
+}
+
+.order-item__price {
+  font-weight: 600;
+  color: var(--color-charcoal);
+  font-size: 15px;
+}
+
+.order-card__footer {
+  padding: 16px 24px;
+  background: #fafafa;
+  border-top: 1px solid #ebebeb;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.order-card__total-label {
+  font-size: 14px;
+  color: var(--color-muted);
+  margin-right: 12px;
+}
+
+.order-card__total-value {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-gold);
+}

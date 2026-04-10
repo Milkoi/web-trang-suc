@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../types';
+import { useAuth } from './AuthContext';
 
 interface FavoritesContextType {
   favorites: Product[];
@@ -10,26 +11,45 @@ interface FavoritesContextType {
 const FavoritesContext = createContext<FavoritesContextType | undefined>(undefined);
 
 export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [favorites, setFavorites] = useState<Product[]>([]);
-
-  // Load from local storage on mount
-  useEffect(() => {
-    const storedFavs = localStorage.getItem('favorites');
-    if (storedFavs) {
-      try {
-        setFavorites(JSON.parse(storedFavs));
-      } catch (e) {
-        console.error('Failed to parse favorites from local storage');
-      }
+  const { user, isAuthenticated, openAuth } = useAuth();
+  const [favorites, setFavorites] = useState<Product[]>(() => {
+    if (user) {
+      const stored = localStorage.getItem(`favorites_${user.id}`);
+      return stored ? JSON.parse(stored) : [];
     }
-  }, []);
+    return [];
+  });
+
+  // Sync from local storage on auth change
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      const storedFavs = localStorage.getItem(`favorites_${user.id}`);
+      if (storedFavs) {
+        try {
+          setFavorites(JSON.parse(storedFavs));
+        } catch (e) {
+          console.error('Failed to parse favorites from local storage');
+        }
+      } else {
+        setFavorites([]);
+      }
+    } else {
+      setFavorites([]);
+    }
+  }, [isAuthenticated, user?.id]);
 
   // Save to local storage whenever favorites change
   useEffect(() => {
-    localStorage.setItem('favorites', JSON.stringify(favorites));
-  }, [favorites]);
+    if (isAuthenticated && user) {
+      localStorage.setItem(`favorites_${user.id}`, JSON.stringify(favorites));
+    }
+  }, [favorites, isAuthenticated, user?.id]);
 
   const toggleFavorite = (product: Product) => {
+    if (!isAuthenticated) {
+      openAuth('login');
+      return;
+    }
     setFavorites(prev => {
       const exists = prev.some(p => p.id === product.id);
       if (exists) {

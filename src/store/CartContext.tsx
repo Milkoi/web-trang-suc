@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { CartItem, Product } from '../types';
+import { useAuth } from './AuthContext';
 
 interface CartState {
   items: CartItem[];
@@ -13,9 +14,13 @@ type CartAction =
   | { type: 'REMOVE_ITEM'; payload: number }
   | { type: 'UPDATE_QUANTITY'; payload: { id: number; quantity: number } }
   | { type: 'CLEAR_CART' }
+  | { type: 'CLEAR_SELECTED_ITEMS' }
+  | { type: 'TOGGLE_ITEM_SELECTED'; payload: number }
+  | { type: 'TOGGLE_ALL_SELECTED'; payload: boolean }
   | { type: 'TOGGLE_CART' }
   | { type: 'OPEN_CART' }
   | { type: 'CLOSE_CART' }
+  | { type: 'SET_CART'; payload: CartItem[] }
   | { type: 'APPLY_DISCOUNT'; payload: { code: string; amount: number } };
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
@@ -34,7 +39,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       }
       return {
         ...state,
-        items: [...state.items, { product: action.payload.product, quantity: action.payload.quantity || 1 }],
+        items: [...state.items, { product: action.payload.product, quantity: action.payload.quantity || 1, selected: false }],
       };
     }
     case 'REMOVE_ITEM':
@@ -51,6 +56,20 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       };
     case 'CLEAR_CART':
       return { ...state, items: [] };
+    case 'SET_CART':
+      return { ...state, items: action.payload };
+    case 'CLEAR_SELECTED_ITEMS':
+      return { ...state, items: state.items.filter(i => !i.selected) };
+    case 'TOGGLE_ITEM_SELECTED':
+      return {
+        ...state,
+        items: state.items.map(i => i.product.id === action.payload ? { ...i, selected: !i.selected } : i)
+      };
+    case 'TOGGLE_ALL_SELECTED':
+      return {
+        ...state,
+        items: state.items.map(i => ({ ...i, selected: action.payload }))
+      };
     case 'TOGGLE_CART':
       return { ...state, isOpen: !state.isOpen };
     case 'OPEN_CART':
@@ -69,7 +88,10 @@ interface CartContextType {
   addToCart: (product: Product, quantity?: number) => void;
   removeFromCart: (id: number) => void;
   updateQuantity: (id: number, quantity: number) => void;
+  toggleItemSelected: (id: number) => void;
+  toggleAllSelected: (selected: boolean) => void;
   clearCart: () => void;
+  clearSelectedItems: () => void;
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -88,22 +110,44 @@ const VALID_CODES: Record<string, number> = {
 };
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user, isAuthenticated, openAuth } = useAuth();
+
   const [state, dispatch] = useReducer(cartReducer, {
-    items: JSON.parse(localStorage.getItem('cart') || '[]'),
+    items: user ? JSON.parse(localStorage.getItem(`cart_${user.id}`) || '[]') : [],
     isOpen: false,
     discountCode: '',
     discountAmount: 0,
   });
 
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(state.items));
-  }, [state.items]);
+    if (isAuthenticated && user) {
+      const savedCart = localStorage.getItem(`cart_${user.id}`);
+      if (savedCart) {
+        dispatch({ type: 'SET_CART', payload: JSON.parse(savedCart) });
+      } else {
+        dispatch({ type: 'CLEAR_CART' });
+      }
+    } else {
+      dispatch({ type: 'CLEAR_CART' });
+    }
+  }, [isAuthenticated, user?.id]);
 
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      localStorage.setItem(`cart_${user.id}`, JSON.stringify(state.items));
+    }
+  }, [state.items, isAuthenticated, user?.id]);
+
+  const selectedItems = state.items.filter(i => i.selected);
   const totalItems = state.items.reduce((sum: number, i: CartItem) => sum + i.quantity, 0);
-  const subtotal = state.items.reduce((sum: number, i: CartItem) => sum + i.product.price * i.quantity, 0);
+  const subtotal = selectedItems.reduce((sum: number, i: CartItem) => sum + i.product.price * i.quantity, 0);
   const total = subtotal * (1 - state.discountAmount);
 
   const addToCart = (product: Product, quantity = 1) => {
+    if (!isAuthenticated) {
+      openAuth('login');
+      return;
+    }
     dispatch({ type: 'ADD_ITEM', payload: { product, quantity } });
     dispatch({ type: 'OPEN_CART' });
   };
@@ -111,6 +155,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateQuantity = (id: number, quantity: number) =>
     dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
   const clearCart = () => dispatch({ type: 'CLEAR_CART' });
+  const clearSelectedItems = () => dispatch({ type: 'CLEAR_SELECTED_ITEMS' });
+  const toggleItemSelected = (id: number) => dispatch({ type: 'TOGGLE_ITEM_SELECTED', payload: id });
+  const toggleAllSelected = (selected: boolean) => dispatch({ type: 'TOGGLE_ALL_SELECTED', payload: selected });
   const toggleCart = () => dispatch({ type: 'TOGGLE_CART' });
   const openCart = () => dispatch({ type: 'OPEN_CART' });
   const closeCart = () => dispatch({ type: 'CLOSE_CART' });
@@ -122,7 +169,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <CartContext.Provider value={{ state, addToCart, removeFromCart, updateQuantity, clearCart, toggleCart, openCart, closeCart, applyDiscount, totalItems, subtotal, total }}>
+    <CartContext.Provider value={{
+      state, addToCart, removeFromCart, updateQuantity,
+      toggleItemSelected, toggleAllSelected, clearCart, clearSelectedItems,
+      toggleCart, openCart, closeCart, applyDiscount,
+      totalItems, subtotal, total
+    }}>
       {children}
     </CartContext.Provider>
   );

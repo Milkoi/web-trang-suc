@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './store/CartContext';
 import { AuthProvider } from './store/AuthContext';
 import { FavoritesProvider } from './store/FavoritesContext';
+import ScrollToTop from './Components/layout/ScrollToTop';
 import Navbar from './Components/layout/Navbar';
 import Footer from './Components/layout/Footer';
 import CartDrawer from './Components/layout/CartDrawer';
@@ -13,11 +14,13 @@ import ProductDetailPage from './pages/customer/ProductDetailPage';
 import CheckoutPage from './pages/customer/CheckoutPage';
 import CheckoutSuccess from './pages/customer/CheckoutSuccess';
 import FavoritesPage from './pages/customer/FavoritesPage';
+import OrdersPage from './pages/customer/OrdersPage';
 import './index.css';
 
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <FavoritesProvider>
           <CartProvider>
@@ -34,6 +37,7 @@ function App() {
                 <Route path="/products/:id" element={<ProductDetailPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
                 <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
               </Routes>
             </main>
