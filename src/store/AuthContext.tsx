@@ -11,6 +11,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
+  updateUser: (data: Partial<Pick<User, 'name' | 'email'>>) => void;
   logout: () => void;
 }
 
@@ -73,13 +74,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return true;
   };
 
+  const updateUser = (data: Partial<Pick<User, 'name' | 'email'>>) => {
+    if (!user) return;
+    const updated = { ...user, ...data };
+    setUser(updated);
+    localStorage.setItem('user', JSON.stringify(updated));
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isAuthOpen, authTab, openAuth, closeAuth, login, loginWithGoogle, register, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, isAuthOpen, authTab, openAuth, closeAuth, login, loginWithGoogle, register, updateUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

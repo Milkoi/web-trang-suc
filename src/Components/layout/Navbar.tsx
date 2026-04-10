@@ -94,9 +94,9 @@ const Navbar: React.FC = () => {
                       <span className="navbar__user-name">{user?.name}</span>
                       <span className="navbar__user-email">{user?.email}</span>
                     </div>
-                    <Link to="/profile" className="navbar__user-item">Tài khoản của tôi</Link>
-                    <Link to="/orders" className="navbar__user-item">Đơn hàng</Link>
-                    <button onClick={logout} className="navbar__user-item navbar__user-logout">Đăng xuất</button>
+                    <Link to="/account" className="navbar__user-item" onClick={() => setUserMenuOpen(false)}>Tài khoản của tôi</Link>
+                    <Link to="/orders" className="navbar__user-item" onClick={() => setUserMenuOpen(false)}>Đơn hàng</Link>
+                    <button onClick={() => { logout(); setUserMenuOpen(false); }} className="navbar__user-item navbar__user-logout">Đăng xuất</button>
                   </div>
                 )}
               </div>
@@ -137,7 +137,14 @@ const Navbar: React.FC = () => {
             <Link to="/" onClick={() => setMenuOpen(false)}>Trang Chủ</Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>Giới Thiệu</Link>
             <Link to="/products" onClick={() => setMenuOpen(false)}>Tất Cả Sản Phẩm</Link>
-            {!isAuthenticated && (
+            {isAuthenticated ? (
+              <>
+                <Link to="/account" onClick={() => setMenuOpen(false)}>Tài Khoản Của Tôi</Link>
+                <Link to="/orders" onClick={() => setMenuOpen(false)}>Đơn Hàng</Link>
+                <Link to="/favorites" onClick={() => setMenuOpen(false)}>Yêu Thích</Link>
+                <button onClick={() => { logout(); setMenuOpen(false); }}>Đăng Xuất</button>
+              </>
+            ) : (
               <button onClick={() => { openAuth('login'); setMenuOpen(false); }}>Đăng Nhập</button>
             )}
           </div>

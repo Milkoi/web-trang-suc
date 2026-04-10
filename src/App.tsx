@@ -15,6 +15,7 @@ import CheckoutPage from './pages/customer/CheckoutPage';
 import CheckoutSuccess from './pages/customer/CheckoutSuccess';
 import FavoritesPage from './pages/customer/FavoritesPage';
 import OrdersPage from './pages/customer/OrdersPage';
+import AccountPage from './pages/customer/AccountPage';
 import './index.css';
 
 function App() {
@@ -39,6 +40,7 @@ function App() {
                 <Route path="/checkout/success" element={<CheckoutSuccess />} />
                 <Route path="/orders" element={<OrdersPage />} />
                 <Route path="/favorites" element={<FavoritesPage />} />
+                <Route path="/account" element={<AccountPage />} />
               </Routes>
             </main>
 
