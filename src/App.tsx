@@ -16,6 +16,9 @@ import CheckoutSuccess from './pages/customer/CheckoutSuccess';
 import FavoritesPage from './pages/customer/FavoritesPage';
 import OrdersPage from './pages/customer/OrdersPage';
 import AccountPage from './pages/customer/AccountPage';
+import AdminLayout from './pages/admin/AdminLayout';
+import Dashboard from './pages/admin/Dashboard';
+import AdminPlaceholder from './pages/admin/AdminPlaceholder';
 import './index.css';
 
 function App() {
@@ -25,30 +28,42 @@ function App() {
       <AuthProvider>
         <FavoritesProvider>
           <CartProvider>
-            {/* Navbar is position:fixed inside, announcement bar is also fixed */}
-            <Navbar />
+            <Routes>
+              {/* Admin Routes */}
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<Dashboard />} />
+                <Route path="products" element={<AdminPlaceholder title="Quản lý Sản phẩm" />} />
+                <Route path="orders" element={<AdminPlaceholder title="Quản lý Đơn hàng" />} />
+                <Route path="customers" element={<AdminPlaceholder title="Quản lý Khách hàng" />} />
+                <Route path="settings" element={<AdminPlaceholder title="Cấu hình hệ thống" />} />
+              </Route>
 
-            {/* Page Content - offset for announcement(32px) + navbar(64px) */}
-            <main style={{ paddingTop: '96px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <Routes>
-                {/* Home has full-height hero so no padding needed */}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/about" element={<AboutPage />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/products/:id" element={<ProductDetailPage />} />
-                <Route path="/checkout" element={<CheckoutPage />} />
-                <Route path="/checkout/success" element={<CheckoutSuccess />} />
-                <Route path="/orders" element={<OrdersPage />} />
-                <Route path="/favorites" element={<FavoritesPage />} />
-                <Route path="/account" element={<AccountPage />} />
-              </Routes>
-            </main>
-
-            <Footer />
-
-            {/* Global Overlays */}
-            <CartDrawer />
-            <AuthModal />
+              {/* Customer Routes */}
+              <Route
+                path="*"
+                element={
+                  <>
+                    <Navbar />
+                    <main style={{ paddingTop: '96px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <Routes>
+                        <Route path="/" element={<HomePage />} />
+                        <Route path="/about" element={<AboutPage />} />
+                        <Route path="/products" element={<ProductsPage />} />
+                        <Route path="/products/:id" element={<ProductDetailPage />} />
+                        <Route path="/checkout" element={<CheckoutPage />} />
+                        <Route path="/checkout/success" element={<CheckoutSuccess />} />
+                        <Route path="/orders" element={<OrdersPage />} />
+                        <Route path="/favorites" element={<FavoritesPage />} />
+                        <Route path="/account" element={<AccountPage />} />
+                      </Routes>
+                    </main>
+                    <Footer />
+                    <CartDrawer />
+                    <AuthModal />
+                  </>
+                }
+              />
+            </Routes>
           </CartProvider>
         </FavoritesProvider>
       </AuthProvider>

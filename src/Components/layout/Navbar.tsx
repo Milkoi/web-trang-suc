@@ -96,6 +96,11 @@ const Navbar: React.FC = () => {
                     </div>
                     <Link to="/account" className="navbar__user-item" onClick={() => setUserMenuOpen(false)}>Tài khoản của tôi</Link>
                     <Link to="/orders" className="navbar__user-item" onClick={() => setUserMenuOpen(false)}>Đơn hàng</Link>
+                    {user?.role === 'admin' && (
+                      <Link to="/admin" className="navbar__user-item navbar__user-admin" onClick={() => setUserMenuOpen(false)}>
+                        <strong>🛠 Trang quản trị</strong>
+                      </Link>
+                    )}
                     <button onClick={() => { logout(); setUserMenuOpen(false); }} className="navbar__user-item navbar__user-logout">Đăng xuất</button>
                   </div>
                 )}

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../store/AuthContext';
 import './AuthModal.css';
 
 const AuthModal: React.FC = () => {
-  const { isAuthOpen, authTab, openAuth, closeAuth, login, loginWithGoogle, register } = useAuth();
+  const { isAuthOpen, authTab, openAuth, closeAuth, login, loginWithGoogle, register, user } = useAuth();
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,7 +23,14 @@ const AuthModal: React.FC = () => {
     try {
       if (authTab === 'login') {
         const ok = await login(email, password);
-        if (!ok) setError('Email hoặc mật khẩu không đúng');
+        if (!ok) {
+          setError('Email hoặc mật khẩu không đúng');
+        } else {
+          // Check if admin and redirect
+          if (email === 'admin@velmora.com') {
+            navigate('/admin');
+          }
+        }
       } else {
         if (password !== confirmPassword) {
           setError('Mật khẩu xác nhận không khớp');

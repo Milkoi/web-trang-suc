@@ -275,6 +275,17 @@
   color: var(--color-error);
 }
 
+.navbar__user-admin {
+  background: #fdfaf0;
+  color: var(--color-gold-dark) !important;
+  margin-bottom: 4px;
+}
+
+.navbar__user-admin:hover {
+  background: var(--color-gold-light) !important;
+  color: var(--color-white) !important;
+}
+
 .navbar__user-logout:hover {
   color: var(--color-error);
 }

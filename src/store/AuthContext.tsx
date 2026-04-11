@@ -39,6 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       name: email.split('@')[0],
       email,
       provider: 'email',
+      role: email === 'admin@velmora.com' ? 'admin' : 'customer'
     };
     setUser(mockUser);
     localStorage.setItem('user', JSON.stringify(mockUser));

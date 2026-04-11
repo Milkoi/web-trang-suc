@@ -36,6 +36,7 @@ export interface User {
   email: string;
   avatar?: string;
   provider: 'email' | 'google';
+  role?: 'admin' | 'customer';
 }
 
 // Auth types
