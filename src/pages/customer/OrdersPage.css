@@ -233,23 +233,45 @@
 }
 
 .order-card__footer {
-  padding: 16px 24px;
-  background: #fafafa;
-  border-top: 1px solid #ebebeb;
+  padding: 16px 20px;
+  background: rgba(var(--color-gold-rgb), 0.03);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
 }
 
+.order-card__footer-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .order-card__total-label {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--color-muted);
-  margin-right: 12px;
 }
 
 .order-card__total-value {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-gold-dark);
+}
+
+.btn-invoice-link {
+  background: none;
+  border: none;
+  color: var(--color-gold-dark);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s;
+  border-radius: 4px;
+}
+
+.btn-invoice-link:hover {
+  background: rgba(var(--color-gold-rgb), 0.1);
   color: var(--color-gold);
 }
 

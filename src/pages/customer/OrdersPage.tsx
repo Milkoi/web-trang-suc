@@ -1,24 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../store/AuthContext';
-import { CartItem } from '../../types';
+import { CartItem, Order } from '../../types';
+import InvoiceModal from '../../Components/order/InvoiceModal';
 import './OrdersPage.css';
-
-interface Order {
-  id: string;
-  date: string;
-  paymentDate?: string;
-  items: CartItem[];
-  total: number;
-  status: string;
-  recipientName?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-  paymentMethod?: string;
-  shippingMethod?: string;
-  estimatedDelivery?: string;
-}
 
 const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
 
@@ -26,6 +11,7 @@ const OrdersPage: React.FC = () => {
   const { user, isAuthenticated, openAuth } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Order | null>(null);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -121,7 +107,13 @@ const OrdersPage: React.FC = () => {
                         </div>
                         <div className="order-details__item">
                           <label>Địa chỉ</label>
-                          <span>{order.address}</span>
+                          <span>
+                            {order.address}
+                            {order.apartment && `, ${order.apartment}`}
+                            {order.company && ` (${order.company})`}
+                            <br />
+                            {[order.city, order.postalCode, order.country].filter(Boolean).join(', ')}
+                          </span>
                         </div>
                         <div className="order-details__item">
                           <label>Phương thức vận chuyển</label>
@@ -175,14 +167,33 @@ const OrdersPage: React.FC = () => {
                 )}
                 
                 <div className="order-card__footer">
-                  <span className="order-card__total-label">Tổng thanh toán:</span>
-                  <span className="order-card__total-value">{formatPrice(order.total)}</span>
+                  <div className="order-card__footer-left">
+                    <span className="order-card__total-label">Tổng thanh toán:</span>
+                    <span className="order-card__total-value">{formatPrice(order.total)}</span>
+                  </div>
+                  <button 
+                    className="btn-invoice-link"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedInvoice(order);
+                    }}
+                  >
+                    Xem hóa đơn
+                  </button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Invoice Modal Overlay */}
+      {selectedInvoice && (
+        <InvoiceModal 
+          order={selectedInvoice} 
+          onClose={() => setSelectedInvoice(null)} 
+        />
+      )}
     </div>
   );
 };

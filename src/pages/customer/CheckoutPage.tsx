@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../store/CartContext';
 import { useAuth } from '../../store/AuthContext';
-import { CheckoutForm } from '../../types';
+import { CheckoutForm, Order } from '../../types';
 import './CheckoutPage.css';
 
 const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
@@ -48,9 +48,9 @@ const CheckoutPage: React.FC = () => {
         const updatedFirstName = prev.shipping.firstName || firstName || user.name;
         const updatedLastName = prev.shipping.lastName || lastName || '';
 
-        if (updatedEmail === prev.email && 
-            updatedFirstName === prev.shipping.firstName && 
-            updatedLastName === prev.shipping.lastName) {
+        if (updatedEmail === prev.email &&
+          updatedFirstName === prev.shipping.firstName &&
+          updatedLastName === prev.shipping.lastName) {
           return prev;
         }
 
@@ -95,14 +95,19 @@ const CheckoutPage: React.FC = () => {
       const estimatedDate = new Date();
       estimatedDate.setDate(estimatedDate.getDate() + deliveryDays);
 
-      const newOrder = {
+      const newOrder: Order = {
         id: `ORD-${Date.now().toString().slice(-6)}`,
         date: now,
         paymentDate: now,
         recipientName: `${form.shipping.firstName} ${form.shipping.lastName}`.trim(),
         email: form.email,
-        phone: form.shipping.phone,
-        address: `${form.shipping.address}${form.shipping.apartment ? ', ' + form.shipping.apartment : ''}, ${form.shipping.city}, ${form.shipping.country === 'Vietnam' ? 'Việt Nam' : form.shipping.country}`,
+        phone: form.shipping.phone || '',
+        address: form.shipping.address,
+        company: form.shipping.company,
+        apartment: form.shipping.apartment,
+        city: form.shipping.city,
+        country: form.shipping.country === 'Vietnam' ? 'Việt Nam' : form.shipping.country,
+        postalCode: form.shipping.postalCode,
         paymentMethod: form.payment.method === 'credit-card' ? 'Thẻ tín dụng' : form.payment.method === 'vnpay' ? 'VNPay' : form.payment.method === 'momo' ? 'MoMo' : 'PayPal',
         shippingMethod: form.shippingMethod === 'standard' ? 'Tiêu chuẩn (3-5 ngày)' : form.shippingMethod === 'express' ? 'Nhanh (1-2 ngày)' : 'Miễn phí',
         estimatedDelivery: estimatedDate.toISOString(),
@@ -110,7 +115,7 @@ const CheckoutPage: React.FC = () => {
         total: grandTotal,
         status: 'Đang xử lý'
       };
-      
+
       const savedOrders = localStorage.getItem(`orders_${user.id}`);
       const orders = savedOrders ? JSON.parse(savedOrders) : [];
       orders.unshift(newOrder);
@@ -375,8 +380,8 @@ const CheckoutPage: React.FC = () => {
                 <h3>Thanh Toán</h3>
                 <p className="checkout-payment__secure">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                    <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0110 0v4" />
                   </svg>
                   Tất cả giao dịch đều được bảo mật và mã hóa.
                 </p>
@@ -414,8 +419,8 @@ const CheckoutPage: React.FC = () => {
                       />
                       <div className="checkout-card-lock">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                          <path d="M7 11V7a5 5 0 0110 0v4"/>
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0110 0v4" />
                         </svg>
                       </div>
                     </div>
@@ -498,7 +503,7 @@ const CheckoutPage: React.FC = () => {
                     <>
                       Thanh Toán Ngay
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                        <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                       </svg>
                     </>
                   )}
@@ -523,8 +528,8 @@ const CheckoutPage: React.FC = () => {
                     <p className="checkout-summary__item-name">{item.product.name}</p>
                     <p className="checkout-summary__item-material">
                       {item.product.material === 'gold' ? 'Vàng' :
-                       item.product.material === 'silver' ? 'Bạc' :
-                       item.product.material === 'platinum' ? 'Bạch Kim' : 'Kim Cương'}
+                        item.product.material === 'silver' ? 'Bạc' :
+                          item.product.material === 'platinum' ? 'Bạch Kim' : 'Kim Cương'}
                     </p>
                   </div>
                   <span className="checkout-summary__item-price">

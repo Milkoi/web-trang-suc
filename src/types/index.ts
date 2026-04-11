@@ -75,6 +75,29 @@ export interface CheckoutForm {
   payment: PaymentInfo;
 }
 
+export interface Order {
+  id: string;
+  date: string;
+  paymentDate?: string;
+  items: CartItem[];
+  total: number;
+  status: string;
+  // Shipping Details (Split)
+  recipientName: string;
+  email: string;
+  phone: string;
+  address: string;
+  company?: string;
+  apartment?: string;
+  city: string;
+  country: string;
+  postalCode: string;
+  // Other details
+  paymentMethod: string;
+  shippingMethod: string;
+  estimatedDelivery?: string;
+}
+
 // Filter types
 export interface ProductFilters {
   categories: string[];
