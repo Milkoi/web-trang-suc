@@ -71,7 +71,7 @@ const OrdersPage: React.FC = () => {
                 onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
               >
                 <div className="order-card__header">
-                  <div>
+                  <div className="order-card__info-group">
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                       <span className="order-card__id">{order.id}</span>
                       <span className={`order-card__status status-${order.status === 'Đang xử lý' ? 'processing' : 'completed'}`}>
@@ -81,6 +81,19 @@ const OrdersPage: React.FC = () => {
                     <div className="order-card__date">
                       <span>Ngày đặt: {new Date(order.date).toLocaleDateString('vi-VN')}</span>
                     </div>
+                  </div>
+
+                  <div className="order-card__summary-images">
+                    {order.items.slice(0, 4).map((item, idx) => (
+                      <div key={idx} className="order-card__summary-img-wrap">
+                        <img src={item.product.images[0]} alt={item.product.name} />
+                      </div>
+                    ))}
+                    {order.items.length > 4 && (
+                      <div className="order-card__summary-more">
+                        +{order.items.length - 4}
+                      </div>
+                    )}
                   </div>
                   <div className="order-card__toggle-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
