@@ -654,8 +654,9 @@
 
 .checkout-summary__grand-total strong {
   font-family: var(--font-serif);
-  font-size: 20px;
-  font-weight: 400;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
 }
 
 /* Responsive */

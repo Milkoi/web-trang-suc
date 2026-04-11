@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../store/CartContext';
 import { useAuth } from '../../store/AuthContext';
@@ -23,7 +23,7 @@ const INITIAL_FORM: CheckoutForm = {
 
 const CheckoutPage: React.FC = () => {
   const { state, subtotal, total, clearSelectedItems } = useCart();
-  const { user } = useAuth();
+  const { user, openAuth } = useAuth();
   const navigate = useNavigate();
   const selectedItems = state.items.filter(i => i.selected);
   const [step, setStep] = useState<Step>('shipping');
@@ -34,6 +34,41 @@ const CheckoutPage: React.FC = () => {
   const [cvv, setCvv] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [discountInput, setDiscountInput] = useState('');
+
+  // Pre-fill form if user is logged in
+  useEffect(() => {
+    if (user) {
+      setForm(prev => {
+        // Only fill if fields are empty to allow user to override
+        const names = user.name.split(' ');
+        const lastName = names.length > 1 ? names.pop() : '';
+        const firstName = names.join(' ');
+
+        const updatedEmail = prev.email || user.email;
+        const updatedFirstName = prev.shipping.firstName || firstName || user.name;
+        const updatedLastName = prev.shipping.lastName || lastName || '';
+
+        if (updatedEmail === prev.email && 
+            updatedFirstName === prev.shipping.firstName && 
+            updatedLastName === prev.shipping.lastName) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          email: updatedEmail,
+          shipping: {
+            ...prev.shipping,
+            firstName: updatedFirstName,
+            lastName: updatedLastName
+          }
+        };
+      });
+    }
+  }, [user]);
+
+  const shippingFee = form.shippingMethod === 'standard' ? 30000 : form.shippingMethod === 'express' ? 60000 : 0;
+  const grandTotal = total + shippingFee;
 
   const updateShipping = (field: string, value: string | boolean) => {
     setForm(prev => ({
@@ -56,12 +91,23 @@ const CheckoutPage: React.FC = () => {
     // Save order
     if (user) {
       const now = new Date().toISOString();
+      const deliveryDays = form.shippingMethod === 'express' ? 2 : 5;
+      const estimatedDate = new Date();
+      estimatedDate.setDate(estimatedDate.getDate() + deliveryDays);
+
       const newOrder = {
         id: `ORD-${Date.now().toString().slice(-6)}`,
         date: now,
         paymentDate: now,
+        recipientName: `${form.shipping.firstName} ${form.shipping.lastName}`.trim(),
+        email: form.email,
+        phone: form.shipping.phone,
+        address: `${form.shipping.address}${form.shipping.apartment ? ', ' + form.shipping.apartment : ''}, ${form.shipping.city}, ${form.shipping.country === 'Vietnam' ? 'Việt Nam' : form.shipping.country}`,
+        paymentMethod: form.payment.method === 'credit-card' ? 'Thẻ tín dụng' : form.payment.method === 'vnpay' ? 'VNPay' : form.payment.method === 'momo' ? 'MoMo' : 'PayPal',
+        shippingMethod: form.shippingMethod === 'standard' ? 'Tiêu chuẩn (3-5 ngày)' : form.shippingMethod === 'express' ? 'Nhanh (1-2 ngày)' : 'Miễn phí',
+        estimatedDelivery: estimatedDate.toISOString(),
         items: selectedItems,
-        total: total,
+        total: grandTotal,
         status: 'Đang xử lý'
       };
       
@@ -132,7 +178,7 @@ const CheckoutPage: React.FC = () => {
                 <div className="checkout-section__header">
                   <h3>Thông Tin Liên Hệ</h3>
                   <span className="checkout-section__hint">
-                    Đã có tài khoản? <Link to="#" onClick={e => e.preventDefault()}>Đăng nhập</Link>
+                    Đã có tài khoản? <Link to="#" onClick={() => openAuth('login')}>Đăng nhập</Link>
                   </span>
                 </div>
                 <div className="form-group">
@@ -413,28 +459,28 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* PayPal */}
-                <label className={`checkout-payment-method ${form.payment.method === 'paypal' ? 'active' : ''}`}>
+                {/* VNPay */}
+                <label className={`checkout-payment-method ${form.payment.method === 'vnpay' ? 'active' : ''}`}>
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="paypal"
-                    checked={form.payment.method === 'paypal'}
-                    onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'paypal' } }))}
+                    value="vnpay"
+                    checked={form.payment.method === 'vnpay'}
+                    onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'vnpay' } }))}
                   />
                   <span className="checkout-payment-method__radio" />
-                  <span style={{ color: '#003087', fontWeight: '700', fontStyle: 'italic' }}>Pay</span>
-                  <span style={{ color: '#009cde', fontWeight: '700', fontStyle: 'italic' }}>Pal</span>
+                  <span style={{ color: '#e51f22', fontWeight: '700' }}>VN</span>
+                  <span style={{ color: '#005baa', fontWeight: '700' }}>PAY</span>
                 </label>
 
                 {/* MoMo */}
-                <label className={`checkout-payment-method ${form.payment.method === 'klarna' ? 'active' : ''}`}>
+                <label className={`checkout-payment-method ${form.payment.method === 'momo' ? 'active' : ''}`}>
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="klarna"
-                    checked={form.payment.method === 'klarna'}
-                    onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'klarna' } }))}
+                    value="momo"
+                    checked={form.payment.method === 'momo'}
+                    onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'momo' } }))}
                   />
                   <span className="checkout-payment-method__radio" />
                   <span style={{ color: '#a50064', fontWeight: '600' }}>MoMo</span>
@@ -508,15 +554,15 @@ const CheckoutPage: React.FC = () => {
               </div>
               <div className="checkout-summary__total-row">
                 <span>Vận chuyển</span>
-                <span className={subtotal >= 10000000 ? 'free-ship' : ''}>
-                  {subtotal >= 10000000 ? 'Miễn phí' : 'Tính khi thanh toán'}
+                <span className={shippingFee === 0 ? 'free-ship' : ''}>
+                  {shippingFee === 0 ? 'Miễn phí' : formatPrice(shippingFee)}
                 </span>
               </div>
               <div className="checkout-summary__total-row checkout-summary__grand-total">
                 <span>Tổng cộng</span>
                 <div>
                   <small>VND</small>
-                  <strong>{formatPrice(total)}</strong>
+                  <strong>{formatPrice(grandTotal)}</strong>
                 </div>
               </div>
             </div>

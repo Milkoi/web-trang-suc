@@ -59,7 +59,7 @@ export interface ShippingAddress {
 }
 
 export interface PaymentInfo {
-  method: 'credit-card' | 'paypal' | 'klarna';
+  method: 'credit-card' | 'paypal' | 'momo' | 'vnpay';
   cardNumber?: string;
   cardName?: string;
   expiry?: string;

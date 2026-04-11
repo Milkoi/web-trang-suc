@@ -23,6 +23,18 @@
   border-radius: 8px;
   margin-bottom: 24px;
   overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.order-card:hover {
+  border-color: var(--color-gold);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.order-card--expanded {
+  border-color: var(--color-gold);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
 .order-card__header {
@@ -50,6 +62,7 @@
   font-weight: 500;
   padding: 4px 12px;
   border-radius: 20px;
+  display: inline-block;
 }
 
 .order-card__status.status-processing {
@@ -62,15 +75,77 @@
   color: #27ae60;
 }
 
+.order-card__toggle-icon {
+  color: var(--color-muted);
+}
+
+.order-details {
+  padding: 24px;
+  background: #fff;
+  border-bottom: 1px solid #ebebeb;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.order-details__section {
+  margin-bottom: 32px;
+}
+
+.order-details__section:last-child {
+  margin-bottom: 0;
+}
+
+.order-details__section h4 {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--color-muted);
+  margin-bottom: 16px;
+  border-bottom: 1px solid #f5f5f5;
+  padding-bottom: 8px;
+  display: block;
+  font-weight: 600;
+}
+
+.order-details__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.order-details__item label {
+  display: block;
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 6px;
+}
+
+.order-details__item span {
+  font-weight: 500;
+  color: var(--color-charcoal);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.order-details__highlight {
+  color: var(--color-gold) !important;
+  font-weight: 600 !important;
+}
+
 .order-card__items {
-  padding: 0 24px;
+  padding: 0;
 }
 
 .order-item {
   display: flex;
   align-items: center;
-  padding: 20px 0;
-  border-bottom: 1px solid #ebebeb;
+  padding: 16px 0;
+  border-bottom: 1px solid #f5f5f5;
 }
 
 .order-item:last-child {

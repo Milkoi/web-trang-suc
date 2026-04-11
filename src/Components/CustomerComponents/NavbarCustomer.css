@@ -2,7 +2,7 @@
     margin:0;
     padding:0;
     box-sizing: border-box;
-    font-family:'Times New Roman', Times, serif;
+    font-family: var(--font-serif);
 }
 
 body{
@@ -94,8 +94,8 @@ header button, i{
     border: 1px solid rgb(230, 224, 224);
     background-color: white;
     z-index: 1000;
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-size:20px;
+    font-family: var(--font-sans);
+    font-size:18px;
 }
 .con2{
     width: 100%;

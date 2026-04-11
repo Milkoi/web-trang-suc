@@ -21,6 +21,12 @@
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Inter', system-ui, sans-serif;
 
+  /* Consistency Aliases */
+  --color-text: var(--color-charcoal);
+  --color-text-light: var(--color-muted);
+  --font-primary: var(--font-serif);
+  --font-secondary: var(--font-sans);
+
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
   --shadow-lg: 0 12px 40px rgba(0,0,0,0.12);
@@ -313,3 +319,12 @@ h1, h2, h3, h4 {
 .price-vnd::after {
   content: 'đ';
 }
+
+/* ===================== UTILITIES ===================== */
+.text-serif { font-family: var(--font-serif); }
+.text-sans { font-family: var(--font-sans); }
+.text-number { font-family: var(--font-serif); letter-spacing: 0.02em; }
+.text-uppercase { text-transform: uppercase; letter-spacing: 0.1em; }
+.text-muted { color: var(--color-muted); }
+.text-gold { color: var(--color-gold); }
+

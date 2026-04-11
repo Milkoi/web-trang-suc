@@ -11,6 +11,13 @@ interface Order {
   items: CartItem[];
   total: number;
   status: string;
+  recipientName?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  paymentMethod?: string;
+  shippingMethod?: string;
+  estimatedDelivery?: string;
 }
 
 const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
@@ -18,6 +25,7 @@ const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '�
 const OrdersPage: React.FC = () => {
   const { user, isAuthenticated, openAuth } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -57,37 +65,104 @@ const OrdersPage: React.FC = () => {
         ) : (
           <div className="orders-list">
             {orders.map(order => (
-              <div key={order.id} className="order-card">
-                <div className="order-card__header" style={{ alignItems: 'flex-start' }}>
+              <div
+                key={order.id}
+                className={`order-card ${expandedOrderId === order.id ? 'order-card--expanded' : ''}`}
+                onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+              >
+                <div className="order-card__header">
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                       <span className="order-card__id">{order.id}</span>
-                      <span className={`order-card__status status-${order.status === 'Đang xử lý' ? 'processing' : 'completed'}`} style={{ marginLeft: '12px' }}>
+                      <span className={`order-card__status status-${order.status === 'Đang xử lý' ? 'processing' : 'completed'}`}>
                         {order.status}
                       </span>
                     </div>
-                    <div className="order-card__date" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                      <span>Thời gian đặt: {new Date(order.date).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
-                      <span>Thời gian thanh toán: {new Date(order.paymentDate || order.date).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+                    <div className="order-card__date">
+                      <span>Ngày đặt: {new Date(order.date).toLocaleDateString('vi-VN')}</span>
                     </div>
                   </div>
+                  <div className="order-card__toggle-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points={expandedOrderId === order.id ? "18 15 12 9 6 15" : "6 9 12 15 18 9"} />
+                    </svg>
+                  </div>
                 </div>
-                
-                <div className="order-card__items">
-                  {order.items.map((item, index) => (
-                    <div key={`${item.product.id}-${index}`} className="order-item">
-                      <img src={item.product.images[0]} alt={item.product.name} className="order-item__image" />
-                      <div className="order-item__info">
-                        <p className="order-item__name">{item.product.name}</p>
-                        <p className="order-item__qty">Số lượng: {item.quantity}</p>
+
+                {expandedOrderId === order.id && (
+                  <div className="order-details" onClick={e => e.stopPropagation()}>
+                    <div className="order-details__section">
+                      <h4>Thông tin giao hàng</h4>
+                      <div className="order-details__grid">
+                        <div className="order-details__item">
+                          <label>Người nhận</label>
+                          <span>{order.recipientName || user?.name}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Email</label>
+                          <span>{order.email || user?.email}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Số điện thoại</label>
+                          <span>{order.phone || 'Chưa cập nhật'}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Địa chỉ</label>
+                          <span>{order.address}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Phương thức vận chuyển</label>
+                          <span>{order.shippingMethod || 'Tiêu chuẩn'}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Dự kiến giao hàng</label>
+                          <span className="order-details__highlight">
+                            {order.estimatedDelivery 
+                              ? new Date(order.estimatedDelivery).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                              : 'Đang cập nhật'}
+                          </span>
+                        </div>
                       </div>
-                      <span className="order-item__price">{formatPrice(item.product.price * item.quantity)}</span>
                     </div>
-                  ))}
-                </div>
+
+                    <div className="order-details__section">
+                      <h4>Thanh toán</h4>
+                      <div className="order-details__grid">
+                        <div className="order-details__item">
+                          <label>Phương thức</label>
+                          <span>{order.paymentMethod || 'Thẻ tín dụng'}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Tình trạng thanh toán</label>
+                          <span style={{ color: '#27ae60', fontWeight: '600' }}>Đã thanh toán</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Thời gian thanh toán</label>
+                          <span>{new Date(order.paymentDate || order.date).toLocaleString('vi-VN')}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="order-details__section">
+                      <h4>Sản phẩm đã chọn</h4>
+                      <div className="order-card__items">
+                        {order.items.map((item, index) => (
+                          <div key={`${item.product.id}-${index}`} className="order-item">
+                            <img src={item.product.images[0]} alt={item.product.name} className="order-item__image" />
+                            <div className="order-item__info">
+                              <p className="order-item__name">{item.product.name}</p>
+                              <p className="order-item__qty">Số lượng: {item.quantity}</p>
+                            </div>
+                            <span className="order-item__price">{formatPrice(item.product.price * item.quantity)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
                 
                 <div className="order-card__footer">
-                  <span className="order-card__total-label">Tổng cộng:</span>
+                  <span className="order-card__total-label">Tổng thanh toán:</span>
                   <span className="order-card__total-value">{formatPrice(order.total)}</span>
                 </div>
               </div>
