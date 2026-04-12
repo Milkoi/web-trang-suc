@@ -1,0 +1,11 @@
+.vs/
+[Bb]in/
+[Oo]bj/
+*.user
+
+# Chặn rác Node/React
+node_modules/
+dist/
+
+# Chặn file cấu hình cá nhân
+.env
