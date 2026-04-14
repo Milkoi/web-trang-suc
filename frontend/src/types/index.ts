@@ -14,6 +14,8 @@ export interface Product {
   rating: number;
   reviews: number;
   sku: string;
+  originStory?: string;
+  availableSizes?: string[];
 }
 
 export interface CartItem {

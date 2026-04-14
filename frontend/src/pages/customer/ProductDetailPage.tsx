@@ -4,6 +4,7 @@ import { products } from '../../data/products';
 import { useCart } from '../../store/CartContext';
 import { useFavorites } from '../../store/FavoritesContext';
 import ProductCard from '../../Components/product/ProductCard';
+import SizeGuideDrawer from '../../Components/product/SizeGuideDrawer';
 import './ProductDetailPage.css';
 
 const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
@@ -24,6 +25,9 @@ const ProductDetailPage: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  
+  const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string>('');
 
   if (!product) {
     return (
@@ -41,7 +45,13 @@ const ProductDetailPage: React.FC = () => {
     .slice(0, 4);
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
+    if (product?.availableSizes && product.availableSizes.length > 0 && !selectedSize) {
+      alert("Vui lòng chọn size trước khi thêm vào giỏ hàng");
+      return;
+    }
+    
+    // Giả sử addToCart cũng nhận size (vì ta đã thêm vào định nghĩa CartItem)
+    addToCart({ ...product, size: selectedSize } as any, quantity);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -138,11 +148,44 @@ const ProductDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Description */}
-            <p className="product-detail__desc">{product.description}</p>
+            {/* Description & Origin Story */}
+            <div className="product-detail__descriptions">
+              <p className="product-detail__desc">{product.description}</p>
+              
+              {product.originStory && (
+                <div className="product-detail__origin">
+                  <h3>Câu Chuyện Thiết Kế</h3>
+                  <p>{product.originStory}</p>
+                </div>
+              )}
+            </div>
 
-            {/* Actions (Always show Favorite, only show Add to Cart if inStock) */}
-            <div className="product-detail__actions">
+            {/* Actions */}
+            <div className="product-detail__actions-container">
+              {product.availableSizes && product.availableSizes.length > 0 && (
+                <div className="product-detail__size-selector">
+                  <div className="size-selector-header">
+                    <span className="size-label">Kích thước</span>
+                    <button className="btn-size-guide" onClick={() => setIsSizeGuideOpen(true)}>
+                      Hướng dẫn chọn size
+                    </button>
+                  </div>
+                  
+                  <div className="size-options">
+                    {product.availableSizes.map(size => (
+                      <button 
+                        key={size}
+                        className={`size-option ${selectedSize === size ? 'selected' : ''}`}
+                        onClick={() => setSelectedSize(size)}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className="product-detail__actions">
               {product.inStock && (
                 <>
                   <div className="product-detail__qty">
@@ -183,6 +226,7 @@ const ProductDetailPage: React.FC = () => {
                 </svg>
               </button>
             </div>
+            </div>
 
             {/* Features */}
             <div className="product-detail__features">
@@ -212,6 +256,14 @@ const ProductDetailPage: React.FC = () => {
           </section>
         )}
       </div>
+      
+      <SizeGuideDrawer 
+        isOpen={isSizeGuideOpen} 
+        onClose={() => setIsSizeGuideOpen(false)} 
+        availableSizes={product.availableSizes || []}
+        selectedSize={selectedSize}
+        onSelectSize={(size) => setSelectedSize(size)}
+      />
     </div>
   );
 };

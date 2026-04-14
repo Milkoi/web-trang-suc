@@ -36,7 +36,7 @@ const ProductsPage: React.FC = () => {
     const cat = searchParams.get('category');
     const q = searchParams.get('q');
     const isNew = searchParams.get('isNew');
-    setFilters(prev => ({
+    setFilters((prev: ProductFilters) => ({
       ...prev,
       categories: cat ? [cat] : prev.categories,
       isNew: isNew === 'true' ? true : prev.isNew,
