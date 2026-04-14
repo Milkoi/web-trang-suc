@@ -152,11 +152,12 @@ const OrdersPage: React.FC = () => {
                       <h4>Sản phẩm đã chọn</h4>
                       <div className="order-card__items">
                         {order.items.map((item, index) => (
-                          <div key={`${item.product.id}-${index}`} className="order-item">
+                          <div key={`${item.product.id}-${item.size || 'default'}-${index}`} className="order-item">
                             <img src={item.product.images[0]} alt={item.product.name} className="order-item__image" />
                             <div className="order-item__info">
                               <p className="order-item__name">{item.product.name}</p>
                               <p className="order-item__qty">Số lượng: {item.quantity}</p>
+                              {item.size && <p className="order-item__size">Kích thước: {item.size}</p>}
                             </div>
                             <span className="order-item__price">{formatPrice(item.product.price * item.quantity)}</span>
                           </div>

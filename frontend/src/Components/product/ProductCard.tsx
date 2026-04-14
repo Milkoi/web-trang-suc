@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../../types';
 import { useCart } from '../../store/CartContext';
@@ -15,11 +15,29 @@ const formatPrice = (price: number) =>
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const [showSizePicker, setShowSizePicker] = useState(false);
+  const [quickSize, setQuickSize] = useState<string>(product.availableSizes?.[0] || '');
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (product.availableSizes && product.availableSizes.length > 0) {
+      if (!quickSize) {
+        setQuickSize(product.availableSizes[0]);
+      }
+      setShowSizePicker(true);
+      return;
+    }
+
     addToCart(product);
+  };
+
+  const handleAddSizeToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!quickSize) return;
+    addToCart(product, 1, quickSize);
+    setShowSizePicker(false);
   };
 
   const handleToggleFav = (e: React.MouseEvent) => {
@@ -82,16 +100,45 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Quick Add */}
         {product.inStock && (
-          <button
-            className="product-card__add-btn"
-            onClick={handleAddToCart}
-            aria-label="Thêm vào giỏ hàng"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Thêm vào giỏ
-          </button>
+          <>
+            <button
+              className="product-card__add-btn"
+              onClick={handleAddToCart}
+              aria-label="Thêm vào giỏ hàng"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              {product.availableSizes && product.availableSizes.length > 0 ? 'Chọn size' : 'Thêm vào giỏ'}
+            </button>
+
+            {showSizePicker && product.availableSizes && product.availableSizes.length > 0 && (
+              <div className="product-card__size-picker" onClick={e => e.stopPropagation()}>
+                <div className="product-card__size-picker-title">Chọn kích thước</div>
+                <div className="product-card__size-picker-options">
+                  {product.availableSizes.map(size => (
+                    <button
+                      key={size}
+                      className={`product-card__size-option ${quickSize === size ? 'selected' : ''}`}
+                      onClick={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setQuickSize(size);
+                      }}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+                <button
+                  className="product-card__size-add-btn"
+                  onClick={handleAddSizeToCart}
+                >
+                  Thêm size {quickSize}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 

@@ -101,12 +101,12 @@ const CartDrawer: React.FC = () => {
             </div>
             <div className="cart-drawer__items">
               {state.items.map(item => (
-                <div key={item.product.id} className="cart-item" style={{ position: 'relative', paddingLeft: '52px' }}>
+                <div key={`${item.product.id}-${item.size || 'default'}`} className="cart-item" style={{ position: 'relative', paddingLeft: '52px' }}>
                   <input 
                     type="checkbox" 
                     style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer' }} 
                     checked={!!item.selected}
-                    onChange={() => toggleItemSelected(item.product.id)}
+                    onChange={() => toggleItemSelected(item.product.id, item.size)}
                   />
                   <div className="cart-item__image">
                     <img src={item.product.images[0]} alt={item.product.name} />
@@ -121,13 +121,16 @@ const CartDrawer: React.FC = () => {
                            item.product.material === 'silver' ? 'Bạc' :
                            item.product.material === 'platinum' ? 'Bạch Kim' : 'Kim Cương'}
                         </p>
+                        {item.size && (
+                          <p className="cart-item__size">Kích thước: {item.size}</p>
+                        )}
                       </div>
                       <button
                         className="cart-item__remove"
                         onClick={() => setCartAlert({
                           message: `Bạn có chắc muốn xóa "${item.product.name}" khỏi giỏ hàng?`,
                           type: 'confirm',
-                          onConfirm: () => removeFromCart(item.product.id)
+                          onConfirm: () => removeFromCart(item.product.id, item.size)
                         })}
                         aria-label="Xóa"
                       >
@@ -138,12 +141,12 @@ const CartDrawer: React.FC = () => {
                       <div className="cart-item__qty">
                         <button
                           className="cart-item__qty-btn"
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.size)}
                         >−</button>
                         <span className="cart-item__qty-num">{item.quantity}</span>
                         <button
                           className="cart-item__qty-btn"
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.size)}
                         >+</button>
                       </div>
                       <span className="cart-item__price">

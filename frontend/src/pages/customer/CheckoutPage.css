@@ -553,7 +553,8 @@
   line-height: 1.3;
 }
 
-.checkout-summary__item-material {
+.checkout-summary__item-material,
+.checkout-summary__item-size {
   font-size: 11px;
   color: var(--color-muted);
   margin-top: 3px;

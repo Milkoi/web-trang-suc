@@ -148,6 +148,12 @@
   margin-top: 4px;
 }
 
+.cart-item__size {
+  font-size: 11px;
+  color: var(--color-muted);
+  margin-top: 2px;
+}
+
 .cart-item__remove {
   font-size: 11px;
   color: var(--color-muted-light);

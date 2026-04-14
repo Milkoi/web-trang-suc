@@ -519,7 +519,7 @@ const CheckoutPage: React.FC = () => {
             {/* Items */}
             <div className="checkout-summary__items">
               {selectedItems.map(item => (
-                <div key={item.product.id} className="checkout-summary__item">
+                <div key={`${item.product.id}-${item.size || 'default'}`} className="checkout-summary__item">
                   <div className="checkout-summary__item-image">
                     <img src={item.product.images[0]} alt={item.product.name} />
                     <span className="checkout-summary__item-qty">{item.quantity}</span>
@@ -531,6 +531,9 @@ const CheckoutPage: React.FC = () => {
                         item.product.material === 'silver' ? 'Bạc' :
                           item.product.material === 'platinum' ? 'Bạch Kim' : 'Kim Cương'}
                     </p>
+                    {item.size && (
+                      <p className="checkout-summary__item-size">Kích thước: {item.size}</p>
+                    )}
                   </div>
                   <span className="checkout-summary__item-price">
                     {formatPrice(item.product.price * item.quantity)}

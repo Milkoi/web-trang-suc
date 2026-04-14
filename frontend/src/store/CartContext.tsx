@@ -10,12 +10,12 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; payload: { product: Product; quantity?: number } }
-  | { type: 'REMOVE_ITEM'; payload: number }
-  | { type: 'UPDATE_QUANTITY'; payload: { id: number; quantity: number } }
+  | { type: 'ADD_ITEM'; payload: { product: Product; quantity?: number; size?: string } }
+  | { type: 'REMOVE_ITEM'; payload: { id: number; size?: string } }
+  | { type: 'UPDATE_QUANTITY'; payload: { id: number; size?: string; quantity: number } }
   | { type: 'CLEAR_CART' }
   | { type: 'CLEAR_SELECTED_ITEMS' }
-  | { type: 'TOGGLE_ITEM_SELECTED'; payload: number }
+  | { type: 'TOGGLE_ITEM_SELECTED'; payload: { id: number; size?: string } }
   | { type: 'TOGGLE_ALL_SELECTED'; payload: boolean }
   | { type: 'TOGGLE_CART' }
   | { type: 'OPEN_CART' }
@@ -23,15 +23,18 @@ type CartAction =
   | { type: 'SET_CART'; payload: CartItem[] }
   | { type: 'APPLY_DISCOUNT'; payload: { code: string; amount: number } };
 
+const areSameCartItem = (item: CartItem, id: number, size?: string) =>
+  item.product.id === id && (item.size ?? '') === (size ?? '');
+
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existing = state.items.find(i => i.product.id === action.payload.product.id);
-      if (existing) {
+      const existingIndex = state.items.findIndex(i => areSameCartItem(i, action.payload.product.id, action.payload.size));
+      if (existingIndex >= 0) {
         return {
           ...state,
-          items: state.items.map(i =>
-            i.product.id === action.payload.product.id
+          items: state.items.map((i, index) =>
+            index === existingIndex
               ? { ...i, quantity: i.quantity + (action.payload.quantity || 1) }
               : i
           ),
@@ -39,19 +42,35 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       }
       return {
         ...state,
-        items: [...state.items, { product: action.payload.product, quantity: action.payload.quantity || 1, selected: false }],
+        items: [
+          ...state.items,
+          {
+            product: action.payload.product,
+            quantity: action.payload.quantity || 1,
+            size: action.payload.size,
+            selected: false,
+          },
+        ],
       };
     }
     case 'REMOVE_ITEM':
-      return { ...state, items: state.items.filter(i => i.product.id !== action.payload) };
+      return {
+        ...state,
+        items: state.items.filter(i => !areSameCartItem(i, action.payload.id, action.payload.size)),
+      };
     case 'UPDATE_QUANTITY':
       if (action.payload.quantity <= 0) {
-        return { ...state, items: state.items.filter(i => i.product.id !== action.payload.id) };
+        return {
+          ...state,
+          items: state.items.filter(i => !areSameCartItem(i, action.payload.id, action.payload.size)),
+        };
       }
       return {
         ...state,
         items: state.items.map(i =>
-          i.product.id === action.payload.id ? { ...i, quantity: action.payload.quantity } : i
+          areSameCartItem(i, action.payload.id, action.payload.size)
+            ? { ...i, quantity: action.payload.quantity }
+            : i
         ),
       };
     case 'CLEAR_CART':
@@ -63,12 +82,16 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case 'TOGGLE_ITEM_SELECTED':
       return {
         ...state,
-        items: state.items.map(i => i.product.id === action.payload ? { ...i, selected: !i.selected } : i)
+        items: state.items.map(i =>
+          areSameCartItem(i, action.payload.id, action.payload.size)
+            ? { ...i, selected: !i.selected }
+            : i
+        ),
       };
     case 'TOGGLE_ALL_SELECTED':
       return {
         ...state,
-        items: state.items.map(i => ({ ...i, selected: action.payload }))
+        items: state.items.map(i => ({ ...i, selected: action.payload })),
       };
     case 'TOGGLE_CART':
       return { ...state, isOpen: !state.isOpen };
@@ -85,10 +108,10 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 interface CartContextType {
   state: CartState;
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
-  toggleItemSelected: (id: number) => void;
+  addToCart: (product: Product, quantity?: number, size?: string) => void;
+  removeFromCart: (id: number, size?: string) => void;
+  updateQuantity: (id: number, quantity: number, size?: string) => void;
+  toggleItemSelected: (id: number, size?: string) => void;
   toggleAllSelected: (selected: boolean) => void;
   clearCart: () => void;
   clearSelectedItems: () => void;
@@ -143,20 +166,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const subtotal = selectedItems.reduce((sum: number, i: CartItem) => sum + i.product.price * i.quantity, 0);
   const total = subtotal * (1 - state.discountAmount);
 
-  const addToCart = (product: Product, quantity = 1) => {
+  const addToCart = (product: Product, quantity = 1, size?: string) => {
     if (!isAuthenticated) {
       openAuth('login');
       return;
     }
-    dispatch({ type: 'ADD_ITEM', payload: { product, quantity } });
+    dispatch({ type: 'ADD_ITEM', payload: { product, quantity, size } });
     dispatch({ type: 'OPEN_CART' });
   };
-  const removeFromCart = (id: number) => dispatch({ type: 'REMOVE_ITEM', payload: id });
-  const updateQuantity = (id: number, quantity: number) =>
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } });
+  const removeFromCart = (id: number, size?: string) => dispatch({ type: 'REMOVE_ITEM', payload: { id, size } });
+  const updateQuantity = (id: number, quantity: number, size?: string) =>
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, size, quantity } });
   const clearCart = () => dispatch({ type: 'CLEAR_CART' });
   const clearSelectedItems = () => dispatch({ type: 'CLEAR_SELECTED_ITEMS' });
-  const toggleItemSelected = (id: number) => dispatch({ type: 'TOGGLE_ITEM_SELECTED', payload: id });
+  const toggleItemSelected = (id: number, size?: string) => dispatch({ type: 'TOGGLE_ITEM_SELECTED', payload: { id, size } });
   const toggleAllSelected = (selected: boolean) => dispatch({ type: 'TOGGLE_ALL_SELECTED', payload: selected });
   const toggleCart = () => dispatch({ type: 'TOGGLE_CART' });
   const openCart = () => dispatch({ type: 'OPEN_CART' });

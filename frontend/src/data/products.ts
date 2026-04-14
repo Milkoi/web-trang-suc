@@ -34,7 +34,7 @@ export const products: Product[] = [
     ],
     description: 'Lắc tay Vàng hồng 18k mang mãnh lực tình yêu.',
     originStory: 'Biểu tượng của những mối liên kết tạo nên con người chúng ta, Tiffany Lock tựa như một biểu tượng hiện đại của tình yêu trọn đời. Lấy cảm hứng từ hoạ tiết ổ khoá kinh điển từ kho lưu trữ của thương hiệu từ thập niên 1880.',
-    availableSizes: ['Small', 'Medium', 'Large'],
+    availableSizes: ['1.47', '1.5', '1.6', '1.7'],
     inStock: true,
     isNew: false,
     isSale: false,

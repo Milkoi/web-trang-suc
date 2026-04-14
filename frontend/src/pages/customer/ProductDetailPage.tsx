@@ -46,12 +46,11 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = () => {
     if (product?.availableSizes && product.availableSizes.length > 0 && !selectedSize) {
-      alert("Vui lòng chọn size trước khi thêm vào giỏ hàng");
+      alert('Vui lòng chọn size trước khi thêm vào giỏ hàng');
       return;
     }
-    
-    // Giả sử addToCart cũng nhận size (vì ta đã thêm vào định nghĩa CartItem)
-    addToCart({ ...product, size: selectedSize } as any, quantity);
+
+    addToCart(product, quantity, selectedSize);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
