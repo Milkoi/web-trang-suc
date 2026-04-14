@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { CartItem, Product } from '../types';
+import { CartItem, Product, ProductVariant } from '../types';
 import { useAuth } from './AuthContext';
 
 interface CartState {
@@ -10,65 +10,76 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; payload: { product: Product; quantity?: number; size?: string } }
-  | { type: 'REMOVE_ITEM'; payload: { id: number; size?: string } }
-  | { type: 'UPDATE_QUANTITY'; payload: { id: number; size?: string; quantity: number } }
+  | { type: 'ADD_ITEM'; payload: { product: Product; quantity?: number; size?: string; variant?: ProductVariant } }
+  | { type: 'REMOVE_ITEM'; payload: { id: number; size?: string; variantId?: number } }
+  | { type: 'UPDATE_QUANTITY'; payload: { id: number; size?: string; variantId?: number; quantity: number } }
   | { type: 'CLEAR_CART' }
   | { type: 'CLEAR_SELECTED_ITEMS' }
-  | { type: 'TOGGLE_ITEM_SELECTED'; payload: { id: number; size?: string } }
+  | { type: 'TOGGLE_ITEM_SELECTED'; payload: { id: number; size?: string; variantId?: number } }
   | { type: 'TOGGLE_ALL_SELECTED'; payload: boolean }
   | { type: 'TOGGLE_CART' }
   | { type: 'OPEN_CART' }
   | { type: 'CLOSE_CART' }
   | { type: 'SET_CART'; payload: CartItem[] }
-  | { type: 'APPLY_DISCOUNT'; payload: { code: string; amount: number } };
+  | { type: 'APPLY_DISCOUNT'; payload: { code: string; amount: number } }
+  | { type: 'CLEAR_DISCOUNT' };
 
-const areSameCartItem = (item: CartItem, id: number, size?: string) =>
-  item.product.id === id && (item.size ?? '') === (size ?? '');
+const areSameCartItem = (item: CartItem, id: number, variantId?: number, size?: string) =>
+  item.product.id === id &&
+  ((variantId !== undefined && variantId !== null)
+    ? (item.variant?.id ?? item.variantId ?? -1) === variantId
+    : (item.size ?? '') === (size ?? ''));
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existingIndex = state.items.findIndex(i => areSameCartItem(i, action.payload.product.id, action.payload.size));
+      const existingIndex = state.items.findIndex(i => areSameCartItem(i, action.payload.product.id, action.payload.variant?.id, action.payload.size));
+      const priceAtPurchase = action.payload.variant?.price ?? action.payload.product.price;
       if (existingIndex >= 0) {
+        const updatedItem = {
+          ...state.items[existingIndex],
+          quantity: state.items[existingIndex].quantity + (action.payload.quantity || 1),
+        };
         return {
           ...state,
-          items: state.items.map((i, index) =>
-            index === existingIndex
-              ? { ...i, quantity: i.quantity + (action.payload.quantity || 1) }
-              : i
-          ),
+          items: [
+            updatedItem,
+            ...state.items.filter((_, index) => index !== existingIndex),
+          ],
         };
       }
       return {
         ...state,
         items: [
-          ...state.items,
           {
             product: action.payload.product,
             quantity: action.payload.quantity || 1,
             size: action.payload.size,
+            variant: action.payload.variant,
+            variantId: action.payload.variant?.id,
+            priceAtPurchase,
             selected: false,
           },
+          ...state.items,
         ],
       };
     }
     case 'REMOVE_ITEM':
       return {
         ...state,
-        items: state.items.filter(i => !areSameCartItem(i, action.payload.id, action.payload.size)),
+        items: state.items.filter(i => !areSameCartItem(i, action.payload.id, action.payload.variantId, action.payload.size)),
       };
     case 'UPDATE_QUANTITY':
       if (action.payload.quantity <= 0) {
         return {
           ...state,
-          items: state.items.filter(i => !areSameCartItem(i, action.payload.id, action.payload.size)),
+          items: state.items.filter(i => !areSameCartItem(i, action.payload.id, action.payload.variantId, action.payload.size)),
         };
       }
       return {
         ...state,
         items: state.items.map(i =>
-          areSameCartItem(i, action.payload.id, action.payload.size)
+          areSameCartItem(i, action.payload.id, action.payload.variantId, action.payload.size)
             ? { ...i, quantity: action.payload.quantity }
             : i
         ),
@@ -83,7 +94,7 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return {
         ...state,
         items: state.items.map(i =>
-          areSameCartItem(i, action.payload.id, action.payload.size)
+          areSameCartItem(i, action.payload.id, action.payload.variantId, action.payload.size)
             ? { ...i, selected: !i.selected }
             : i
         ),
@@ -101,6 +112,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return { ...state, isOpen: false };
     case 'APPLY_DISCOUNT':
       return { ...state, discountCode: action.payload.code, discountAmount: action.payload.amount };
+    case 'CLEAR_DISCOUNT':
+      return { ...state, discountCode: '', discountAmount: 0 };
     default:
       return state;
   }
@@ -108,10 +121,10 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 
 interface CartContextType {
   state: CartState;
-  addToCart: (product: Product, quantity?: number, size?: string) => void;
-  removeFromCart: (id: number, size?: string) => void;
-  updateQuantity: (id: number, quantity: number, size?: string) => void;
-  toggleItemSelected: (id: number, size?: string) => void;
+  addToCart: (product: Product, quantity?: number, size?: string, variant?: ProductVariant) => void;
+  removeFromCart: (id: number, size?: string, variantId?: number) => void;
+  updateQuantity: (id: number, quantity: number, size?: string, variantId?: number) => void;
+  toggleItemSelected: (id: number, size?: string, variantId?: number) => void;
   toggleAllSelected: (selected: boolean) => void;
   clearCart: () => void;
   clearSelectedItems: () => void;
@@ -119,6 +132,7 @@ interface CartContextType {
   openCart: () => void;
   closeCart: () => void;
   applyDiscount: (code: string) => void;
+  clearDiscount: () => void;
   totalItems: number;
   subtotal: number;
   total: number;
@@ -163,27 +177,31 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const selectedItems = state.items.filter((i: CartItem) => i.selected);
   const totalItems = state.items.reduce((sum: number, i: CartItem) => sum + i.quantity, 0);
-  const subtotal = selectedItems.reduce((sum: number, i: CartItem) => sum + i.product.price * i.quantity, 0);
+  const subtotal = selectedItems.reduce((sum: number, i: CartItem) => {
+    const itemPrice = i.priceAtPurchase ?? i.variant?.price ?? i.product.price;
+    return sum + itemPrice * i.quantity;
+  }, 0);
   const total = subtotal * (1 - state.discountAmount);
 
-  const addToCart = (product: Product, quantity = 1, size?: string) => {
+  const addToCart = (product: Product, quantity = 1, size?: string, variant?: Product['variants'] extends Array<infer U> ? U : never) => {
     if (!isAuthenticated) {
       openAuth('login');
       return;
     }
-    dispatch({ type: 'ADD_ITEM', payload: { product, quantity, size } });
+    dispatch({ type: 'ADD_ITEM', payload: { product, quantity, size, variant } });
     dispatch({ type: 'OPEN_CART' });
   };
-  const removeFromCart = (id: number, size?: string) => dispatch({ type: 'REMOVE_ITEM', payload: { id, size } });
-  const updateQuantity = (id: number, quantity: number, size?: string) =>
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, size, quantity } });
+  const removeFromCart = (id: number, size?: string, variantId?: number) => dispatch({ type: 'REMOVE_ITEM', payload: { id, size, variantId } });
+  const updateQuantity = (id: number, quantity: number, size?: string, variantId?: number) =>
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, size, variantId, quantity } });
   const clearCart = () => dispatch({ type: 'CLEAR_CART' });
   const clearSelectedItems = () => dispatch({ type: 'CLEAR_SELECTED_ITEMS' });
-  const toggleItemSelected = (id: number, size?: string) => dispatch({ type: 'TOGGLE_ITEM_SELECTED', payload: { id, size } });
+  const toggleItemSelected = (id: number, size?: string, variantId?: number) => dispatch({ type: 'TOGGLE_ITEM_SELECTED', payload: { id, size, variantId } });
   const toggleAllSelected = (selected: boolean) => dispatch({ type: 'TOGGLE_ALL_SELECTED', payload: selected });
   const toggleCart = () => dispatch({ type: 'TOGGLE_CART' });
   const openCart = () => dispatch({ type: 'OPEN_CART' });
   const closeCart = () => dispatch({ type: 'CLOSE_CART' });
+  const clearDiscount = () => dispatch({ type: 'CLEAR_DISCOUNT' });
   const applyDiscount = (code: string) => {
     const discount = VALID_CODES[code.toUpperCase()];
     if (discount) {
@@ -195,7 +213,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <CartContext.Provider value={{
       state, addToCart, removeFromCart, updateQuantity,
       toggleItemSelected, toggleAllSelected, clearCart, clearSelectedItems,
-      toggleCart, openCart, closeCart, applyDiscount,
+      toggleCart, openCart, closeCart, applyDiscount, clearDiscount,
       totalItems, subtotal, total
     }}>
       {children}

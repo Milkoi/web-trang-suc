@@ -15,6 +15,17 @@ export const products: Product[] = [
     description: 'Nhẫn đính kim cương với thiết kế nút thắt tượng trưng cho sự gắn kết vĩnh cửu.',
     originStory: 'Khơi nguồn cảm hứng từ kiến trúc và nhịp sống của thành phố New York, bộ sưu tập Tiffany Knot đại diện cho những sợi dây gắn kết không thể đứt lìa trong cuộc sống của chúng ta.',
     availableSizes: ['4', '4.5', '5', '5.5', '6', '6.5', '7', '7.5', '8'],
+    variants: [
+      { id: 101, productId: 1, sku: 'TIF-KNOT-WG-4', size: '4', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 102, productId: 1, sku: 'TIF-KNOT-WG-4.5', size: '4.5', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 103, productId: 1, sku: 'TIF-KNOT-WG-5', size: '5', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 104, productId: 1, sku: 'TIF-KNOT-WG-5.5', size: '5.5', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 105, productId: 1, sku: 'TIF-KNOT-WG-6', size: '6', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 106, productId: 1, sku: 'TIF-KNOT-WG-6.5', size: '6.5', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 107, productId: 1, sku: 'TIF-KNOT-WG-7', size: '7', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 108, productId: 1, sku: 'TIF-KNOT-WG-7.5', size: '7.5', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 109, productId: 1, sku: 'TIF-KNOT-WG-8', size: '8', price: 145000000, originalPrice: 150000000, stockQuantity: 12, isSale: true, createdAt: '2026-04-15T00:00:00Z' }
+    ],
     inStock: true,
     isNew: true,
     isSale: true,
@@ -35,6 +46,12 @@ export const products: Product[] = [
     description: 'Lắc tay Vàng hồng 18k mang mãnh lực tình yêu.',
     originStory: 'Biểu tượng của những mối liên kết tạo nên con người chúng ta, Tiffany Lock tựa như một biểu tượng hiện đại của tình yêu trọn đời. Lấy cảm hứng từ hoạ tiết ổ khoá kinh điển từ kho lưu trữ của thương hiệu từ thập niên 1880.',
     availableSizes: ['1.47', '1.5', '1.6', '1.7'],
+    variants: [
+      { id: 201, productId: 2, sku: 'TIF-LOCK-RG-1.47', size: '1.47', price: 190000000, stockQuantity: 8, isSale: false, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 202, productId: 2, sku: 'TIF-LOCK-RG-1.5', size: '1.5', price: 190000000, stockQuantity: 8, isSale: false, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 203, productId: 2, sku: 'TIF-LOCK-RG-1.6', size: '1.6', price: 190000000, stockQuantity: 8, isSale: false, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 204, productId: 2, sku: 'TIF-LOCK-RG-1.7', size: '1.7', price: 190000000, stockQuantity: 8, isSale: false, createdAt: '2026-04-15T00:00:00Z' }
+    ],
     inStock: true,
     isNew: false,
     isSale: false,
@@ -55,6 +72,11 @@ export const products: Product[] = [
     description: 'Dây chuyền vàng mang nụ cười tinh tế.',
     originStory: 'Bộ sưu tập Tiffany T mang đậm dấu ấn kiến trúc với đường nét thanh mảnh, sắc nét. Hình mặt cười tượng trưng cho niềm vui và sự lạc quan không bao giờ vụt tắt.',
     availableSizes: ['16"', '18"', '20"'],
+    variants: [
+      { id: 301, productId: 3, sku: 'TIF-SMILE-YG-16', size: '16"', price: 25000000, stockQuantity: 15, isSale: false, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 302, productId: 3, sku: 'TIF-SMILE-YG-18', size: '18"', price: 25000000, stockQuantity: 15, isSale: false, createdAt: '2026-04-15T00:00:00Z' },
+      { id: 303, productId: 3, sku: 'TIF-SMILE-YG-20', size: '20"', price: 25000000, stockQuantity: 15, isSale: false, createdAt: '2026-04-15T00:00:00Z' }
+    ],
     inStock: true,
     isNew: false,
     isSale: false,
@@ -76,6 +98,9 @@ export const products: Product[] = [
     description: 'Bông tai kim cương mang vẻ đẹp rực rỡ và thuần khiết.',
     originStory: 'Nhà thiết kế huyền thoại Elsa Peretti đã thực hiện một cuộc cách mạng trong lĩnh vực trang sức, biến viên kim cương quý giá trở nên gần gũi với phong cách hằng ngày, toả sáng rạng rỡ từ mọi góc nhìn.',
     availableSizes: ['One Size'],
+    variants: [
+      { id: 401, productId: 4, sku: 'TIF-ELSA-PT-OS', size: 'One Size', price: 42000000, originalPrice: 48000000, stockQuantity: 20, isSale: true, createdAt: '2026-04-15T00:00:00Z' }
+    ],
     inStock: true,
     isNew: true,
     isSale: true,

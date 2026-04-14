@@ -22,7 +22,7 @@ const INITIAL_FORM: CheckoutForm = {
 };
 
 const CheckoutPage: React.FC = () => {
-  const { state, subtotal, total, clearSelectedItems } = useCart();
+  const { state, subtotal, total, clearSelectedItems, applyDiscount, clearDiscount } = useCart();
   const { user, openAuth } = useAuth();
   const navigate = useNavigate();
   const selectedItems = state.items.filter(i => i.selected);
@@ -34,6 +34,20 @@ const CheckoutPage: React.FC = () => {
   const [cvv, setCvv] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [discountInput, setDiscountInput] = useState('');
+  const [discountError, setDiscountError] = useState('');
+  const [discountSuccess, setDiscountSuccess] = useState('');
+
+  useEffect(() => {
+    setDiscountInput(state.discountCode);
+  }, [state.discountCode]);
+
+  useEffect(() => {
+    if (discountInput.trim() === '' && state.discountAmount > 0) {
+      clearDiscount();
+      setDiscountError('');
+      setDiscountSuccess('');
+    }
+  }, [discountInput, state.discountAmount, clearDiscount]);
 
   // Pre-fill form if user is logged in
   useEffect(() => {
@@ -69,6 +83,27 @@ const CheckoutPage: React.FC = () => {
 
   const shippingFee = form.shippingMethod === 'standard' ? 30000 : form.shippingMethod === 'express' ? 60000 : 0;
   const grandTotal = total + shippingFee;
+
+  const handleApplyDiscount = () => {
+    const code = discountInput.trim().toUpperCase();
+    if (!code) {
+      clearDiscount();
+      setDiscountError('Vui lòng nhập mã giảm giá');
+      setDiscountSuccess('');
+      return;
+    }
+
+    const validCodes = ['LUXURY10', 'SALE20', 'VIP30'];
+    if (validCodes.includes(code)) {
+      applyDiscount(code);
+      setDiscountInput(code);
+      setDiscountSuccess('Áp dụng mã giảm giá thành công');
+      setDiscountError('');
+    } else {
+      setDiscountError('Mã giảm giá không hợp lệ');
+      setDiscountSuccess('');
+    }
+  };
 
   const updateShipping = (field: string, value: string | boolean) => {
     setForm(prev => ({
@@ -536,7 +571,7 @@ const CheckoutPage: React.FC = () => {
                     )}
                   </div>
                   <span className="checkout-summary__item-price">
-                    {formatPrice(item.product.price * item.quantity)}
+                    {formatPrice((item.priceAtPurchase ?? item.variant?.price ?? item.product.price) * item.quantity)}
                   </span>
                 </div>
               ))}
@@ -548,11 +583,25 @@ const CheckoutPage: React.FC = () => {
                 type="text"
                 placeholder="Mã giảm giá hoặc thẻ quà tặng"
                 value={discountInput}
-                onChange={e => setDiscountInput(e.target.value)}
+                onChange={e => {
+                  const value = e.target.value;
+                  setDiscountInput(value);
+                  if (!value.trim()) {
+                    clearDiscount();
+                    setDiscountError('');
+                    setDiscountSuccess('');
+                  }
+                }}
+                onKeyDown={e => e.key === 'Enter' && handleApplyDiscount()}
                 className="checkout-summary__discount-input"
               />
-              <button className="checkout-summary__discount-btn">Áp Dụng</button>
+              <button className="checkout-summary__discount-btn" type="button" onClick={handleApplyDiscount}>Áp Dụng</button>
             </div>
+            {(discountError || discountSuccess) && (
+              <div className="checkout-summary__discount-message">
+                {discountError ? <span className="error-text">{discountError}</span> : <span className="success-text">{discountSuccess}</span>}
+              </div>
+            )}
 
             {/* Totals */}
             <div className="checkout-summary__totals">
@@ -560,6 +609,12 @@ const CheckoutPage: React.FC = () => {
                 <span>Tạm tính</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
+              {state.discountAmount > 0 && (
+                <div className="checkout-summary__total-row checkout-summary__discount-row">
+                  <span>Giảm giá ({state.discountCode})</span>
+                  <span>-{formatPrice(subtotal * state.discountAmount)}</span>
+                </div>
+              )}
               <div className="checkout-summary__total-row">
                 <span>Vận chuyển</span>
                 <span className={shippingFee === 0 ? 'free-ship' : ''}>

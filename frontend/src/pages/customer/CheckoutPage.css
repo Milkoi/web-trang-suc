@@ -613,6 +613,23 @@
   border-color: var(--color-gold);
 }
 
+.checkout-summary__discount-message {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.error-text {
+  color: var(--color-error);
+}
+
+.success-text {
+  color: var(--color-success);
+}
+
+.checkout-summary__discount-row {
+  color: var(--color-charcoal);
+}
+
 /* Totals */
 .checkout-summary__totals {
   display: flex;

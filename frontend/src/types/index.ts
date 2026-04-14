@@ -1,4 +1,16 @@
 // Product types
+export interface ProductVariant {
+  id: number;
+  productId: number;
+  sku: string;
+  size: string;
+  price: number;
+  originalPrice?: number;
+  stockQuantity?: number;
+  isSale?: boolean;
+  createdAt?: string;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -16,12 +28,16 @@ export interface Product {
   sku: string;
   originStory?: string;
   availableSizes?: string[];
+  variants?: ProductVariant[];
 }
 
 export interface CartItem {
   product: Product;
   quantity: number;
   size?: string;
+  variant?: ProductVariant;
+  variantId?: number;
+  priceAtPurchase?: number;
   selected?: boolean;
 }
 
