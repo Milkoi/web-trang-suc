@@ -14,6 +14,7 @@ erDiagram
     PRODUCTS ||--o{ ORDER_ITEMS : order_details
     PRODUCTS ||--o{ FAVORITES : saved_by
     ORDERS ||--o{ ORDER_ITEMS : contains
+    PRODUCTS ||--o{ PRODUCT_SIZES : has
 
     USERS {
         uuid id PK
@@ -44,6 +45,14 @@ erDiagram
         boolean isNew
         boolean isSale
         timestamp createdAt
+    }
+
+    PRODUCT_SIZES {
+        bigint id PK
+        bigint productId FK
+        string size
+        decimal price
+        int stockQuantity
     }
 
     ORDERS {

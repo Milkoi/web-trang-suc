@@ -66,33 +66,26 @@ const SizeGuideDrawer: React.FC<SizeGuideDrawerProps> = ({
             <div className="size-drawer__select">
               <div className="size-table-header">
                 <div>SIZE</div>
-                <div>SIZE MỸ (US)</div>
                 <div>ĐƯỜNG KÍNH (MM)</div>
                 <div>CHU VI (MM)</div>
               </div>
               <div className="size-table-body">
-                {SIZE_CHART.map((row) => {
-                  const isAvailable = availableSizes.includes(row.size);
+                {SIZE_CHART.filter(row => ['14.7mm', '17.5mm', '20mm'].includes(row.size)).map((row) => {
                   const isSelected = selectedSize === row.size;
 
                   return (
                     <div
                       key={row.size}
-                      className={`size-table-row ${!isAvailable ? 'disabled' : ''} ${isSelected ? 'selected' : ''}`}
-                      onClick={() => isAvailable && onSelectSize(row.size)}
+                      className={`size-table-row ${isSelected ? 'selected' : ''}`}
+                      onClick={() => onSelectSize(row.size)}
                     >
                       <div>{row.size}</div>
-                      <div>{row.usa}</div>
                       <div>{row.diameter}</div>
                       <div className="size-select-col">
                         <span>{row.circumference}</span>
-                        {isAvailable ? (
-                          <div className={`radio-circle ${isSelected ? 'checked' : ''}`}>
-                            {isSelected && <div className="inner-dot" />}
-                          </div>
-                        ) : (
-                          <span className="notify-me">Báo khi có hàng</span>
-                        )}
+                        <div className={`radio-circle ${isSelected ? 'checked' : ''}`}>
+                          {isSelected && <div className="inner-dot" />}
+                        </div>
                       </div>
                     </div>
                   );
@@ -101,56 +94,12 @@ const SizeGuideDrawer: React.FC<SizeGuideDrawerProps> = ({
             </div>
           ) : (
             <div className="size-drawer__guide">
-              <h2 className="guide-title">Hướng dẫn đo size nhẫn</h2>
-              
-              <div className="guide-section">
-                <h3>Đo ngón tay của bạn</h3>
-                <div className="guide-image-container">
-                  <svg viewBox="0 0 400 300" className="guide-illustration">
-                    <rect width="100%" height="100%" fill="#f7f7f7" />
-                    <path d="M170 170 Q 150 150 130 140" fill="none" stroke="#333" strokeWidth="2" />
-                    <path d="M180 180 Q 220 220 260 270" fill="none" stroke="#333" strokeWidth="2" />
-                    <path d="M190 150 Q 210 130 230 100" fill="none" stroke="#333" strokeWidth="2" />
-                    <path d="M210 160 Q 230 140 260 110" fill="none" stroke="#333" strokeWidth="2" />
-                    <circle cx="180" cy="165" r="5" fill="#333" />
-                  </svg>
-                </div>
-                <ol className="guide-list">
-                  <li>Sử dụng thước dây mềm hoặc một đoạn dây nhỏ.</li>
-                  <li>Quấn quanh ngón tay bạn muốn đeo nhẫn, tại vị trí nhẫn sẽ khít nhất. Nếu dùng dây, đánh dấu điểm hai đầu gặp nhau bằng bút.</li>
-                  <li>Đặt đoạn dây đã đánh dấu lên mặt phẳng và dùng thước thẳng để đo chiều dài (tính bằng mm). So sánh với bảng size của Velmora. Nếu số đo nằm giữa 2 size, hãy chọn size lớn hơn.</li>
-                </ol>
-              </div>
-
-              <div className="guide-section">
-                <h3>Đo nhẫn có sẵn</h3>
-                <div className="guide-image-container">
-                  <svg viewBox="0 0 400 300" className="guide-illustration">
-                    <rect width="100%" height="100%" fill="#f7f7f7" />
-                    <circle cx="200" cy="170" r="60" fill="none" stroke="#333" strokeWidth="4" />
-                    <circle cx="200" cy="170" r="50" fill="none" stroke="#333" strokeWidth="2" />
-                    <path d="M160 170 L240 170" fill="none" stroke="#333" strokeWidth="2" markerEnd="url(#arrow)" markerStart="url(#arrow)" />
-                    <path d="M170 100 L200 60 L230 100 Z" fill="none" stroke="#333" strokeWidth="3" />
-                    <line x1="185" y1="100" x2="200" y2="60" stroke="#333" strokeWidth="2" />
-                    <line x1="215" y1="100" x2="200" y2="60" stroke="#333" strokeWidth="2" />
-                    <defs>
-                      <marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
-                        <path d="M0 0 L6 3 L0 6 Z" fill="#333" />
-                      </marker>
-                    </defs>
-                  </svg>
-                </div>
-                <ol className="guide-list">
-                  <li>Chọn một chiếc nhẫn mà bạn đang đeo vừa vặn.</li>
-                  <li>Đo đường kính bên trong của chiếc nhẫn bằng thước kẻ (mm).</li>
-                  <li>Sử dụng bảng kích thước để đối chiếu size nhẫn của bạn với size Velmora gần nhất tính bằng mm.</li>
-                </ol>
-              </div>
-
-              <div className="guide-footer">
-                <h3>Dịch Vụ Chăm Sóc Khách Hàng VELMORA</h3>
-                <p>Không có câu hỏi nào là quá nhỏ hay yêu cầu nào là quá lớn đối với các chuyên viên tư vấn của Velmora. Từ việc chọn nhẫn đính hôn, quà tặng đến việc đặt lịch hẹn tại cửa hàng hay trực tuyến, chúng tôi luôn sẵn sàng hỗ trợ bạn.</p>
-              </div>
+              <h3>Hướng dẫn đo size nhẫn</h3>
+              <p>Đo ngón tay của bạn</p>
+              <img src="/path/to/image3.png" alt="Hướng dẫn đo size nhẫn" />
+              <p>
+                Sử dụng thước dây mềm hoặc một đoạn dây nhỏ. Quấn quanh ngón tay bạn muốn đeo nhẫn, tại vị trí nhẫn sẽ khít nhất. Nếu dùng dây, đánh dấu điểm hai đầu gặp nhau bằng bút. Đặt đoạn dây đã đánh dấu lên mặt phẳng và dùng thước thẳng để đo chiều dài (tính bằng mm). So sánh với bảng size của Velmora. Nếu số đo nằm giữa 2 size, hãy chọn size lớn hơn.
+              </p>
             </div>
           )}
         </div>

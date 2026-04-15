@@ -300,14 +300,7 @@ CREATE TABLE `users` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `users` (`id`, `password`, `email`, `role`, `auth_provider`, `google_id`, `full_name`, `phone`, `address`, `avatar_url`, `status`, `created_at`) VALUES
-(1, '$2a$11$l6AwTBlpYjj/LtO6fDt4YebGr0u22bp0XOr.C5NorG4XECM1KYBKq', 'admin@hq.com', 'Admin', 'local', NULL, 'Quản trị viên', '0900000001', 'Hà Nội', NULL, 1, '2026-04-05 06:20:49'),
-(2, '$2a$11$B2BN/a9C16TVQE2YsmTMrumhI/cDIBZv0oGxiWkvwY8C7dwUiCr3G', 'diema@gmail.com', 'Customer', 'local', NULL, 'Diêm Anh', '0900000002', 'Hải Phòng', NULL, 1, '2026-04-05 06:20:49'),
-(3, '$2a$11$2eSdcFbMEOrxj8p50vjv.eC8OdmxBnA24TVP1KYc/8F4PXQl8.CpO', 'vietanh@gmail.com', 'Customer', 'local', NULL, 'Diêm Việt Anh', '0900000003', 'Hà Nội', NULL, 1, '2026-04-05 06:20:49'),
-(4, '$2a$11$ne2nAQEV8.sekykzIQ8BJ.qEJaz9FcnTIzRObfp1CoSwAfMbU3Q6W', 'diema448@gmail.com', 'Customer', 'google', '104884167290364105829', 'Diêm Việt Anh', NULL, NULL, 'https://lh3.googleusercontent.com/a/ACg8ocLHZKCZ0cWLxikxVdSzqJ7qSoORzATbHfxtSYNMH0Bi9_EhxwYF=s96-c', 1, '2026-04-05 06:51:58'),
-(5, '$2a$11$5sAC6yhhcVwa8WfLK.oKFOnHidkT3uaWFUfRqj5GB7YNACOfxyl/e', 'diema447@gmail.com', 'Customer', 'local', NULL, 'Diêm Anh', NULL, NULL, NULL, 1, '2026-04-05 13:47:23'),
-(6, '$2a$11$x09VDjSr2U90T.Uo4N3sT.C0GDk6pAoEBBbZi/43f/mNDxQidRAXe', 'diema4489@gmail.com', 'Customer', 'local', NULL, 'Diêm Anh', NULL, NULL, NULL, 1, '2026-04-06 07:11:16'),
-(7, '$2a$11$vI.ooznpVw6AArxoPSylQOAqgqjAO4PYtI4nLgeAhkSv5w/Wxak5a', 'hao1512005@gmail.com', 'Customer', 'local', NULL, 'Nguyễn Hảo', NULL, NULL, NULL, 1, '2026-04-08 14:45:40');
+
 
 -- --------------------------------------------------------
 
@@ -324,6 +317,21 @@ CREATE TABLE `wishlist` (
 
 INSERT INTO `wishlist` (`id`, `user_id`, `variant_id`, `added_at`) VALUES
 (1, 3, 1, '2026-04-06 11:06:14');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `PRODUCT_SIZES`
+--
+
+CREATE TABLE `PRODUCT_SIZES` (
+    `id` BIGINT PRIMARY KEY,
+    `productId` BIGINT,
+    `size` VARCHAR(50),
+    `price` DECIMAL(10, 2),
+    `stockQuantity` INT,
+    FOREIGN KEY (`productId`) REFERENCES `PRODUCTS` (`id`)
+);
 
 --
 -- Chỉ mục cho các bảng đã đổ
