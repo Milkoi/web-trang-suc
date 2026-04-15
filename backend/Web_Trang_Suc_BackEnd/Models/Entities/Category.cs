@@ -18,6 +18,9 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("description")]
         public string? Description { get; set; }
 
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         // Navigation
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }

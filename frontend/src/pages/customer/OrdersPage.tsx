@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../../services/api';
 import { useAuth } from '../../store/AuthContext';
 import { CartItem, Order } from '../../types';
 import InvoiceModal from '../../Components/order/InvoiceModal';
@@ -14,11 +15,33 @@ const OrdersPage: React.FC = () => {
   const [selectedInvoice, setSelectedInvoice] = useState<Order | null>(null);
 
   useEffect(() => {
-    if (isAuthenticated && user) {
-      const savedOrders = localStorage.getItem(`orders_${user.id}`);
-      if (savedOrders) {
-        setOrders(JSON.parse(savedOrders));
+    const fetchOrders = async () => {
+      try {
+        const res = await api.get('/orders/my-orders');
+        // Map API DTO to the local Order type
+        const mappedOrders: Order[] = res.data.map((o: any) => ({
+          id: `ORD-${o.id}`,
+          date: o.createdAt,
+          paymentDate: o.createdAt,
+          items: o.items.map((item: any) => ({
+            product: { name: item.productName, images: [item.productImage || ''] },
+            quantity: item.quantity,
+            size: item.size,
+            priceAtPurchase: item.price
+          })),
+          total: o.totalPrice,
+          status: o.status,
+          recipientName: o.customerName,
+          address: o.address || '',
+        }));
+        setOrders(mappedOrders);
+      } catch (err) {
+        console.error('Failed to fetch orders', err);
       }
+    };
+
+    if (isAuthenticated && user) {
+      fetchOrders();
     } else {
       setOrders([]);
     }

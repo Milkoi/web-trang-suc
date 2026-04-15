@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { User } from '../types';
+import api from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -31,23 +32,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
   const closeAuth = () => setIsAuthOpen(false);
 
-  const login = async (email: string, _password: string): Promise<boolean> => {
-    // Mock login
-    await new Promise(r => setTimeout(r, 800));
-    const mockUser: User = {
-      id: '1',
-      name: email.split('@')[0],
-      email,
-      provider: 'email',
-      role: email === 'admin@velmora.com' ? 'admin' : 'customer'
-    };
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    closeAuth();
-    return true;
+  const login = async (email: string, password: string): Promise<boolean> => {
+    try {
+      const response = await api.post('/account/login', { email, password });
+      const { token, user: userData } = response.data;
+      
+      const formattedUser: User = {
+        id: userData.id.toString(),
+        name: userData.fullName,
+        email: userData.email,
+        avatar: userData.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.fullName)}&background=c9a96e&color=fff`,
+        provider: 'email',
+        role: userData.role.toLowerCase() as 'admin' | 'customer'
+      };
+
+      setUser(formattedUser);
+      localStorage.setItem('user', JSON.stringify(formattedUser));
+      localStorage.setItem('token', token);
+      closeAuth();
+      return true;
+    } catch (err) {
+      console.error('Login error:', err);
+      return false;
+    }
   };
 
   const loginWithGoogle = async () => {
+    // Keep mock for google for now
     await new Promise(r => setTimeout(r, 1000));
     const mockUser: User = {
       id: 'g-1',
@@ -61,18 +72,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     closeAuth();
   };
 
-  const register = async (name: string, email: string, _password: string): Promise<boolean> => {
-    await new Promise(r => setTimeout(r, 800));
-    const mockUser: User = {
-      id: Date.now().toString(),
-      name,
-      email,
-      provider: 'email',
-    };
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    closeAuth();
-    return true;
+  const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    try {
+      const response = await api.post('/account/register', { fullName: name, email, password });
+      const { token, user: userData } = response.data;
+
+      const formattedUser: User = {
+        id: userData.id.toString(),
+        name: userData.fullName,
+        email: userData.email,
+        provider: 'email',
+        role: userData.role.toLowerCase() as 'admin' | 'customer'
+      };
+
+      setUser(formattedUser);
+      localStorage.setItem('user', JSON.stringify(formattedUser));
+      localStorage.setItem('token', token);
+      closeAuth();
+      return true;
+    } catch (err) {
+      console.error('Register error:', err);
+      return false;
+    }
   };
 
   const updateUser = (data: Partial<Pick<User, 'name' | 'email'>>) => {
@@ -85,6 +106,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
   };
 
   return (

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../../Components/product/ProductCard';
 import ProductFilter from '../../Components/product/ProductFilter';
-import { products } from '../../data/products';
-import { ProductFilters, SortOption } from '../../types';
+import api from '../../services/api';
+import { Product, ProductFilters, SortOption } from '../../types';
 import './ProductsPage.css';
 
 const SORT_OPTIONS: { value: SortOption; label: string }[] = [
@@ -16,7 +16,7 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 const DEFAULT_FILTERS: ProductFilters = {
   categories: [],
   materials: [],
-  priceRange: [0, 50000000],
+  priceRange: [0, 500000000],
   inStock: false,
   isNew: false,
   isSale: false,
@@ -24,12 +24,29 @@ const DEFAULT_FILTERS: ProductFilters = {
 
 const ProductsPage: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const [productsList, setProductsList] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filters, setFilters] = useState<ProductFilters>(() => {
     const cat = searchParams.get('category');
     return cat ? { ...DEFAULT_FILTERS, categories: [cat] } : DEFAULT_FILTERS;
   });
   const [sort, setSort] = useState<SortOption>('newest');
   const [filterOpen, setFilterOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get('/products');
+        setProductsList(response.data);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
 
   // Sync URL params to filter
   useEffect(() => {
@@ -41,15 +58,12 @@ const ProductsPage: React.FC = () => {
       categories: cat ? [cat] : prev.categories,
       isNew: isNew === 'true' ? true : prev.isNew,
     }));
-    if (q) {
-      // search handled in filtered
-    }
   }, [searchParams]);
 
   const searchQuery = searchParams.get('q') || '';
 
   const filtered = useMemo(() => {
-    let list = [...products];
+    let list = [...productsList];
 
     // Search
     if (searchQuery) {
@@ -83,10 +97,10 @@ const ProductsPage: React.FC = () => {
     switch (sort) {
       case 'price-asc': return list.sort((a, b) => a.price - b.price);
       case 'price-desc': return list.sort((a, b) => b.price - a.price);
-      case 'popular': return list.sort((a, b) => b.reviews - a.reviews);
+      case 'popular': return list.sort((a, b) => (b.reviews || 0) - (a.reviews || 0));
       default: return list.sort((a, b) => b.id - a.id);
     }
-  }, [filters, sort, searchQuery]);
+  }, [filters, sort, searchQuery, productsList]);
 
   return (
     <div className="products-page page-content">

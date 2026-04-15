@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import api from '../../services/api';
 import { useCart } from '../../store/CartContext';
 import { useAuth } from '../../store/AuthContext';
 import { CheckoutForm, Order } from '../../types';
@@ -121,19 +122,9 @@ const CheckoutPage: React.FC = () => {
   const handlePayNow = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    await new Promise(r => setTimeout(r, 2000));
-
-    // Save order
-    if (user) {
-      const now = new Date().toISOString();
-      const deliveryDays = form.shippingMethod === 'express' ? 2 : 5;
-      const estimatedDate = new Date();
-      estimatedDate.setDate(estimatedDate.getDate() + deliveryDays);
-
-      const newOrder: Order = {
-        id: `ORD-${Date.now().toString().slice(-6)}`,
-        date: now,
-        paymentDate: now,
+    
+    try {
+      const orderData = {
         recipientName: `${form.shipping.firstName} ${form.shipping.lastName}`.trim(),
         email: form.email,
         phone: form.shipping.phone || '',
@@ -141,24 +132,26 @@ const CheckoutPage: React.FC = () => {
         company: form.shipping.company,
         apartment: form.shipping.apartment,
         city: form.shipping.city,
-        country: form.shipping.country === 'Vietnam' ? 'Việt Nam' : form.shipping.country,
+        country: form.shipping.country,
         postalCode: form.shipping.postalCode,
-        paymentMethod: form.payment.method === 'credit-card' ? 'Thẻ tín dụng' : form.payment.method === 'vnpay' ? 'VNPay' : form.payment.method === 'momo' ? 'MoMo' : 'PayPal',
-        shippingMethod: form.shippingMethod === 'standard' ? 'Tiêu chuẩn (3-5 ngày)' : form.shippingMethod === 'express' ? 'Nhanh (1-2 ngày)' : 'Miễn phí',
-        estimatedDelivery: estimatedDate.toISOString(),
-        items: selectedItems,
-        total: grandTotal,
-        status: 'Đang xử lý'
+        paymentMethod: form.payment.method,
+        shippingMethod: form.shippingMethod,
+        items: selectedItems.map(item => ({
+          productVariantId: item.variant?.id ?? item.product.variants?.[0]?.id,
+          quantity: item.quantity
+        }))
       };
 
-      const savedOrders = localStorage.getItem(`orders_${user.id}`);
-      const orders = savedOrders ? JSON.parse(savedOrders) : [];
-      orders.unshift(newOrder);
-      localStorage.setItem(`orders_${user.id}`, JSON.stringify(orders));
+      await api.post('/orders/place-order', orderData);
+      
+      clearSelectedItems();
+      navigate('/checkout/success');
+    } catch (err) {
+      alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
+      console.error(err);
+    } finally {
+      setIsProcessing(false);
     }
-
-    clearSelectedItems();
-    navigate('/checkout/success');
   };
 
   const formatCardNum = (v: string) =>

@@ -49,6 +49,9 @@ namespace web_Trang_suc_BE.Models.Entities
         [ForeignKey("SupplierId")]
         public Supplier? Supplier { get; set; }
 
+        [Column("created_at")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }

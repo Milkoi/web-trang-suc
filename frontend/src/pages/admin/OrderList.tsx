@@ -1,0 +1,109 @@
+import React, { useState, useEffect } from 'react';
+import api from '../../services/api';
+import './AdminLayout.css';
+
+interface Order {
+  id: number;
+  customerName: string;
+  totalPrice: number;
+  status: string;
+  createdAt: string;
+  items: any[];
+}
+
+const OrderList: React.FC = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchOrders = async () => {
+    try {
+      setIsLoading(true);
+      const res = await api.get('/orders');
+      setOrders(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const updateStatus = async (id: number, newStatus: string) => {
+    try {
+      await api.patch(`/orders/${id}/status`, { status: newStatus });
+      fetchOrders();
+    } catch (err) {
+      alert('Không thể cập nhật trạng thái.');
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Pending': return '#f59e0b';
+      case 'Confirmed': return '#3b82f6';
+      case 'Shipping': return '#8b5cf6';
+      case 'Completed': return '#10b981';
+      case 'Cancelled': return '#ef4444';
+      default: return '#6b7280';
+    }
+  };
+
+  return (
+    <div className="admin-page">
+      <div className="admin-header">
+        <h2 className="admin-title">Quản lý Đơn hàng</h2>
+      </div>
+
+      <div className="admin-card">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Khách hàng</th>
+              <th>Tổng tiền</th>
+              <th>Ngày đặt</th>
+              <th>Trạng thái</th>
+              <th>Thao tác</th>
+            </tr>
+          </thead>
+          <tbody>
+            {isLoading ? (
+              <tr><td colSpan={6} style={{ textAlign: 'center' }}>Đang tải...</td></tr>
+            ) : orders.map(o => (
+              <tr key={o.id}>
+                <td>#{o.id}</td>
+                <td style={{ fontWeight: 600 }}>{o.customerName}</td>
+                <td>{new Intl.NumberFormat('vi-VN').format(o.totalPrice)}₫</td>
+                <td>{new Date(o.createdAt).toLocaleDateString('vi-VN')}</td>
+                <td>
+                  <span className="badge" style={{ backgroundColor: getStatusColor(o.status), color: 'white' }}>
+                    {o.status}
+                  </span>
+                </td>
+                <td>
+                  <select 
+                    className="status-select"
+                    value={o.status}
+                    onChange={(e) => updateStatus(o.id, e.target.value)}
+                    style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd' }}
+                  >
+                    <option value="Pending">Chờ xử lý</option>
+                    <option value="Confirmed">Xác nhận</option>
+                    <option value="Shipping">Đang giao</option>
+                    <option value="Completed">Hoàn tất</option>
+                    <option value="Cancelled">Hủy</option>
+                  </select>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
+
+export default OrderList;

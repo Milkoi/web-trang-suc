@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { products } from '../../data/products';
+import api from '../../services/api';
+import { Product } from '../../types';
 import { useCart } from '../../store/CartContext';
 import { useFavorites } from '../../store/FavoritesContext';
 import ProductCard from '../../Components/product/ProductCard';
@@ -18,7 +19,9 @@ const CATEGORY_MAP: Record<string, string> = {
 
 const ProductDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const product = products.find(p => p.id === Number(id));
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
 
@@ -28,7 +31,32 @@ const ProductDetailPage: React.FC = () => {
   
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setIsLoading(true);
+        const [prodRes, allRes] = await Promise.all([
+          api.get(`/products/${id}`),
+          api.get('/products')
+        ]);
+        setProduct(prodRes.data);
+        
+        // Filter related
+        const all = allRes.data as Product[];
+        setRelated(all.filter(p => p.category === prodRes.data.category && p.id !== prodRes.data.id).slice(0, 4));
+      } catch (err) {
+        console.error('Error fetching product detail:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    if (id) fetchProduct();
+  }, [id]);
+
   const selectedVariant = product?.variants?.find(v => v.size === selectedSize);
+
+  if (isLoading) return <div className="page-content" style={{ textAlign: 'center', padding: '120px 0' }}>Đang tải...</div>;
 
   if (!product) {
     return (
@@ -41,12 +69,8 @@ const ProductDetailPage: React.FC = () => {
     );
   }
 
-  const related = products
-    .filter(p => p.category === product.category && p.id !== product.id)
-    .slice(0, 4);
-
   const handleAddToCart = () => {
-    if (product?.availableSizes && product.availableSizes.length > 0 && !selectedSize) {
+    if (product?.variants && product.variants.length > 0 && !selectedSize) {
       alert('Vui lòng chọn size trước khi thêm vào giỏ hàng');
       return;
     }

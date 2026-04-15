@@ -47,6 +47,13 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("status")]
         public bool Status { get; set; } = true;
 
+        [Column("last_login_at")]
+        public DateTime? LastLoginAt { get; set; }
+
+        [Column("login_ip")]
+        [MaxLength(50)]
+        public string? LoginIp { get; set; }
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

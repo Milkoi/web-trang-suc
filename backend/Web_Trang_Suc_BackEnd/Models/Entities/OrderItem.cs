@@ -19,7 +19,7 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("quantity")]
         public int Quantity { get; set; } = 1;
 
-        [Column("price")]
+        [Column("price_at_purchase")]
         public decimal Price { get; set; }
 
         // Navigation properties
