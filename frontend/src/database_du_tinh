@@ -1,0 +1,255 @@
+-- phpMyAdmin SQL Dump
+-- Database Schema cho VELMORA (Khớp 100% camelCase với Frontend)
+-- Phiên bản Đồng bộ với database_design_new.md
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+-- Đảm bảo xóa bảng cũ rườm rà trước khi tạo thiết kế mới
+DROP TABLE IF EXISTS `favorites`, `order_items`, `orders`, `product_images`, `product_variants`, `products`, `materials`, `categories`, `users`;
+DROP TABLE IF EXISTS `wishlist`, `reviews`, `promotions`, `news`, `faqs`, `cart_items`, `carts`, `services`, `suppliers`, `PRODUCT_SIZES`;
+
+-- --------------------------------------------------------
+
+-- Bảng 1: users (Người dùng) - camelCase
+CREATE TABLE `users` (
+  `id` char(36) NOT NULL COMMENT 'UUID (char 36)',
+  `fullName` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `avatar` text DEFAULT NULL,
+  `role` varchar(50) DEFAULT 'customer',
+  `provider` varchar(50) DEFAULT 'email' COMMENT 'email / google',
+  `phone` varchar(20) DEFAULT NULL,
+  `defaultAddress` text DEFAULT NULL,
+  `newsletterOptin` tinyint(1) DEFAULT 0,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email_unique` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 2: categories (Danh mục) - camelCase
+CREATE TABLE `categories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `slug` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `imageUrl` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug_unique` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 3: materials (Chất liệu) - camelCase
+CREATE TABLE `materials` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `slug` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug_unique` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 4: products (Sản phẩm) - camelCase
+CREATE TABLE `products` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `sku` varchar(50) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `categoryId` int(11) DEFAULT NULL,
+  `materialId` int(11) DEFAULT NULL,
+  `price` decimal(15,2) NOT NULL,
+  `originalPrice` decimal(15,2) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `stockQuantity` int(11) DEFAULT 0,
+  `rating` decimal(3,2) DEFAULT 0.00,
+  `reviewCount` int(11) DEFAULT 0,
+  `isNew` tinyint(1) DEFAULT 0,
+  `isSale` tinyint(1) DEFAULT 0,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sku_unique` (`sku`),
+  KEY `fk_products_category` (`categoryId`),
+  KEY `fk_products_material` (`materialId`),
+  CONSTRAINT `fk_products_category` FOREIGN KEY (`categoryId`) REFERENCES `categories` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_products_material` FOREIGN KEY (`materialId`) REFERENCES `materials` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 5: product_variants (Biến thể sản phẩm) - camelCase
+CREATE TABLE `product_variants` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `productId` bigint(20) NOT NULL,
+  `sku` varchar(100) NOT NULL,
+  `size` varchar(50) NOT NULL,
+  `price` decimal(15,2) NOT NULL,
+  `originalPrice` decimal(15,2) DEFAULT NULL,
+  `stockQuantity` int(11) DEFAULT 0,
+  `isSale` tinyint(1) DEFAULT 0,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sku_unique` (`sku`),
+  KEY `fk_variants_product` (`productId`),
+  CONSTRAINT `fk_variants_product` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 6: product_images (Hình ảnh Gallery) - camelCase
+CREATE TABLE `product_images` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `productId` bigint(20) NOT NULL,
+  `url` text NOT NULL,
+  `isMain` tinyint(1) DEFAULT 0,
+  `displayOrder` int(11) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `fk_images_product` (`productId`),
+  CONSTRAINT `fk_images_product` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 7: orders (Đơn hàng) - camelCase
+CREATE TABLE `orders` (
+  `id` varchar(50) NOT NULL COMMENT 'Mã đơn dạng ORD-XXXX',
+  `userId` char(36) DEFAULT NULL,
+  `firstName` varchar(100) NOT NULL,
+  `lastName` varchar(100) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `company` varchar(255) DEFAULT NULL,
+  `address` text NOT NULL,
+  `apartment` varchar(255) DEFAULT NULL,
+  `city` varchar(100) NOT NULL,
+  `country` varchar(100) NOT NULL,
+  `postalCode` varchar(20) DEFAULT NULL,
+  `shippingMethod` varchar(50) NOT NULL,
+  `shippingFee` decimal(15,2) DEFAULT 0.00,
+  `paymentMethod` varchar(50) NOT NULL,
+  `paymentStatus` varchar(50) DEFAULT 'unpaid',
+  `orderStatus` varchar(50) DEFAULT 'pending',
+  `discountCode` varchar(50) DEFAULT NULL,
+  `discountAmount` decimal(15,2) DEFAULT 0.00,
+  `totalAmount` decimal(15,2) NOT NULL,
+  `estimatedDelivery` timestamp NULL DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `paidAt` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_orders_user` (`userId`),
+  CONSTRAINT `fk_orders_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 8: order_items (Chi tiết đơn hàng) - camelCase
+CREATE TABLE `order_items` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `orderId` varchar(50) NOT NULL,
+  `productId` bigint(20) NOT NULL,
+  `variantId` bigint(20) DEFAULT NULL,
+  `quantity` int(11) NOT NULL,
+  `size` varchar(50) DEFAULT NULL,
+  `priceAtPurchase` decimal(15,2) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_items_order` (`orderId`),
+  KEY `fk_items_product` (`productId`),
+  KEY `fk_items_variant` (`variantId`),
+  CONSTRAINT `fk_items_order` FOREIGN KEY (`orderId`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_items_product` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_items_variant` FOREIGN KEY (`variantId`) REFERENCES `product_variants` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 9: favorites (Yêu thích) - camelCase
+CREATE TABLE `favorites` (
+  `userId` char(36) NOT NULL,
+  `productId` bigint(20) NOT NULL,
+  PRIMARY KEY (`userId`,`productId`),
+  KEY `fk_favorites_product` (`productId`),
+  CONSTRAINT `fk_favorites_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_favorites_product` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- ========================================================
+-- DỮ LIỆU MẪU (MOCK DATA TỪ FRONTEND)
+-- ========================================================
+
+-- Chèn dữ liệu Danh mục (Categories)
+INSERT INTO `categories` (`id`, `slug`, `name`, `imageUrl`) VALUES
+(1, 'necklace', 'Dây Chuyền', NULL),
+(2, 'ring', 'Nhẫn', NULL),
+(3, 'bracelet', 'Lắc Tay', NULL),
+(4, 'anklet', 'Lắc Chân', NULL),
+(5, 'earring', 'Bông Tai', NULL);
+
+-- Chèn dữ liệu Chất liệu (Materials)
+INSERT INTO `materials` (`id`, `slug`, `name`) VALUES
+(1, 'gold', 'Vàng'),
+(2, 'silver', 'Bạc'),
+(3, 'platinum', 'Bạch Kim'),
+(4, 'diamond', 'Kim Cương');
+
+-- Chèn dữ liệu Sản phẩm (Products)
+-- Ghi chú: Tổng số lượng trong stockQuantity = Sum từ các biến thể (để đúng logic E-commerce)
+INSERT INTO `products` (`id`, `sku`, `name`, `categoryId`, `materialId`, `price`, `originalPrice`, `description`, `stockQuantity`, `rating`, `reviewCount`, `isNew`, `isSale`) VALUES
+(1, 'TIF-KNOT-WG', 'Tiffany Knot Ring', 2, 1, 145000000.00, 150000000.00, 'Nhẫn đính kim cương với thiết kế nút thắt tượng trưng cho sự gắn kết vĩnh cửu.', 108, 4.9, 128, 1, 1),
+(2, 'TIF-LOCK-RG', 'Tiffany Lock Bangle', 3, 1, 190000000.00, NULL, 'Lắc tay Vàng hồng 18k mang mãnh lực tình yêu.', 32, 4.8, 94, 0, 0),
+(3, 'TIF-SMILE-YG', 'Tiffany T Smile Pendant', 1, 1, 25000000.00, NULL, 'Dây chuyền vàng mang nụ cười tinh tế.', 45, 5.0, 231, 0, 0),
+(4, 'TIF-ELSA-PT', 'Elsa Peretti® Diamonds by the Yard® Earrings', 5, 4, 42000000.00, 48000000.00, 'Bông tai kim cương mang vẻ đẹp rực rỡ và thuần khiết.', 20, 4.7, 56, 1, 1);
+
+-- Chèn dữ liệu Biến thể (Product Variants)
+-- Sản phẩm 1: 9 biến thể x 12
+INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`) VALUES
+(101, 1, 'TIF-KNOT-WG-4', '4', 145000000.00, 150000000.00, 12, 1),
+(102, 1, 'TIF-KNOT-WG-4.5', '4.5', 145000000.00, 150000000.00, 12, 1),
+(103, 1, 'TIF-KNOT-WG-5', '5', 145000000.00, 150000000.00, 12, 1),
+(104, 1, 'TIF-KNOT-WG-5.5', '5.5', 145000000.00, 150000000.00, 12, 1),
+(105, 1, 'TIF-KNOT-WG-6', '6', 145000000.00, 150000000.00, 12, 1),
+(106, 1, 'TIF-KNOT-WG-6.5', '6.5', 145000000.00, 150000000.00, 12, 1),
+(107, 1, 'TIF-KNOT-WG-7', '7', 145000000.00, 150000000.00, 12, 1),
+(108, 1, 'TIF-KNOT-WG-7.5', '7.5', 145000000.00, 150000000.00, 12, 1),
+(109, 1, 'TIF-KNOT-WG-8', '8', 145000000.00, 150000000.00, 12, 1);
+
+-- Sản phẩm 2: 4 biến thể x 8
+INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`) VALUES
+(201, 2, 'TIF-LOCK-RG-1.47', '1.47', 190000000.00, NULL, 8, 0),
+(202, 2, 'TIF-LOCK-RG-1.5', '1.5', 190000000.00, NULL, 8, 0),
+(203, 2, 'TIF-LOCK-RG-1.6', '1.6', 190000000.00, NULL, 8, 0),
+(204, 2, 'TIF-LOCK-RG-1.7', '1.7', 190000000.00, NULL, 8, 0);
+
+-- Sản phẩm 3: 3 biến thể x 15
+INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`) VALUES
+(301, 3, 'TIF-SMILE-YG-16', '16"', 25000000.00, NULL, 15, 0),
+(302, 3, 'TIF-SMILE-YG-18', '18"', 25000000.00, NULL, 15, 0),
+(303, 3, 'TIF-SMILE-YG-20', '20"', 25000000.00, NULL, 15, 0);
+
+-- Sản phẩm 4: 1 biến thể x 20
+INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`) VALUES
+(401, 4, 'TIF-ELSA-PT-OS', 'One Size', 42000000.00, 48000000.00, 20, 1);
+
+-- Chèn dữ liệu Hình ảnh (Product Images)
+INSERT INTO `product_images` (`productId`, `url`, `isMain`, `displayOrder`) VALUES
+(1, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-knotring-68886364_1020084_ED_M.jpg', 1, 1),
+(1, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-knotring-68886364_1020085_AV_1.jpg', 0, 2),
+(2, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-lockbangle-70180422_1052959_ED.jpg', 1, 1),
+(2, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-lockbangle-70180422_1052960_AV_1.jpg', 0, 2),
+(3, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997784_ED_M.jpg', 1, 1),
+(3, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997785_AV_1.jpg', 0, 2),
+(4, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/elsa-perettidiamonds-by-the-yardearrings-12818653_936173_ED.jpg', 1, 1),
+(4, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/elsa-perettidiamonds-by-the-yardearrings-12818653_936174_AV_1.jpg', 0, 2);
+
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
