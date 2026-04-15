@@ -183,7 +183,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, 0);
   const total = subtotal * (1 - state.discountAmount);
 
-  const addToCart = (product: Product, quantity = 1, size?: string, variant?: Product['variants'] extends Array<infer U> ? U : never) => {
+  const addToCart = (product: Product, quantity = 1, size?: string, variant?: ProductVariant) => {
     if (!isAuthenticated) {
       openAuth('login');
       return;
