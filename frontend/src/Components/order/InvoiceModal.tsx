@@ -72,8 +72,8 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) => {
                     </div>
                   </td>
                   <td className="text-right">{item.quantity}</td>
-                  <td className="text-right">{formatPrice(item.product.price)}</td>
-                  <td className="text-right">{formatPrice(item.product.price * item.quantity)}</td>
+                  <td className="text-right">{formatPrice(item.priceAtPurchase ?? item.variant?.price ?? item.product.price)}</td>
+                  <td className="text-right">{formatPrice((item.priceAtPurchase ?? item.variant?.price ?? item.product.price) * item.quantity)}</td>
                 </tr>
               ))}
             </tbody>

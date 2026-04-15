@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../store/CartContext';
 import './CartDrawer.css';
@@ -7,23 +7,40 @@ const formatPrice = (price: number) =>
   new Intl.NumberFormat('vi-VN').format(price) + '₫';
 
 const CartDrawer: React.FC = () => {
-  const { state, closeCart, removeFromCart, updateQuantity, applyDiscount, subtotal, total, toggleItemSelected, toggleAllSelected, clearSelectedItems } = useCart();
+  const { state, closeCart, removeFromCart, updateQuantity, applyDiscount, clearDiscount, subtotal, total, toggleItemSelected, toggleAllSelected, clearSelectedItems } = useCart();
   const [discountInput, setDiscountInput] = useState('');
   const [discountError, setDiscountError] = useState('');
   const [discountSuccess, setDiscountSuccess] = useState('');
+
+  useEffect(() => {
+    setDiscountInput(state.discountCode);
+  }, [state.discountCode]);
+
+  useEffect(() => {
+    if (discountInput.trim() === '' && state.discountAmount > 0) {
+      clearDiscount();
+      setDiscountError('');
+      setDiscountSuccess('');
+    }
+  }, [discountInput, state.discountAmount, clearDiscount]);
   const [showConsultModal, setShowConsultModal] = useState(false);
   const [isEditingCart, setIsEditingCart] = useState(false);
   const [cartAlert, setCartAlert] = useState<{ message: string; type: 'alert' | 'confirm'; onConfirm?: () => void } | null>(null);
   const navigate = useNavigate();
 
   const handleApplyDiscount = () => {
+    const code = discountInput.trim().toUpperCase();
     setDiscountError('');
     setDiscountSuccess('');
-    if (!discountInput.trim()) return;
+    if (!code) {
+      clearDiscount();
+      setDiscountError('Vui lòng nhập mã giảm giá');
+      return;
+    }
     const validCodes: Record<string, number> = { LUXURY10: 10, SALE20: 20, VIP30: 30 };
-    const code = discountInput.toUpperCase();
     if (validCodes[code]) {
       applyDiscount(code);
+      setDiscountInput(code);
       setDiscountSuccess(`Áp dụng thành công! Giảm ${validCodes[code]}%`);
     } else {
       setDiscountError('Mã giảm giá không hợp lệ');
@@ -104,9 +121,9 @@ const CartDrawer: React.FC = () => {
                 <div key={`${item.product.id}-${item.size || 'default'}`} className="cart-item" style={{ position: 'relative', paddingLeft: '52px' }}>
                   <input 
                     type="checkbox" 
-                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer' }} 
+                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer', zIndex: 2 }} 
                     checked={!!item.selected}
-                    onChange={() => toggleItemSelected(item.product.id, item.size)}
+                    onChange={() => toggleItemSelected(item.product.id, item.size, item.variantId)}
                   />
                   <div className="cart-item__image">
                     <img src={item.product.images[0]} alt={item.product.name} />
@@ -130,7 +147,7 @@ const CartDrawer: React.FC = () => {
                         onClick={() => setCartAlert({
                           message: `Bạn có chắc muốn xóa "${item.product.name}" khỏi giỏ hàng?`,
                           type: 'confirm',
-                          onConfirm: () => removeFromCart(item.product.id, item.size)
+                          onConfirm: () => removeFromCart(item.product.id, item.size, item.variantId)
                         })}
                         aria-label="Xóa"
                       >
@@ -141,16 +158,16 @@ const CartDrawer: React.FC = () => {
                       <div className="cart-item__qty">
                         <button
                           className="cart-item__qty-btn"
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.size)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.size, item.variantId)}
                         >−</button>
                         <span className="cart-item__qty-num">{item.quantity}</span>
                         <button
                           className="cart-item__qty-btn"
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.size)}
+                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.size, item.variantId)}
                         >+</button>
                       </div>
                       <span className="cart-item__price">
-                        {formatPrice(item.product.price * item.quantity)}
+                        {formatPrice((item.priceAtPurchase ?? item.variant?.price ?? item.product.price) * item.quantity)}
                       </span>
                     </div>
                   </div>
@@ -190,7 +207,15 @@ const CartDrawer: React.FC = () => {
                     <input
                       type="text"
                       value={discountInput}
-                      onChange={e => setDiscountInput(e.target.value)}
+                      onChange={e => {
+                        const value = e.target.value;
+                        setDiscountInput(value);
+                        if (!value.trim()) {
+                          clearDiscount();
+                          setDiscountError('');
+                          setDiscountSuccess('');
+                        }
+                      }}
                       placeholder="Mã giảm giá hoặc thẻ quà tặng"
                       className="cart-drawer__discount-input"
                       onKeyDown={e => e.key === 'Enter' && handleApplyDiscount()}

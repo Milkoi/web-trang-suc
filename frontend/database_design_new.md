@@ -47,14 +47,6 @@ erDiagram
         timestamp createdAt
     }
 
-    PRODUCT_SIZES {
-        bigint id PK
-        bigint productId FK
-        string size
-        decimal price
-        int stockQuantity
-    }
-
     ORDERS {
         string id PK
         uuid userId FK
@@ -73,6 +65,8 @@ erDiagram
         string paymentMethod
         string paymentStatus
         string orderStatus
+        string discountCode
+        decimal discountAmount
         decimal totalAmount
         timestamp estimatedDelivery
         timestamp createdAt
@@ -82,13 +76,15 @@ erDiagram
     ORDER_ITEMS {
         bigint id PK
         string orderId FK
-        bigint product_id FK
+        bigint productId FK
+        bigint variantId FK
         int quantity
+        string size
         decimal priceAtPurchase
     }
 ```
 
-## 2. Chi tiết 8 Bảng dữ liệu (Khớp 100% yêu cầu)
+## 2. Chi tiết 9 Bảng dữ liệu (Khớp 100% yêu cầu)
 
 ### Bảng 1: Users (Người dùng)
 | Trường | Kiểu dữ liệu | Mô tả |
@@ -128,17 +124,30 @@ erDiagram
 | `name` | VARCHAR | Tên sản phẩm |
 | `categoryId` | INT | FK sang bảng Categories |
 | `materialId` | INT | FK sang bảng Materials |
-| `price` | DECIMAL | Giá bán hiện tại |
-| `originalPrice` | DECIMAL | Giá gốc (tính % giảm giá) |
+| `price` | DECIMAL | Giá tham khảo / giá khởi điểm |
+| `originalPrice` | DECIMAL | Giá gốc tham khảo |
 | `description` | TEXT | Mô tả chi tiết |
-| `stockQuantity` | INT | Số lượng trong kho |
+| `stockQuantity` | INT | Số lượng trong kho tổng |
 | `rating` | DECIMAL | Điểm đánh giá trung bình |
 | `reviewCount` | INT | Tổng số lượt đánh giá |
 | `isNew` | BOOLEAN | Sản phẩm mới |
-| `isSale` | BOOLEAN | Đang giảm giá |
+| `isSale` | BOOLEAN | Có chương trình giảm giá |
 | `createdAt` | TIMESTAMP | Ngày tạo |
 
-### Bảng 5: ProductImages (Hình ảnh)
+### Bảng 5: ProductVariants (Biến thể sản phẩm)
+| Trường | Kiểu dữ liệu | Mô tả |
+| :--- | :--- | :--- |
+| `id` | BIGINT | Khóa chính |
+| `productId` | BIGINT | FK sang bảng Products |
+| `sku` | VARCHAR | Mã SKU riêng cho biến thể |
+| `size` | VARCHAR | Kích thước hoặc biến thể |
+| `price` | DECIMAL | Giá của biến thể này |
+| `originalPrice` | DECIMAL | Giá gốc của biến thể |
+| `stockQuantity` | INT | Số lượng trong kho theo biến thể |
+| `isSale` | BOOLEAN | Biến thể đang giảm giá |
+| `createdAt` | TIMESTAMP | Ngày tạo |
+
+### Bảng 6: ProductImages (Hình ảnh)
 | Trường | Kiểu dữ liệu | Mô tả |
 | :--- | :--- | :--- |
 | `id` | BIGINT | Khóa chính |
@@ -147,7 +156,7 @@ erDiagram
 | `isMain` | BOOLEAN | Ảnh chính hiển thị ở Card |
 | `displayOrder` | INT | Thứ tự trong Gallery |
 
-### Bảng 6: Orders (Đơn hàng)
+### Bảng 7: Orders (Đơn hàng)
 | Trường | Kiểu dữ liệu | Mô tả |
 | :--- | :--- | :--- |
 | `id` | VARCHAR | Mã đơn (ORD-XXXXXX) |
@@ -167,21 +176,25 @@ erDiagram
 | `paymentMethod` | VARCHAR | vnpay, momo, credit-card... |
 | `paymentStatus` | VARCHAR | unpaid, paid |
 | `orderStatus` | VARCHAR | Trạng thái xử lý |
+| `discountCode` | VARCHAR | Mã giảm giá đã áp dụng |
+| `discountAmount` | DECIMAL | Số tiền giảm giá |
 | `totalAmount` | DECIMAL | Tổng tiền đơn hàng |
 | `estimatedDelivery` | TIMESTAMP | Thời gian dự kiến giao |
 | `createdAt` | TIMESTAMP | Thời gian đặt hàng |
 | `paidAt` | TIMESTAMP | Thời gian thanh toán |
 
-### Bảng 7: OrderItems (Chi tiết đơn hàng)
+### Bảng 8: OrderItems (Chi tiết đơn hàng)
 | Trường | Kiểu dữ liệu | Mô tả |
 | :--- | :--- | :--- |
 | `id` | BIGINT | Khóa chính |
 | `orderId` | VARCHAR | FK sang bảng Orders |
 | `productId` | BIGINT | FK sang bảng Products |
+| `variantId` | BIGINT | FK sang bảng ProductVariants |
 | `quantity` | INT | Số lượng mua |
+| `size` | VARCHAR | Kích thước / biến thể đã chọn |
 | `priceAtPurchase` | DECIMAL | Giá lúc mua (Snapshot) |
 
-### Bảng 8: Favorites (Yêu thích)
+### Bảng 9: Favorites (Yêu thích)
 | Trường | Kiểu dữ liệu | Mô tả |
 | :--- | :--- | :--- |
 | `userId` | UUID | FK sang bảng Users |

@@ -159,7 +159,7 @@ const OrdersPage: React.FC = () => {
                               <p className="order-item__qty">Số lượng: {item.quantity}</p>
                               {item.size && <p className="order-item__size">Kích thước: {item.size}</p>}
                             </div>
-                            <span className="order-item__price">{formatPrice(item.product.price * item.quantity)}</span>
+                            <span className="order-item__price">{formatPrice((item.priceAtPurchase ?? item.variant?.price ?? item.product.price) * item.quantity)}</span>
                           </div>
                         ))}
                       </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Product } from '../../types';
 import { useCart } from '../../store/CartContext';
@@ -17,6 +17,24 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { isFavorite, toggleFavorite } = useFavorites();
   const [showSizePicker, setShowSizePicker] = useState(false);
   const [quickSize, setQuickSize] = useState<string>(product.availableSizes?.[0] || '');
+  const [quickQuantity, setQuickQuantity] = useState<number>(1);
+  const sizePickerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (sizePickerRef.current && !sizePickerRef.current.contains(event.target as Node)) {
+        setShowSizePicker(false);
+      }
+    };
+
+    if (showSizePicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSizePicker]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -36,7 +54,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     if (!quickSize) return;
-    addToCart(product, 1, quickSize);
+    const selectedVariant = product.variants?.find(v => v.size === quickSize);
+    addToCart(product, quickQuantity, quickSize, selectedVariant);
     setShowSizePicker(false);
   };
 
@@ -113,7 +132,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </button>
 
             {showSizePicker && product.availableSizes && product.availableSizes.length > 0 && (
-              <div className="product-card__size-picker" onClick={e => e.stopPropagation()}>
+              <div className="product-card__size-picker" ref={sizePickerRef} onClick={e => e.stopPropagation()}>
                 <div className="product-card__size-picker-title">Chọn kích thước</div>
                 <div className="product-card__size-picker-options">
                   {product.availableSizes.map(size => (
@@ -130,11 +149,37 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     </button>
                   ))}
                 </div>
+                <div className="product-card__quantity-selector">
+                  <span>Số lượng</span>
+                  <div className="quantity-controls">
+                    <button
+                      type="button"
+                      onClick={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setQuickQuantity(q => Math.max(1, q - 1));
+                      }}
+                    >
+                      −
+                    </button>
+                    <span>{quickQuantity}</span>
+                    <button
+                      type="button"
+                      onClick={e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setQuickQuantity(q => q + 1);
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
                 <button
                   className="product-card__size-add-btn"
                   onClick={handleAddSizeToCart}
                 >
-                  Thêm size {quickSize}
+                  Thêm {quickQuantity} size {quickSize}
                 </button>
               </div>
             )}

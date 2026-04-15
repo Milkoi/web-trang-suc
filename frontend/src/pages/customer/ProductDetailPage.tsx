@@ -28,6 +28,7 @@ const ProductDetailPage: React.FC = () => {
   
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const selectedVariant = product?.variants?.find(v => v.size === selectedSize);
 
   if (!product) {
     return (
@@ -50,13 +51,13 @@ const ProductDetailPage: React.FC = () => {
       return;
     }
 
-    addToCart(product, quantity, selectedSize);
+    addToCart(product, quantity, selectedSize, selectedVariant);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
 
-  const disc = product.originalPrice
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
+  const disc = (selectedVariant?.originalPrice ?? product.originalPrice)
+    ? Math.round((1 - (selectedVariant?.price ?? product.price) / (selectedVariant?.originalPrice ?? product.originalPrice!)) * 100)
     : 0;
 
   return (
@@ -119,11 +120,11 @@ const ProductDetailPage: React.FC = () => {
 
             {/* Price */}
             <div className="product-detail__price">
-              <span className={`product-detail__price-current ${product.isSale ? 'price-sale' : ''}`}>
-                {formatPrice(product.price)}
+              <span className={`product-detail__price-current ${(selectedVariant?.isSale ?? product.isSale) ? 'price-sale' : ''}`}>
+                {formatPrice(selectedVariant?.price ?? product.price)}
               </span>
-              {product.originalPrice && (
-                <span className="price-original">{formatPrice(product.originalPrice)}</span>
+              {(selectedVariant?.originalPrice ?? product.originalPrice) && (
+                <span className="price-original">{formatPrice(selectedVariant?.originalPrice ?? product.originalPrice!)}</span>
               )}
             </div>
 
