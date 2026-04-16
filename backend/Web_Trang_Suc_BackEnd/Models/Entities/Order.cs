@@ -8,47 +8,100 @@ namespace web_Trang_suc_BE.Models.Entities
     {
         [Key]
         [Column("id")]
-        public int Id { get; set; }
+        public string Id { get; set; } = string.Empty;
 
-        [Column("user_id")]
-        public int? UserId { get; set; }
+        [Column("userId")]
+        public string? UserId { get; set; }
 
-        [Column("order_code")]
-        [MaxLength(255)]
-        public string? OrderCode { get; set; }
-
-        [Column("total_amount")]
+        [Column("firstName")]
         [Required]
-        public decimal TotalAmount { get; set; }
-
-        [Column("status")]
-        public string Status { get; set; } = "Pending"; // Pending, Shipping, Success, Cancel
-
-        [Column("order_date")]
-        public DateTime OrderDate { get; set; } = DateTime.UtcNow;
-
-        [Column("full_name")]
         [MaxLength(100)]
-        public string? FullName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
+
+        [Column("lastName")]
+        [Required]
+        [MaxLength(100)]
+        public string LastName { get; set; } = string.Empty;
 
         [Column("email")]
-        [MaxLength(100)]
-        public string? Email { get; set; }
+        [Required]
+        [MaxLength(255)]
+        public string Email { get; set; } = string.Empty;
 
         [Column("phone")]
-        [MaxLength(15)]
-        public string? Phone { get; set; }
+        [Required]
+        [MaxLength(20)]
+        public string Phone { get; set; } = string.Empty;
+
+        [Column("company")]
+        [MaxLength(255)]
+        public string? Company { get; set; }
 
         [Column("address")]
-        public string? Address { get; set; }
+        [Required]
+        public string Address { get; set; } = string.Empty;
 
-        [Column("payment_date")]
-        public DateTime? PaymentDate { get; set; }
+        [Column("apartment")]
+        [MaxLength(255)]
+        public string? Apartment { get; set; }
 
-        // Navigation
+        [Column("city")]
+        [Required]
+        [MaxLength(100)]
+        public string City { get; set; } = string.Empty;
+
+        [Column("country")]
+        [Required]
+        [MaxLength(100)]
+        public string Country { get; set; } = string.Empty;
+
+        [Column("postalCode")]
+        [MaxLength(20)]
+        public string? PostalCode { get; set; }
+
+        [Column("shippingMethod")]
+        [Required]
+        [MaxLength(50)]
+        public string ShippingMethod { get; set; } = string.Empty;
+
+        [Column("shippingFee")]
+        public decimal ShippingFee { get; set; } = 0;
+
+        [Column("paymentMethod")]
+        [Required]
+        [MaxLength(50)]
+        public string PaymentMethod { get; set; } = string.Empty;
+
+        [Column("paymentStatus")]
+        [MaxLength(50)]
+        public string PaymentStatus { get; set; } = "unpaid";
+
+        [Column("orderStatus")]
+        [MaxLength(50)]
+        public string OrderStatus { get; set; } = "pending";
+
+        [Column("discountCode")]
+        [MaxLength(50)]
+        public string? DiscountCode { get; set; }
+
+        [Column("discountAmount")]
+        public decimal DiscountAmount { get; set; } = 0;
+
+        [Column("totalAmount")]
+        public decimal TotalAmount { get; set; }
+
+        [Column("estimatedDelivery")]
+        public DateTime? EstimatedDelivery { get; set; }
+
+        [Column("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [Column("paidAt")]
+        public DateTime? PaidAt { get; set; }
+
         [ForeignKey("UserId")]
         public User? User { get; set; }
 
-        public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }
 }

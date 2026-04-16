@@ -12,22 +12,21 @@ namespace web_Trang_suc_BE.Models
         public DbSet<User>? Users { get; set; }
         public DbSet<Product>? Products { get; set; }
         public DbSet<ProductVariant>? ProductVariants { get; set; }
+        public DbSet<ProductImage>? ProductImages { get; set; }
         public DbSet<Category>? Categories { get; set; }
-        public DbSet<Cart>? Carts { get; set; }
-        public DbSet<CartItem>? CartItems { get; set; }
+        public DbSet<Material>? Materials { get; set; }
         public DbSet<Order>? Orders { get; set; }
         public DbSet<OrderItem>? OrderItems { get; set; }
-        public DbSet<Wishlist>? Wishlists { get; set; }
-        public DbSet<Service>? Services { get; set; }
-        public DbSet<Supplier>? Suppliers { get; set; }
-        public DbSet<Review>? Reviews { get; set; }
-        public DbSet<Promotion>? Promotions { get; set; }
+        public DbSet<Favorite>? Favorites { get; set; }
+        public DbSet<ShopSetting>? ShopSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            // Additional configurations if needed
+            // Configure Composite Key for Favorites
+            modelBuilder.Entity<Favorite>()
+                .HasKey(f => new { f.UserId, f.ProductId });
         }
     }
 }

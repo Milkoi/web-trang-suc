@@ -10,18 +10,19 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("id")]
         public int Id { get; set; }
 
+        [Column("slug")]
+        [Required]
+        [MaxLength(255)]
+        public string Slug { get; set; } = string.Empty;
+
         [Column("name")]
         [Required]
-        [MaxLength(100)]
+        [MaxLength(255)]
         public string Name { get; set; } = string.Empty;
 
-        [Column("description")]
-        public string? Description { get; set; }
+        [Column("imageUrl")]
+        public string? ImageUrl { get; set; }
 
-        [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        // Navigation
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

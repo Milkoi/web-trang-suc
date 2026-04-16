@@ -8,59 +8,44 @@ namespace web_Trang_suc_BE.Models.Entities
     {
         [Key]
         [Column("id")]
-        public int Id { get; set; }
+        public string Id { get; set; } = Guid.NewGuid().ToString();
 
-        [Column("full_name")]
+        [Column("fullName")]
         [Required]
-        [MaxLength(100)]
+        [MaxLength(255)]
         public string FullName { get; set; } = string.Empty;
 
         [Column("email")]
         [Required]
-        [MaxLength(100)]
+        [MaxLength(255)]
         public string Email { get; set; } = string.Empty;
 
         [Column("password")]
         [MaxLength(255)]
         public string? Password { get; set; }
 
+        [Column("avatar")]
+        public string? Avatar { get; set; }
+
         [Column("role")]
-        public string Role { get; set; } = "Customer"; // Admin, Staff, Customer
+        [MaxLength(50)]
+        public string Role { get; set; } = "customer";
 
-        [Column("auth_provider")]
-        public string AuthProvider { get; set; } = "local"; // local, google
-
-        [Column("google_id")]
-        [MaxLength(255)]
-        public string? GoogleId { get; set; }
+        [Column("provider")]
+        [MaxLength(50)]
+        public string Provider { get; set; } = "email";
 
         [Column("phone")]
-        [MaxLength(15)]
+        [MaxLength(20)]
         public string? Phone { get; set; }
 
-        [Column("address")]
-        public string? Address { get; set; }
+        [Column("defaultAddress")]
+        public string? DefaultAddress { get; set; }
 
-        [Column("avatar_url")]
-        public string? AvatarUrl { get; set; }
+        [Column("newsletterOptin")]
+        public bool NewsletterOptin { get; set; } = false;
 
-        [Column("status")]
-        public bool Status { get; set; } = true;
-
-        [Column("last_login_at")]
-        public DateTime? LastLoginAt { get; set; }
-
-        [Column("login_ip")]
-        [MaxLength(50)]
-        public string? LoginIp { get; set; }
-
-        [Column("created_at")]
+        [Column("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        // Navigation properties
-        public ICollection<Order> Orders { get; set; } = new List<Order>();
-        public ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
-        public Cart? Cart { get; set; }
     }
 }

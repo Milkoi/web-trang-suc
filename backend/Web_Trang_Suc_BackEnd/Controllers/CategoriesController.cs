@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web_Trang_suc_BE.Models;
@@ -12,101 +11,42 @@ namespace web_Trang_suc_BE.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly AppDbContext _context;
+        public CategoriesController(AppDbContext context) { _context = context; }
 
-        public CategoriesController(AppDbContext context)
-        {
-            _context = context;
-        }
-
-        // GET: api/Categories
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
         {
-            if (_context.Categories == null) return NotFound();
-
-            var categories = await _context.Categories
-                .Include(c => c.Products)
-                .ToListAsync();
-
-            var dtos = categories.Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Description = c.Description,
-                ProductCount = c.Products?.Count ?? 0
-            }).ToList();
-
-            return Ok(dtos);
+            var list = await _context.Categories!.ToListAsync();
+            return list.Select(c => new CategoryDto { Id = c.Id, Slug = c.Slug, Name = c.Name, ImageUrl = c.ImageUrl }).ToList();
         }
 
-        // POST: api/Categories
         [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<ActionResult<CategoryDto>> CreateCategory(CategoryCreateDto dto)
+        public async Task<ActionResult> CreateCategory(CreateCategoryDto dto)
         {
-            if (await _context.Categories!.AnyAsync(c => c.Name == dto.Name))
-            {
-                return BadRequest("Category name already exists.");
-            }
-
-            var category = new Category
-            {
-                Name = dto.Name,
-                Description = dto.Description,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            _context.Categories!.Add(category);
+            var cat = new Category { Slug = dto.Slug, Name = dto.Name, ImageUrl = dto.ImageUrl };
+            _context.Categories!.Add(cat);
             await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, new CategoryDto
-            {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description
-            });
+            return Ok();
         }
 
-        // PUT: api/Categories/5
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateCategory(int id, CategoryCreateDto dto)
+        public async Task<ActionResult> UpdateCategory(int id, CreateCategoryDto dto)
         {
-            var category = await _context.Categories!.FindAsync(id);
-            if (category == null) return NotFound();
-
-            if (await _context.Categories.AnyAsync(c => c.Name == dto.Name && c.Id != id))
-            {
-                return BadRequest("Category name already exists.");
-            }
-
-            category.Name = dto.Name;
-            category.Description = dto.Description;
-
+            var cat = await _context.Categories!.FindAsync(id);
+            if (cat == null) return NotFound();
+            cat.Slug = dto.Slug; cat.Name = dto.Name; cat.ImageUrl = dto.ImageUrl;
             await _context.SaveChangesAsync();
-            return NoContent();
+            return Ok();
         }
 
-        // DELETE: api/Categories/5
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteCategory(int id)
+        public async Task<ActionResult> DeleteCategory(int id)
         {
-            var category = await _context.Categories!
-                .Include(c => c.Products)
-                .FirstOrDefaultAsync(c => c.Id == id);
-
-            if (category == null) return NotFound();
-
-            if (category.Products != null && category.Products.Any())
-            {
-                return BadRequest("Cannot delete category containing products.");
-            }
-
-            _context.Categories.Remove(category);
+            var cat = await _context.Categories!.FindAsync(id);
+            if (cat == null) return NotFound();
+            _context.Categories.Remove(cat);
             await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok();
         }
     }
 }

@@ -8,51 +8,58 @@ namespace web_Trang_suc_BE.Models.Entities
     {
         [Key]
         [Column("id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
+
+        [Column("sku")]
+        [Required]
+        [MaxLength(50)]
+        public string Sku { get; set; } = string.Empty;
 
         [Column("name")]
         [Required]
-        [MaxLength(200)]
+        [MaxLength(255)]
         public string Name { get; set; } = string.Empty;
 
-        [Column("brand_text")]
-        [MaxLength(50)]
-        public string BrandText { get; set; } = "Velmora";
+        [Column("categoryId")]
+        public int? CategoryId { get; set; }
 
-        [Column("accent_color")]
-        [MaxLength(50)]
-        public string? AccentColor { get; set; }
+        [Column("materialId")]
+        public int? MaterialId { get; set; }
 
-        [Column("hover_accent")]
-        [MaxLength(50)]
-        public string? HoverAccent { get; set; }
+        [Column("price")]
+        public decimal Price { get; set; }
 
-        [Column("image_url")]
-        public string? ImageUrl { get; set; }
+        [Column("originalPrice")]
+        public decimal? OriginalPrice { get; set; }
 
         [Column("description")]
         public string? Description { get; set; }
 
-        [Column("origin_story")]
-        public string? OriginStory { get; set; }
+        [Column("stockQuantity")]
+        public int StockQuantity { get; set; } = 0;
 
-        [Column("category_id")]
-        public int? CategoryId { get; set; }
+        [Column("rating")]
+        public decimal Rating { get; set; } = 0;
 
-        [Column("supplier_id")]
-        public int? SupplierId { get; set; }
+        [Column("reviewCount")]
+        public int ReviewCount { get; set; } = 0;
 
-        // Navigation
+        [Column("isNew")]
+        public bool IsNew { get; set; } = false;
+
+        [Column("isSale")]
+        public bool IsSale { get; set; } = false;
+
+        [Column("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         [ForeignKey("CategoryId")]
         public Category? Category { get; set; }
 
-        [ForeignKey("SupplierId")]
-        public Supplier? Supplier { get; set; }
-
-        [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [ForeignKey("MaterialId")]
+        public Material? Material { get; set; }
 
         public ICollection<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
-        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+        public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
     }
 }
