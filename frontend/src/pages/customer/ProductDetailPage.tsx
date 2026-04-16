@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { ChevronDown } from 'lucide-react';
 import api from '../../services/api';
 import { Product } from '../../types';
 import { useCart } from '../../store/CartContext';
@@ -31,6 +32,26 @@ const ProductDetailPage: React.FC = () => {
   
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<'policy' | 'description' | 'faq'>('description');
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
+  const productFaqs = [
+    {
+      id: 1,
+      question: "Sản phẩm có bao gồm hộp đựng và chứng nhận không?",
+      answer: "Tất cả sản phẩm tại Velmora đều đi kèm hộp đựng cao cấp, túi giấy và hóa đơn đảm bảo. Với trang sức kim cương, quý khách sẽ nhận được chứng chỉ kiểm định (GIA hoặc trong nước) đi kèm."
+    },
+    {
+      id: 2,
+      question: "Tôi có được kiểm tra hàng trước khi thanh toán không?",
+      answer: "Quý khách hoàn toàn được quyền kiểm tra sản phẩm trước khi thanh toán. Tuy nhiên, vì tính chất trang sức cao cấp, quý khách vui lòng không đeo thử sản phẩm khi chưa thanh toán."
+    },
+    {
+      id: 3,
+      question: "Nếu không vừa size tôi có được đổi không?",
+      answer: "Chúng tôi hỗ trợ đổi size miễn phí trong vòng 48h kể từ khi nhận hàng. Quý khách vui lòng giữ nguyên tem mác và hóa đơn mua hàng."
+    }
+  ];
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -263,6 +284,92 @@ const ProductDetailPage: React.FC = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Tabbed Section */}
+        <div className="product-detail__tabs-section">
+          <div className="product-detail__tabs-nav">
+            <button 
+              className={`tab-btn ${activeTab === 'policy' ? 'active' : ''}`}
+              onClick={() => setActiveTab('policy')}
+            >
+              Chính sách hậu mãi
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`}
+              onClick={() => setActiveTab('description')}
+            >
+              Mô tả sản phẩm
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'faq' ? 'active' : ''}`}
+              onClick={() => setActiveTab('faq')}
+            >
+              Câu hỏi thường gặp
+            </button>
+          </div>
+
+          <div className="product-detail__tabs-content">
+            {activeTab === 'policy' && (
+              <div className="tab-content policy-content">
+                <div className="policy-group">
+                  <h4>Chế độ bảo hành</h4>
+                  <ul>
+                    <li>Làm sạch, siêu âm trang sức miễn phí trọn đời.</li>
+                    <li>Bảo hành lỗi kỹ thuật, nước xi 6 tháng (Vàng) và 3 tháng (Bạc).</li>
+                    <li>Khắc tên miễn phí theo yêu cầu linh hoạt.</li>
+                  </ul>
+                </div>
+                <div className="policy-group">
+                  <h4>Chính sách thu đổi</h4>
+                  <ul>
+                    <li>Áp dụng thu đổi trên toàn quốc theo bảng giá hiện hành.</li>
+                    <li>Không áp dụng thu đổi cho các dòng trang sức Bạc, Đồng hồ.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'description' && (
+              <div className="tab-content description-content">
+                <div className="description-text">
+                  {product.description}
+                </div>
+                {product.originStory && (
+                  <div className="origin-story">
+                    <h4>Câu chuyện thiết kế</h4>
+                    <p>{product.originStory}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'faq' && (
+              <div className="tab-content faq-content">
+                <div className="product-faq-list">
+                  {productFaqs.map(faq => (
+                    <div key={faq.id} className={`product-faq-item ${expandedFaq === faq.id ? 'expanded' : ''}`}>
+                      <button 
+                        className="product-faq-header"
+                        onClick={() => setExpandedFaq(expandedFaq === faq.id ? null : faq.id)}
+                      >
+                        <span>{faq.question}</span>
+                        <ChevronDown className="faq-chevron" />
+                      </button>
+                      <div className="product-faq-body">
+                        <div className="product-faq-answer">
+                          {faq.answer}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div style={{ marginTop: '24px', textAlign: 'center' }}>
+                    <Link to="/faq" className="view-more-faq">Xem tất cả các câu hỏi khác</Link>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -9,6 +9,7 @@ import CartDrawer from './Components/layout/CartDrawer';
 import AuthModal from './Components/auth/AuthModal';
 import HomePage from './pages/customer/HomePage';
 import AboutPage from './pages/customer/AboutPage';
+import FAQPage from './pages/customer/FAQPage';
 import ProductsPage from './pages/customer/ProductsPage';
 import ProductDetailPage from './pages/customer/ProductDetailPage';
 import CheckoutPage from './pages/customer/CheckoutPage';
@@ -52,6 +53,7 @@ function App() {
                       <Routes>
                         <Route path="/" element={<HomePage />} />
                         <Route path="/about" element={<AboutPage />} />
+                        <Route path="/faq" element={<FAQPage />} />
                         <Route path="/products" element={<ProductsPage />} />
                         <Route path="/products/:id" element={<ProductDetailPage />} />
                         <Route path="/checkout" element={<CheckoutPage />} />

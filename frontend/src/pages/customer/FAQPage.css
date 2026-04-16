@@ -1,0 +1,122 @@
+.faq-page {
+  padding-top: 60px;
+}
+
+.faq-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: #fff;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.faq-item:hover {
+  box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+  transform: translateY(-1px);
+}
+
+.faq-item__header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.faq-item__question {
+  font-size: 16px;
+  font-weight: 500;
+  color: #003468; /* PNJ blue style */
+  line-height: 1.4;
+}
+
+.faq-item__icon {
+  color: #003468;
+  transition: transform 0.3s ease;
+}
+
+.faq-item.expanded .faq-item__icon {
+  transform: rotate(180deg);
+}
+
+.faq-item__content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.faq-item.expanded .faq-item__content {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.faq-item__answer {
+  padding: 0 24px 24px;
+  color: #4a4a4a;
+  font-size: 15px;
+  line-height: 1.6;
+  border-top: 1px solid #f9f9f9;
+  padding-top: 20px;
+}
+
+.faq-item__answer ul {
+  margin-left: 1.5rem;
+  margin-top: 10px;
+}
+
+.faq-item__answer li {
+  margin-bottom: 8px;
+}
+
+.faq-link {
+  color: #003468;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+/* Category Filters */
+.faq-filters {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.faq-filter-btn {
+  padding: 10px 24px;
+  border-radius: 30px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  color: #666;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.faq-filter-btn:hover {
+  border-color: #003468;
+  color: #003468;
+}
+
+.faq-filter-btn.active {
+  background: #003468;
+  color: #fff;
+  border-color: #003468;
+  box-shadow: 0 4px 10px rgba(0, 52, 104, 0.2);
+}

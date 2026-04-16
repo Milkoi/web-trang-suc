@@ -22,8 +22,6 @@ namespace web_Trang_suc_BE.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
-            if (_context.Products == null) return NotFound();
-
             var products = await _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Variants)
@@ -63,8 +61,6 @@ namespace web_Trang_suc_BE.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductDto>> GetProduct(int id)
         {
-            if (_context.Products == null) return NotFound();
-
             var p = await _context.Products
                 .Include(p => p.Category)
                 .Include(p => p.Variants)
@@ -111,7 +107,7 @@ namespace web_Trang_suc_BE.Controllers
                 Name = dto.Name,
                 Description = dto.Description,
                 OriginStory = dto.OriginStory,
-                CategoryId = await _context.Categories!.Where(c => c.Name.ToLower() == dto.Category.ToLower()).Select(c => c.Id).FirstOrDefaultAsync(),
+                CategoryId = await _context.Categories.Where(c => c.Name.ToLower() == (dto.Category ?? "").ToLower()).Select(c => c.Id).FirstOrDefaultAsync(),
                 ImageUrl = dto.Images.FirstOrDefault()
             };
 
@@ -127,7 +123,7 @@ namespace web_Trang_suc_BE.Controllers
                 });
             }
 
-            _context.Products!.Add(product);
+            _context.Products.Add(product);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, dto);
@@ -138,7 +134,7 @@ namespace web_Trang_suc_BE.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProduct(int id, ProductDto dto)
         {
-            var product = await _context.Products!
+            var product = await _context.Products
                 .Include(p => p.Variants)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -150,7 +146,7 @@ namespace web_Trang_suc_BE.Controllers
             product.ImageUrl = dto.Images.FirstOrDefault();
             
             // Simplified variant update logic: clear and re-add for now
-            _context.ProductVariants!.RemoveRange(product.Variants);
+            _context.ProductVariants.RemoveRange(product.Variants);
             foreach (var v in dto.Variants)
             {
                 product.Variants.Add(new ProductVariant
@@ -172,7 +168,7 @@ namespace web_Trang_suc_BE.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products!.FindAsync(id);
+            var product = await _context.Products.FindAsync(id);
             if (product == null) return NotFound();
 
             _context.Products.Remove(product);

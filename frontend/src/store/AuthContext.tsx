@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import { User } from '../types';
 import api from '../services/api';
+import { authValidator } from '../services/authValidator';
 
 interface AuthContextType {
   user: User | null;
@@ -33,6 +34,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const closeAuth = () => setIsAuthOpen(false);
 
   const login = async (email: string, password: string): Promise<boolean> => {
+    const validation = authValidator.validateLogin(email, password);
+    if (!validation.success) {
+      console.error(validation.message);
+      return false;
+    }
+
     try {
       const response = await api.post('/account/login', { email, password });
       const { token, user: userData } = response.data;
@@ -73,6 +80,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
+    const validation = authValidator.validateRegister({ name, email, password, confirmPassword: password }); // Simplified confirmPassword for now as it's usually handled by the form component
+    if (!validation.success) {
+      console.error(validation.message);
+      return false;
+    }
+
     try {
       const response = await api.post('/account/register', { fullName: name, email, password });
       const { token, user: userData } = response.data;

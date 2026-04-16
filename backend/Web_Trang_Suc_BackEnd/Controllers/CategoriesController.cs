@@ -22,8 +22,6 @@ namespace web_Trang_suc_BE.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
         {
-            if (_context.Categories == null) return NotFound();
-
             var categories = await _context.Categories
                 .Include(c => c.Products)
                 .ToListAsync();
@@ -44,7 +42,7 @@ namespace web_Trang_suc_BE.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<ActionResult<CategoryDto>> CreateCategory(CategoryCreateDto dto)
         {
-            if (await _context.Categories!.AnyAsync(c => c.Name == dto.Name))
+            if (await _context.Categories.AnyAsync(c => c.Name == dto.Name))
             {
                 return BadRequest("Category name already exists.");
             }
@@ -56,7 +54,7 @@ namespace web_Trang_suc_BE.Controllers
                 CreatedAt = DateTime.UtcNow
             };
 
-            _context.Categories!.Add(category);
+            _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetCategories), new { id = category.Id }, new CategoryDto
@@ -72,7 +70,7 @@ namespace web_Trang_suc_BE.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(int id, CategoryCreateDto dto)
         {
-            var category = await _context.Categories!.FindAsync(id);
+            var category = await _context.Categories.FindAsync(id);
             if (category == null) return NotFound();
 
             if (await _context.Categories.AnyAsync(c => c.Name == dto.Name && c.Id != id))
@@ -92,7 +90,7 @@ namespace web_Trang_suc_BE.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCategory(int id)
         {
-            var category = await _context.Categories!
+            var category = await _context.Categories
                 .Include(c => c.Products)
                 .FirstOrDefaultAsync(c => c.Id == id);
 
