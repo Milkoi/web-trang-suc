@@ -88,6 +88,38 @@ namespace web_Trang_suc_BE.Controllers
             }
         }
 
+        [HttpPut("change-password")]
+        public async Task<IActionResult> ChangePassword(ChangePasswordDto dto)
+        {
+            // Get user id from JWT token
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại." });
+
+            var user = await _context.Users!.FindAsync(userId);
+            if (user == null)
+                return NotFound(new { message = "Không tìm thấy tài khoản." });
+
+            if (string.IsNullOrEmpty(user.Password))
+                return BadRequest(new { message = "Tài khoản đăng nhập qua Google không thể đổi mật khẩu tại đây." });
+
+            // Verify current password - support both plain text and bcrypt
+            bool isCurrentPasswordValid = user.Password == dto.CurrentPassword;
+            if (!isCurrentPasswordValid && user.Password.StartsWith("$2"))
+            {
+                isCurrentPasswordValid = BCrypt.Net.BCrypt.Verify(dto.CurrentPassword, user.Password);
+            }
+
+            if (!isCurrentPasswordValid)
+                return BadRequest(new { field = "currentPassword", message = "Mật khẩu hiện tại không đúng." });
+
+            // Hash and save new password
+            user.Password = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Mật khẩu đã được thay đổi thành công." });
+        }
+
         private string CreateToken(User user)
         {
             var claims = new List<Claim> {

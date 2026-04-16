@@ -345,6 +345,52 @@
   padding-top: 8px;
 }
 
+/* Per-field inline error */
+.account-form__field-error {
+  font-size: 13px;
+  color: #c0392b;
+  margin-top: 2px;
+  padding: 0;
+  animation: fieldErrorFadeIn 0.25s ease;
+}
+
+@keyframes fieldErrorFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Input error border */
+.account-form__input.input-error {
+  border-color: #c0392b;
+  background: #fffafa;
+}
+
+.account-form__input.input-error:focus {
+  border-color: #c0392b;
+}
+
+/* Password rules checklist */
+.account-form__pw-rules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 4px;
+}
+
+.account-form__pw-rules span {
+  font-size: 11px;
+  letter-spacing: 0.2px;
+  transition: color 0.2s ease;
+}
+
+.account-form__pw-rules .rule-pass {
+  color: #4caf72;
+}
+
+.account-form__pw-rules .rule-fail {
+  color: #b0b0b0;
+}
+
 /* ══════════ RESPONSIVE ══════════ */
 @media (max-width: 768px) {
   .account-page__container {

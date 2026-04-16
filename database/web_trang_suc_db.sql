@@ -193,6 +193,16 @@ CREATE TABLE `shop_settings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--BẢNG 11: BANNER
+CREATE TABLE `banners` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `imageUrl` text NOT NULL,
+  `subtitle` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `isActive` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 -- ========================================================
 -- DỮ LIỆU MẪU (MOCK DATA TỪ FRONTEND)
 -- ========================================================
@@ -265,6 +275,16 @@ INSERT INTO `product_images` (`productId`, `url`, `isMain`, `displayOrder`) VALU
 -- Chèn dữ liệu Thông tin cửa hàng (Shop Settings)
 INSERT INTO `shop_settings` (`phone`, `email`, `workingHours`) VALUES
 ('1900 520 131', 'luxelum@gmail.com', 'T2-CN: 8:00 - 23:00');
+
+
+-- Chèn dữ liệu banner mặc định (khớp với giao diện hiện tại)
+INSERT INTO `banners` (`imageUrl`, `subtitle`, `title`, `description`, `isActive`) VALUES
+('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80', 
+ 'Bộ sưu tập mới 2025', 
+ 'Tinh Hoa\nTrang Sức Việt', 
+ 'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\nSang trọng, tinh tế, vĩnh cửu.', 
+ 1);
+
 
 COMMIT;
 

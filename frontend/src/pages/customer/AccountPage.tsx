@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../store/AuthContext';
+import api from '../../services/api';
 import './AccountPage.css';
 
 type Tab = 'profile' | 'password' | 'orders' | 'favorites';
@@ -26,8 +27,13 @@ const AccountPage: React.FC = () => {
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Per-field error state
+  const [currentPasswordError, setCurrentPasswordError] = useState('');
+  const [newPasswordError, setNewPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
@@ -61,21 +67,115 @@ const AccountPage: React.FC = () => {
     setTimeout(() => setProfileSuccess(''), 3000);
   };
 
-  const handlePasswordChange = (e: React.FormEvent) => {
+  const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
-    setPasswordError('');
+
+    // Clear all errors
+    setCurrentPasswordError('');
+    setNewPasswordError('');
+    setConfirmPasswordError('');
     setPasswordSuccess('');
-    if (!currentPassword) { setPasswordError('Vui lòng nhập mật khẩu hiện tại.'); return; }
-    if (newPassword.length < 6) { setPasswordError('Mật khẩu mới phải có ít nhất 6 ký tự.'); return; }
-    if (newPassword !== confirmPassword) { setPasswordError('Mật khẩu xác nhận không khớp.'); return; }
-    setPasswordSuccess('Mật khẩu đã được thay đổi thành công.');
-    setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
-    setTimeout(() => setPasswordSuccess(''), 3000);
+
+    let hasError = false;
+
+    // 1. Validate all fields are filled
+    if (!currentPassword.trim()) {
+      setCurrentPasswordError('Vui lòng nhập mật khẩu hiện tại.');
+      hasError = true;
+    }
+    if (!newPassword.trim()) {
+      setNewPasswordError('Vui lòng nhập mật khẩu mới.');
+      hasError = true;
+    }
+    if (!confirmPassword.trim()) {
+      setConfirmPasswordError('Vui lòng xác nhận mật khẩu mới.');
+      hasError = true;
+    }
+
+    if (hasError) return;
+
+    // 2. Validate new password strength (only if newPassword is filled)
+    if (/\s/.test(newPassword)) {
+      setNewPasswordError('Mật khẩu không được chứa khoảng trắng.');
+      return;
+    }
+    if (newPassword.length < 8) {
+      setNewPasswordError('Mật khẩu phải có ít nhất 8 ký tự.');
+      return;
+    }
+    if (!/[a-z]/.test(newPassword)) {
+      setNewPasswordError('Mật khẩu phải chứa ít nhất một chữ cái thường.');
+      return;
+    }
+    if (!/[A-Z]/.test(newPassword)) {
+      setNewPasswordError('Mật khẩu phải chứa ít nhất một chữ cái hoa.');
+      return;
+    }
+    if (!/[0-9]/.test(newPassword)) {
+      setNewPasswordError('Mật khẩu phải chứa ít nhất một chữ số.');
+      return;
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(newPassword)) {
+      setNewPasswordError('Mật khẩu phải chứa ít nhất một ký tự đặc biệt.');
+      return;
+    }
+
+    // 3. Old password must differ from new password
+    if (currentPassword === newPassword) {
+      setNewPasswordError('Mật khẩu mới phải khác mật khẩu hiện tại.');
+      return;
+    }
+
+    // 4. New password must match confirmation
+    if (newPassword !== confirmPassword) {
+      setConfirmPasswordError('Mật khẩu xác nhận không khớp với mật khẩu mới.');
+      return;
+    }
+
+    // 5. Call API
+    setIsSubmitting(true);
+    try {
+      const response = await api.put('/account/change-password', {
+        currentPassword,
+        newPassword,
+      });
+      setPasswordSuccess(response.data.message || 'Mật khẩu đã được thay đổi thành công.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSuccess(''), 4000);
+    } catch (err: any) {
+      const data = err.response?.data;
+      if (data?.field === 'currentPassword') {
+        setCurrentPasswordError(data.message || 'Mật khẩu hiện tại không đúng.');
+      } else if (err.response?.status === 401) {
+        setCurrentPasswordError('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+      } else {
+        setCurrentPasswordError(data?.message || 'Đã có lỗi xảy ra. Vui lòng thử lại.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  // Compute password strength for the bar
+  const getPasswordStrength = (pw: string): { level: string; label: string } => {
+    if (!pw) return { level: '', label: '' };
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (pw.length >= 12) score++;
+    if (/[a-z]/.test(pw)) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(pw)) score++;
+    if (score <= 2) return { level: 'weak', label: 'Yếu' };
+    if (score <= 4) return { level: 'medium', label: 'Trung bình' };
+    return { level: 'strong', label: 'Mạnh' };
   };
 
   const EyeIcon = ({ open }: { open: boolean }) => (
@@ -85,6 +185,8 @@ const AccountPage: React.FC = () => {
         : <><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19" /><line x1="1" y1="1" x2="23" y2="23" /></>}
     </svg>
   );
+
+  const pwStrength = getPasswordStrength(newPassword);
 
   return (
     <div className="account-page">
@@ -223,15 +325,16 @@ const AccountPage: React.FC = () => {
                     <div className="account-form__input-wrap">
                       <input
                         type={showCurrent ? 'text' : 'password'}
-                        className="account-form__input"
+                        className={`account-form__input${currentPasswordError ? ' input-error' : ''}`}
                         value={currentPassword}
-                        onChange={e => setCurrentPassword(e.target.value)}
+                        onChange={e => { setCurrentPassword(e.target.value); setCurrentPasswordError(''); }}
                         placeholder="Nhập mật khẩu hiện tại"
                       />
                       <button type="button" className="account-form__eye" onClick={() => setShowCurrent(!showCurrent)}>
                         <EyeIcon open={showCurrent} />
                       </button>
                     </div>
+                    {currentPasswordError && <p className="account-form__field-error">{currentPasswordError}</p>}
                   </div>
 
                   <div className="account-form__group">
@@ -239,19 +342,30 @@ const AccountPage: React.FC = () => {
                     <div className="account-form__input-wrap">
                       <input
                         type={showNew ? 'text' : 'password'}
-                        className="account-form__input"
+                        className={`account-form__input${newPasswordError ? ' input-error' : ''}`}
                         value={newPassword}
-                        onChange={e => setNewPassword(e.target.value)}
-                        placeholder="Tối thiểu 6 ký tự"
+                        onChange={e => { setNewPassword(e.target.value); setNewPasswordError(''); }}
+                        placeholder="Ít nhất 8 ký tự, chữ hoa, thường, số, ký tự đặc biệt"
                       />
                       <button type="button" className="account-form__eye" onClick={() => setShowNew(!showNew)}>
                         <EyeIcon open={showNew} />
                       </button>
                     </div>
-                    {newPassword && (
+                    {newPasswordError && <p className="account-form__field-error">{newPasswordError}</p>}
+                    {newPassword && !newPasswordError && (
                       <div className="account-form__strength">
-                        <div className={`account-form__strength-bar ${newPassword.length >= 6 ? newPassword.length >= 10 ? 'strong' : 'medium' : 'weak'}`} />
-                        <span>{newPassword.length < 6 ? 'Yếu' : newPassword.length < 10 ? 'Trung bình' : 'Mạnh'}</span>
+                        <div className={`account-form__strength-bar ${pwStrength.level}`} />
+                        <span>{pwStrength.label}</span>
+                      </div>
+                    )}
+                    {newPassword && !newPasswordError && (
+                      <div className="account-form__pw-rules">
+                        <span className={newPassword.length >= 8 ? 'rule-pass' : 'rule-fail'}>✓ Ít nhất 8 ký tự</span>
+                        <span className={/[a-z]/.test(newPassword) ? 'rule-pass' : 'rule-fail'}>✓ Chữ cái thường</span>
+                        <span className={/[A-Z]/.test(newPassword) ? 'rule-pass' : 'rule-fail'}>✓ Chữ cái hoa</span>
+                        <span className={/[0-9]/.test(newPassword) ? 'rule-pass' : 'rule-fail'}>✓ Chữ số</span>
+                        <span className={/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(newPassword) ? 'rule-pass' : 'rule-fail'}>✓ Ký tự đặc biệt</span>
+                        <span className={!/\s/.test(newPassword) ? 'rule-pass' : 'rule-fail'}>✓ Không có khoảng trắng</span>
                       </div>
                     )}
                   </div>
@@ -261,23 +375,28 @@ const AccountPage: React.FC = () => {
                     <div className="account-form__input-wrap">
                       <input
                         type={showConfirm ? 'text' : 'password'}
-                        className="account-form__input"
+                        className={`account-form__input${confirmPasswordError ? ' input-error' : ''}`}
                         value={confirmPassword}
-                        onChange={e => setConfirmPassword(e.target.value)}
+                        onChange={e => { setConfirmPassword(e.target.value); setConfirmPasswordError(''); }}
                         placeholder="Nhập lại mật khẩu mới"
                       />
                       <button type="button" className="account-form__eye" onClick={() => setShowConfirm(!showConfirm)}>
                         <EyeIcon open={showConfirm} />
                       </button>
                     </div>
+                    {confirmPasswordError && <p className="account-form__field-error">{confirmPasswordError}</p>}
                   </div>
 
-                  {passwordError && <p className="account-form__error">{passwordError}</p>}
                   {passwordSuccess && <p className="account-form__success">{passwordSuccess}</p>}
 
                   <div className="account-form__actions">
-                    <button type="submit" className="btn-primary" style={{ padding: '14px 36px', fontSize: '12px', letterSpacing: '2px' }}>
-                      Cập Nhật Mật Khẩu
+                    <button
+                      type="submit"
+                      className="btn-primary"
+                      disabled={isSubmitting}
+                      style={{ padding: '14px 36px', fontSize: '12px', letterSpacing: '2px', opacity: isSubmitting ? 0.6 : 1 }}
+                    >
+                      {isSubmitting ? 'Đang xử lý...' : 'Cập Nhật Mật Khẩu'}
                     </button>
                   </div>
                 </form>

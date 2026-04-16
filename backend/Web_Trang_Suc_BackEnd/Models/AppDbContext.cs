@@ -19,6 +19,7 @@ namespace web_Trang_suc_BE.Models
         public DbSet<OrderItem>? OrderItems { get; set; }
         public DbSet<Favorite>? Favorites { get; set; }
         public DbSet<ShopSetting>? ShopSettings { get; set; }
+        public DbSet<Banner>? Banners { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
