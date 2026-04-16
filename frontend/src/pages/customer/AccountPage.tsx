@@ -15,6 +15,13 @@ const AccountPage: React.FC = () => {
   const [profileEmail, setProfileEmail] = useState(user?.email || '');
   const [profileSuccess, setProfileSuccess] = useState('');
 
+  React.useEffect(() => {
+    if (user) {
+      setProfileName(user.name || '');
+      setProfileEmail(user.email || '');
+    }
+  }, [user]);
+
   // Password form state
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');

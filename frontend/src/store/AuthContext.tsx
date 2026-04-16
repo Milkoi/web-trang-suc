@@ -44,13 +44,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await api.post('/account/login', { email, password });
       const { token, user: userData } = response.data;
       
+      const userName = userData.name || userData.fullName || 'User';
       const formattedUser: User = {
         id: userData.id.toString(),
-        name: userData.fullName,
+        name: userName,
         email: userData.email,
-        avatar: userData.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userData.fullName)}&background=c9a96e&color=fff`,
+        avatar: userData.avatar || userData.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=c9a96e&color=fff`,
         provider: 'email',
-        role: userData.role.toLowerCase() as 'admin' | 'customer'
+        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer'
       };
 
       setUser(formattedUser);
@@ -90,12 +91,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await api.post('/account/register', { fullName: name, email, password });
       const { token, user: userData } = response.data;
 
+      const userName = userData.name || userData.fullName || 'User';
       const formattedUser: User = {
         id: userData.id.toString(),
-        name: userData.fullName,
+        name: userName,
         email: userData.email,
         provider: 'email',
-        role: userData.role.toLowerCase() as 'admin' | 'customer'
+        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer'
       };
 
       setUser(formattedUser);

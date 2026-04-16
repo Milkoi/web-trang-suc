@@ -8,25 +8,35 @@ namespace web_Trang_suc_BE.Models.Entities
     {
         [Key]
         [Column("id")]
-        public int Id { get; set; }
+        public long Id { get; set; }
 
-        [Column("order_id")]
-        public int OrderId { get; set; }
+        [Column("orderId")]
+        [Required]
+        public string OrderId { get; set; } = string.Empty;
 
-        [Column("product_variant_id")]
-        public int ProductVariantId { get; set; }
+        [Column("productId")]
+        public long ProductId { get; set; }
+
+        [Column("variantId")]
+        public long? VariantId { get; set; }
 
         [Column("quantity")]
-        public int Quantity { get; set; } = 1;
+        public int Quantity { get; set; }
 
-        [Column("price_at_purchase")]
-        public decimal Price { get; set; }
+        [Column("size")]
+        [MaxLength(50)]
+        public string? Size { get; set; }
 
-        // Navigation properties
+        [Column("priceAtPurchase")]
+        public decimal PriceAtPurchase { get; set; }
+
         [ForeignKey("OrderId")]
-        public Order Order { get; set; } = null!;
+        public Order? Order { get; set; }
 
-        [ForeignKey("ProductVariantId")]
-        public ProductVariant ProductVariant { get; set; } = null!;
+        [ForeignKey("ProductId")]
+        public Product? Product { get; set; }
+
+        [ForeignKey("VariantId")]
+        public ProductVariant? Variant { get; set; }
     }
 }

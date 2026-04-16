@@ -26,10 +26,7 @@ namespace web_Trang_suc_BE.Controllers
         [HttpPost("register")]
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto dto)
         {
-            if (await _context.Users!.AnyAsync(u => u.Email == dto.Email))
-            {
-                return BadRequest("Email already exists");
-            }
+            if (await _context.Users!.AnyAsync(u => u.Email == dto.Email)) return BadRequest("Email already exists");
 
             var user = new User
             {
@@ -37,85 +34,74 @@ namespace web_Trang_suc_BE.Controllers
                 Email = dto.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(dto.Password),
                 Phone = dto.Phone,
-                Address = dto.Address,
-                Role = "Customer"
+                DefaultAddress = dto.Address,
+                Role = "customer"
             };
 
             _context.Users!.Add(user);
             await _context.SaveChangesAsync();
 
-            // Create a cart for the new user
-            var cart = new Cart { UserId = user.Id };
-            _context.Carts!.Add(cart);
-            await _context.SaveChangesAsync();
-
             return Ok(new AuthResponseDto
             {
                 Token = CreateToken(user),
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    Role = user.Role
-                }
+                User = new UserDto { Id = user.Id, Name = user.FullName, Email = user.Email, Role = user.Role }
             });
         }
 
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto dto)
         {
-            var user = await _context.Users!.FirstOrDefaultAsync(u => u.Email == dto.Email);
-
-            if (user == null || user.Password == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.Password))
+            try 
             {
-                return Unauthorized("Invalid email or password");
-            }
+                var email = dto.Email?.Trim();
+                var password = dto.Password?.Trim();
+                
+                var user = await _context.Users!.FirstOrDefaultAsync(u => u.Email == email);
 
-            // Update login audit info
-            user.LastLoginAt = DateTime.UtcNow;
-            user.LoginIp = HttpContext.Connection.RemoteIpAddress?.ToString();
-            
-            await _context.SaveChangesAsync();
-
-            return Ok(new AuthResponseDto
-            {
-                Token = CreateToken(user),
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    Role = user.Role,
-                    AvatarUrl = user.AvatarUrl
+                if (user == null || user.Password == null) return Unauthorized("Invalid email or password");
+                
+                bool isPasswordMatch = user.Password == password;
+                if (!isPasswordMatch && user.Password.StartsWith("$2")) {
+                    isPasswordMatch = BCrypt.Net.BCrypt.Verify(password, user.Password);
                 }
-            });
+
+                if (!isPasswordMatch) return Unauthorized("Invalid email or password");
+
+                return Ok(new AuthResponseDto
+                {
+                    Token = CreateToken(user),
+                    User = new UserDto
+                    {
+                        Id = user.Id,
+                        Name = user.FullName,
+                        Email = user.Email,
+                        Role = user.Role,
+                        Avatar = user.Avatar
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("LOGIN EXCEPTION: " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                return StatusCode(500, ex.Message);
+            }
         }
 
         private string CreateToken(User user)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            var claims = new List<Claim> {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("FullName", user.FullName)
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "Velmora_Secret_Key_2026_Project_Longer_Key_For_Security"));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"] ?? "SecretKeyVeryLongForProject"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature);
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(7),
-                SigningCredentials = creds
-            };
-
+            var tokenDescriptor = new SecurityTokenDescriptor { Subject = new ClaimsIdentity(claims), Expires = DateTime.Now.AddDays(7), SigningCredentials = creds };
             var tokenHandler = new JwtSecurityTokenHandler();
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-
-            return tokenHandler.WriteToken(token);
+            return tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
         }
     }
 }
