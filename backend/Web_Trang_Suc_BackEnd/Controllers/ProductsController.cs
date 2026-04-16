@@ -66,6 +66,7 @@ namespace web_Trang_suc_BE.Controllers
                 .Include(prod => prod.Material)
                 .Include(prod => prod.Images)
                 .Include(prod => prod.Variants)
+                .Include(prod => prod.Reviews)
                 .FirstOrDefaultAsync(prod => prod.Id == id);
 
             if (p == null) return NotFound();
@@ -104,21 +105,83 @@ namespace web_Trang_suc_BE.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateProduct(CreateProductDto dto)
         {
-            var p = new Product {
-                Name = dto.Name, Sku = dto.Sku, Price = dto.Price, OriginalPrice = dto.OriginalPrice,
-                CategoryId = dto.CategoryId, MaterialId = dto.MaterialId, Description = dto.Description,
-                IsNew = dto.IsNew, IsSale = dto.IsSale, StockQuantity = dto.StockQuantity
+            var product = new Product
+            {
+                Sku = dto.Sku,
+                Name = dto.Name,
+                Price = dto.Price,
+                OriginalPrice = dto.OriginalPrice,
+                Description = dto.Description,
+                OriginStory = dto.OriginStory,
+                CategoryId = dto.CategoryId != 0 ? dto.CategoryId : await _context.Categories.Where(c => c.Name.ToLower() == (dto.Category ?? "").ToLower()).Select(c => c.Id).FirstOrDefaultAsync(),
+                MaterialId = dto.MaterialId != 0 ? (int?)dto.MaterialId : null,
+                StockQuantity = dto.StockQuantity,
+                IsNew = dto.IsNew,
+                IsSale = dto.IsSale
             };
-            _context.Products!.Add(p);
+
+            if (dto.Images.Any())
+            {
+                foreach (var url in dto.Images)
+                {
+                    product.Images.Add(new ProductImage { Url = url });
+                }
+            }
+
+            foreach (var v in dto.Variants)
+            {
+                product.Variants.Add(new ProductVariant
+                {
+                    Sku = v.Sku,
+                    Size = v.Size,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity,
+                    IsSale = v.IsSale
+                });
+            }
+
+            _context.Products!.Add(product);
             await _context.SaveChangesAsync();
             return Ok();
         }
-        
+        // PUT: api/Products/5 (Admin only)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct(int id, ProductDto dto)
+        {
+            var product = await _context.Products!
+                .Include(p => p.Variants)
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null) return NotFound();
+
+            product.Name = dto.Name;
+            product.Description = dto.Description;
+            product.OriginStory = dto.OriginStory;
+            
+            // Simplified variant update logic: clear and re-add for now
+            _context.ProductVariants.RemoveRange(product.Variants);
+            foreach (var v in dto.Variants ?? new())
+            {
+                product.Variants.Add(new ProductVariant
+                {
+                    Sku = v.Sku,
+                    Size = v.Size,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity,
+                    IsSale = v.IsSale
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(long id)
         {
             var p = await _context.Products!.FindAsync(id);
             if (p == null) return NotFound();
+
             _context.Products.Remove(p);
             await _context.SaveChangesAsync();
             return Ok();

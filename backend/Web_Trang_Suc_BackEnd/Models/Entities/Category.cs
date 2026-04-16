@@ -23,6 +23,12 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("imageUrl")]
         public string? ImageUrl { get; set; }
 
+        [Column("description")]
+        public string? Description { get; set; }
+
+        [Column("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }
