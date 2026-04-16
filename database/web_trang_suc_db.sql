@@ -42,6 +42,8 @@ CREATE TABLE `categories` (
   `slug` varchar(255) NOT NULL,
   `name` varchar(255) NOT NULL,
   `imageUrl` text DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   UNIQUE KEY `slug_unique` (`slug`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -69,6 +71,7 @@ CREATE TABLE `products` (
   `price` decimal(15,2) NOT NULL,
   `originalPrice` decimal(15,2) DEFAULT NULL,
   `description` text DEFAULT NULL,
+  `originStory` text DEFAULT NULL,
   `stockQuantity` int(11) DEFAULT 0,
   `rating` decimal(3,2) DEFAULT 0.00,
   `reviewCount` int(11) DEFAULT 0,
@@ -180,10 +183,26 @@ CREATE TABLE `favorites` (
   CONSTRAINT `fk_favorites_product` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+-- Bảng 10: reviews (Đánh giá)
+CREATE TABLE `reviews` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` char(36) NOT NULL,
+  `product_id` bigint(20) NOT NULL,
+  `rating` int(11) NOT NULL,
+  `comment` text DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_reviews_user` (`user_id`),
+  KEY `fk_reviews_product` (`product_id`),
+  CONSTRAINT `fk_reviews_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_reviews_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
--- Bảng 10: shop_settings (Cấu hình liên hệ) - camelCase
+-- Bảng 11: shop_settings (Cấu hình liên hệ) - camelCase
 CREATE TABLE `shop_settings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `phone` varchar(50) NOT NULL,
@@ -193,7 +212,9 @@ CREATE TABLE `shop_settings` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---BẢNG 11: BANNER
+-- --------------------------------------------------------
+
+-- Bảng 12: banners (Banner quảng cáo)
 CREATE TABLE `banners` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `imageUrl` text NOT NULL,
@@ -203,17 +224,65 @@ CREATE TABLE `banners` (
   `isActive` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 13: carts (Giỏ hàng)
+CREATE TABLE `carts` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `userId` char(36) DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `fk_carts_user` (`userId`),
+  CONSTRAINT `fk_carts_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 14: cart_items (Chi tiết giỏ hàng)
+CREATE TABLE `cart_items` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `cartId` bigint(20) NOT NULL,
+  `productId` bigint(20) NOT NULL,
+  `variantId` bigint(20) DEFAULT NULL,
+  `quantity` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_cartitems_cart` (`cartId`),
+  KEY `fk_cartitems_product` (`productId`),
+  CONSTRAINT `fk_cartitems_cart` FOREIGN KEY (`cartId`) REFERENCES `carts` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_cartitems_product` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 15: wishlist (Danh sách mong muốn)
+CREATE TABLE `wishlist` (
+  `userId` char(36) NOT NULL,
+  `productId` bigint(20) NOT NULL,
+  PRIMARY KEY (`userId`,`productId`),
+  KEY `fk_wishlist_product` (`productId`),
+  CONSTRAINT `fk_wishlist_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_wishlist_product` FOREIGN KEY (`productId`) REFERENCES `products` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+-- Bảng 16: services & suppliers & promotions (Bảng trống để tránh lỗi EF Core)
+CREATE TABLE `services` (`id` int NOT NULL AUTO_INCREMENT, `name` varchar(255), PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `suppliers` (`id` int NOT NULL AUTO_INCREMENT, `name` varchar(255), PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+CREATE TABLE `promotions` (`id` int NOT NULL AUTO_INCREMENT, `name` varchar(255), `discount` int, PRIMARY KEY (`id`)) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- ========================================================
 -- DỮ LIỆU MẪU (MOCK DATA TỪ FRONTEND)
 -- ========================================================
 
--- Chèn dữ liệu Danh mục (Categories)
-INSERT INTO `categories` (`id`, `slug`, `name`, `imageUrl`) VALUES
-(1, 'necklace', 'Dây Chuyền', NULL),
-(2, 'ring', 'Nhẫn', NULL),
-(3, 'bracelet', 'Lắc Tay', NULL),
-(4, 'anklet', 'Lắc Chân', NULL),
-(5, 'earring', 'Bông Tai', NULL);
+-- Chèn dữ liệu Danh mục (Categories) với ImageUrl thật
+INSERT INTO `categories` (`id`, `slug`, `name`, `imageUrl`, `description`) VALUES
+(1, 'necklace', 'Dây Chuyền', 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80', 'Những mẫu dây chuyền tinh tế, tôn vinh vẻ đẹp vùng cổ.'),
+(2, 'ring', 'Nhẫn', 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80', 'Biểu tượng của tình yêu và sự cam kết vĩnh cửu.'),
+(3, 'bracelet', 'Lắc Tay', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80', 'Điểm nhấn sang trọng cho đôi tay phái đẹp.'),
+(4, 'anklet', 'Lắc Chân', 'https://images.unsplash.com/photo-1535633302704-b04049b39862?w=800&q=80', 'Sự nhẹ nhàng, duyên dáng trong từng bước chân.'),
+(5, 'earring', 'Bông Tai', 'https://images.unsplash.com/photo-1535633302704-b04049b39862?w=800&q=80', 'Lấp lánh và rạng rỡ, làm nổi bật khuôn mặt.');
 
 -- Chèn dữ liệu Chất liệu (Materials)
 INSERT INTO `materials` (`id`, `slug`, `name`) VALUES
@@ -223,42 +292,21 @@ INSERT INTO `materials` (`id`, `slug`, `name`) VALUES
 (4, 'diamond', 'Kim Cương');
 
 -- Chèn dữ liệu Sản phẩm (Products)
--- Ghi chú: Tổng số lượng trong stockQuantity = Sum từ các biến thể (để đúng logic E-commerce)
-INSERT INTO `products` (`id`, `sku`, `name`, `categoryId`, `materialId`, `price`, `originalPrice`, `description`, `stockQuantity`, `rating`, `reviewCount`, `isNew`, `isSale`) VALUES
-(1, 'TIF-KNOT-WG', 'Tiffany Knot Ring', 2, 1, 145000000.00, 150000000.00, 'Nhẫn đính kim cương với thiết kế nút thắt tượng trưng cho sự gắn kết vĩnh cửu.', 108, 4.9, 128, 1, 1),
-(2, 'TIF-LOCK-RG', 'Tiffany Lock Bangle', 3, 1, 190000000.00, NULL, 'Lắc tay Vàng hồng 18k mang mãnh lực tình yêu.', 32, 4.8, 94, 0, 0),
-(3, 'TIF-SMILE-YG', 'Tiffany T Smile Pendant', 1, 1, 25000000.00, NULL, 'Dây chuyền vàng mang nụ cười tinh tế.', 45, 5.0, 231, 0, 0),
-(4, 'TIF-ELSA-PT', 'Elsa Peretti® Diamonds by the Yard® Earrings', 5, 4, 42000000.00, 48000000.00, 'Bông tai kim cương mang vẻ đẹp rực rỡ và thuần khiết.', 20, 4.7, 56, 1, 1);
+INSERT INTO `products` (`id`, `sku`, `name`, `categoryId`, `materialId`, `price`, `originalPrice`, `description`, `originStory`, `stockQuantity`, `rating`, `reviewCount`, `isNew`, `isSale`) VALUES
+(1, 'TIF-KNOT-WG', 'Tiffany Knot Ring', 2, 1, 145000000.00, 150000000.00, 'Nhẫn đính kim cương với thiết kế nút thắt tượng trưng cho sự gắn kết vĩnh cửu.', 'Lấy cảm hứng từ những nút thắt trong cuộc sống, tượng trưng cho sự kết nối không thể tách rời.', 108, 4.9, 128, 1, 1),
+(2, 'TIF-LOCK-RG', 'Tiffany Lock Bangle', 3, 1, 190000000.00, NULL, 'Lắc tay Vàng hồng 18k mang mãnh lực tình yêu.', 'Thiết kế ổ khóa đặc trưng, bảo vệ những gì quý giá nhất.', 32, 4.8, 94, 0, 0),
+(3, 'TIF-SMILE-YG', 'Tiffany T Smile Pendant', 1, 1, 25000000.00, NULL, 'Dây chuyền vàng mang nụ cười tinh tế.', 'Một lời nhắc nhở về niềm vui và sự lạc quan mỗi ngày.', 45, 5.0, 231, 0, 0),
+(4, 'TIF-ELSA-PT', 'Elsa Peretti® Diamonds by the Yard® Earrings', 5, 4, 42000000.00, 48000000.00, 'Bông tai kim cương mang vẻ đẹp rực rỡ và thuần khiết.', 'Thiết kế của Elsa Peretti, mang phong cách tối giản nhưng vô cùng sang trọng.', 20, 4.7, 56, 1, 1),
+(5, 'VEL-DIA-NECK', 'Velmora Diamond Heart', 1, 4, 85000000.00, 95000000.00, 'Dây chuyền kim cương hình trái tim đại diện cho tình yêu nồng cháy.', 'Kiệt tác được chế tác thủ công trong 200 giờ bởi nghệ nhân Velmora.', 15, 4.9, 45, 1, 1);
 
 -- Chèn dữ liệu Biến thể (Product Variants)
--- Sản phẩm 1: 9 biến thể x 12
 INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`) VALUES
 (101, 1, 'TIF-KNOT-WG-4', '4', 145000000.00, 150000000.00, 12, 1),
-(102, 1, 'TIF-KNOT-WG-4.5', '4.5', 145000000.00, 150000000.00, 12, 1),
-(103, 1, 'TIF-KNOT-WG-5', '5', 145000000.00, 150000000.00, 12, 1),
-(104, 1, 'TIF-KNOT-WG-5.5', '5.5', 145000000.00, 150000000.00, 12, 1),
-(105, 1, 'TIF-KNOT-WG-6', '6', 145000000.00, 150000000.00, 12, 1),
-(106, 1, 'TIF-KNOT-WG-6.5', '6.5', 145000000.00, 150000000.00, 12, 1),
-(107, 1, 'TIF-KNOT-WG-7', '7', 145000000.00, 150000000.00, 12, 1),
-(108, 1, 'TIF-KNOT-WG-7.5', '7.5', 145000000.00, 150000000.00, 12, 1),
-(109, 1, 'TIF-KNOT-WG-8', '8', 145000000.00, 150000000.00, 12, 1);
-
--- Sản phẩm 2: 4 biến thể x 8
-INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`) VALUES
-(201, 2, 'TIF-LOCK-RG-1.47', '1.47', 190000000.00, NULL, 8, 0),
-(202, 2, 'TIF-LOCK-RG-1.5', '1.5', 190000000.00, NULL, 8, 0),
-(203, 2, 'TIF-LOCK-RG-1.6', '1.6', 190000000.00, NULL, 8, 0),
-(204, 2, 'TIF-LOCK-RG-1.7', '1.7', 190000000.00, NULL, 8, 0);
-
--- Sản phẩm 3: 3 biến thể x 15
-INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`) VALUES
+(102, 1, 'TIF-KNOT-WG-5', '5', 145000000.00, 150000000.00, 12, 1),
+(201, 2, 'TIF-LOCK-RG-S', 'S', 190000000.00, NULL, 8, 0),
 (301, 3, 'TIF-SMILE-YG-16', '16"', 25000000.00, NULL, 15, 0),
-(302, 3, 'TIF-SMILE-YG-18', '18"', 25000000.00, NULL, 15, 0),
-(303, 3, 'TIF-SMILE-YG-20', '20"', 25000000.00, NULL, 15, 0);
-
--- Sản phẩm 4: 1 biến thể x 20
-INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`) VALUES
-(401, 4, 'TIF-ELSA-PT-OS', 'One Size', 42000000.00, 48000000.00, 20, 1);
+(401, 4, 'TIF-ELSA-PT-OS', 'One Size', 42000000.00, 48000000.00, 20, 1),
+(501, 5, 'VEL-DIA-NECK-OS', 'One Size', 85000000.00, 95000000.00, 15, 1);
 
 -- Chèn dữ liệu Hình ảnh (Product Images)
 INSERT INTO `product_images` (`productId`, `url`, `isMain`, `displayOrder`) VALUES
@@ -267,24 +315,20 @@ INSERT INTO `product_images` (`productId`, `url`, `isMain`, `displayOrder`) VALU
 (2, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-lockbangle-70180422_1052959_ED.jpg', 1, 1),
 (2, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-lockbangle-70180422_1052960_AV_1.jpg', 0, 2),
 (3, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997784_ED_M.jpg', 1, 1),
-(3, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997785_AV_1.jpg', 0, 2),
 (4, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/elsa-perettidiamonds-by-the-yardearrings-12818653_936173_ED.jpg', 1, 1),
-(4, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/elsa-perettidiamonds-by-the-yardearrings-12818653_936174_AV_1.jpg', 0, 2);
-
+(5, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997784_ED_M.jpg', 1, 1);
 
 -- Chèn dữ liệu Thông tin cửa hàng (Shop Settings)
 INSERT INTO `shop_settings` (`phone`, `email`, `workingHours`) VALUES
 ('1900 520 131', 'luxelum@gmail.com', 'T2-CN: 8:00 - 23:00');
 
-
--- Chèn dữ liệu banner mặc định (khớp với giao diện hiện tại)
+-- Chèn dữ liệu banner mặc định
 INSERT INTO `banners` (`imageUrl`, `subtitle`, `title`, `description`, `isActive`) VALUES
 ('https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80', 
  'Bộ sưu tập mới 2025', 
  'Tinh Hoa\nTrang Sức Việt', 
  'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\nSang trọng, tinh tế, vĩnh cửu.', 
  1);
-
 
 COMMIT;
 

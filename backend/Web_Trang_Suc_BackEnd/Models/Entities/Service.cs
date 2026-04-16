@@ -10,22 +10,9 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("icon_name")]
-        [Required]
-        [MaxLength(50)]
-        public string IconName { get; set; } = string.Empty;
-
-        [Column("title")]
-        [Required]
-        [MaxLength(100)]
-        public string Title { get; set; } = string.Empty;
-
-        [Column("description")]
+        [Column("name")]
         [Required]
         [MaxLength(255)]
-        public string Description { get; set; } = string.Empty;
-
-        [Column("order_index")]
-        public int OrderIndex { get; set; } = 0;
+        public string Name { get; set; } = string.Empty;
     }
 }

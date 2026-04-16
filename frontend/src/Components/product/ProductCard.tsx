@@ -89,7 +89,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
 
         {/* Favorite Button */}
-        <button 
+        <button
           className={`product-card__fav-btn ${isFavorite(product.id) ? 'is-fav' : ''}`}
           onClick={handleToggleFav}
           aria-label="Thêm vào yêu thích"
@@ -102,7 +102,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill={isFavorite(product.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
           </svg>
         </button>
 
@@ -126,7 +126,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               aria-label="Thêm vào giỏ hàng"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
               </svg>
               {product.availableSizes && product.availableSizes.length > 0 ? 'Chọn size' : 'Thêm vào giỏ'}
             </button>
@@ -191,9 +191,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       <div className="product-card__info">
         <p className="product-card__category">
           {product.category === 'necklace' ? 'Dây chuyền' :
-           product.category === 'ring' ? 'Nhẫn' :
-           product.category === 'bracelet' ? 'Lắc tay' :
-           product.category === 'anklet' ? 'Lắc chân' : 'Bông tai'}
+            product.category === 'ring' ? 'Nhẫn' :
+              product.category === 'bracelet' ? 'Lắc tay' :
+                product.category === 'anklet' ? 'Lắc chân' : 'Bông tai'}
         </p>
         <h3 className="product-card__name">{product.name}</h3>
         <div className="product-card__price-row">

@@ -32,9 +32,12 @@ namespace web_Trang_suc_BE.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure Composite Key for Favorites
+            // Configure Composite Keys
             modelBuilder.Entity<Favorite>()
                 .HasKey(f => new { f.UserId, f.ProductId });
+
+            modelBuilder.Entity<Wishlist>()
+                .HasKey(w => new { w.UserId, w.ProductId });
         }
     }
 }

@@ -58,6 +58,10 @@ const HomePage: React.FC = () => {
     .filter(p => p.isNew)
     .slice(0, 4);
 
+  const saleProducts = products
+    .filter(p => p.isSale)
+    .slice(0, 4);
+
   // Categories: show first 4, or all if "Xem tất cả" was clicked
   const visibleCategories = showAllCategories
     ? categories
@@ -197,6 +201,29 @@ const HomePage: React.FC = () => {
             <div className="section__footer">
               <Link to="/products" className="btn-outline">
                 Xem Tất Cả Sản Phẩm
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ===== SALE SECTION ===== */}
+      {!loading && saleProducts.length > 0 && (
+        <section className="section" style={{ backgroundColor: 'var(--color-surface)' }}>
+          <div className="container">
+            <div className="section__header">
+              <p className="section__subtitle">Ưu đãi hấp dẫn</p>
+              <h2 className="section__title">Đang Giảm Giá</h2>
+              <div className="divider" />
+            </div>
+            <div className="products-grid">
+              {saleProducts.map(p => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+            <div className="section__footer">
+              <Link to="/products?isSale=true" className="btn-outline">
+                Xem Tất Cả Khuyến Mãi
               </Link>
             </div>
           </div>
