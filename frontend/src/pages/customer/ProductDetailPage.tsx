@@ -221,7 +221,7 @@ const ProductDetailPage: React.FC = () => {
                       <button 
                         key={size}
                         className={`size-option ${selectedSize === size ? 'selected' : ''}`}
-                        onClick={() => setSelectedSize(size)}
+                        onClick={() => setSelectedSize(s => s === size ? '' : size)}
                       >
                         {size}
                       </button>

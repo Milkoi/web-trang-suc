@@ -16,8 +16,8 @@ export interface Product {
   name: string;
   price: number;
   originalPrice?: number;
-  category: 'necklace' | 'ring' | 'bracelet' | 'anklet' | 'earring';
-  material: 'gold' | 'silver' | 'platinum' | 'diamond';
+  category: string;
+  material: string;
   images: string[];
   description: string;
   inStock: boolean;

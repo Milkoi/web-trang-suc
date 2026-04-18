@@ -30,7 +30,10 @@ const ProductsPage: React.FC = () => {
     const cat = searchParams.get('category');
     return cat ? { ...DEFAULT_FILTERS, categories: [cat] } : DEFAULT_FILTERS;
   });
-  const [sort, setSort] = useState<SortOption>('newest');
+  const [sort, setSort] = useState<SortOption>(() => {
+    const s = searchParams.get('sort');
+    return (s as SortOption) || 'newest';
+  });
   const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => {
@@ -53,10 +56,13 @@ const ProductsPage: React.FC = () => {
     const cat = searchParams.get('category');
     const q = searchParams.get('q');
     const isNew = searchParams.get('isNew');
+    const isSale = searchParams.get('isSale');
+    
     setFilters((prev: ProductFilters) => ({
       ...prev,
       categories: cat ? [cat] : prev.categories,
       isNew: isNew === 'true' ? true : prev.isNew,
+      isSale: isSale === 'true' ? true : prev.isSale,
     }));
   }, [searchParams]);
 
@@ -101,6 +107,33 @@ const ProductsPage: React.FC = () => {
       default: return list.sort((a, b) => b.id - a.id);
     }
   }, [filters, sort, searchQuery, productsList]);
+  let pageTitle = 'Tất Cả Sản Phẩm';
+  let pageSubtitle = 'Khám phá bộ sưu tập trang sức tinh tế từ bàn tay nghệ nhân';
+
+  if (searchQuery) {
+    pageTitle = `Kết quả: "${searchQuery}"`;
+    pageSubtitle = 'Các sản phẩm phù hợp với từ khóa tìm kiếm';
+  } else if (filters.isSale) {
+    pageTitle = 'Đang Giảm Giá';
+    pageSubtitle = 'Khám phá các ưu đãi hấp dẫn nhất dành cho bạn';
+  } else if (filters.isNew) {
+    pageTitle = 'Hàng Mới Về';
+    pageSubtitle = 'Những mẫu thiết kế mới nhất vừa được ra mắt';
+  } else if (sort === 'popular' && !filters.categories.length && !filters.materials.length) {
+    pageTitle = 'Sản Phẩm Nổi Bật';
+    pageSubtitle = 'Những mẫu trang sức được yêu thích và đánh giá cao nhất';
+  } else if (filters.categories.length === 1) {
+    const slug = filters.categories[0];
+    const catMap: Record<string, string> = {
+      necklace: 'Dây Chuyền',
+      ring: 'Nhẫn',
+      bracelet: 'Lắc Tay',
+      anklet: 'Lắc Chân',
+      earring: 'Bông Tai'
+    };
+    pageTitle = catMap[slug] || `Danh mục: ${slug}`;
+    pageSubtitle = 'Khám phá sản phẩm theo danh mục bạn chọn';
+  }
 
   return (
     <div className="products-page page-content">
@@ -108,10 +141,10 @@ const ProductsPage: React.FC = () => {
       <div className="products-page__header">
         <div className="container">
           <h1 className="products-page__title">
-            {searchQuery ? `Kết quả: "${searchQuery}"` : 'Tất Cả Sản Phẩm'}
+            {pageTitle}
           </h1>
           <p className="products-page__subtitle">
-            Khám phá bộ sưu tập trang sức tinh tế từ bàn tay nghệ nhân
+            {pageSubtitle}
           </p>
         </div>
       </div>

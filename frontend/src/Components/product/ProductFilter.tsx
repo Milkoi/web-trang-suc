@@ -8,26 +8,36 @@ interface ProductFilterProps {
   totalResults: number;
 }
 
-const CATEGORIES = [
-  { id: 'necklace', label: 'Dây Chuyền' },
-  { id: 'ring', label: 'Nhẫn' },
-  { id: 'bracelet', label: 'Lắc Tay' },
-  { id: 'anklet', label: 'Lắc Chân' },
-  { id: 'earring', label: 'Bông Tai' },
-];
+import api from '../../services/api';
 
-const MATERIALS = [
-  { id: 'gold', label: 'Vàng' },
-  { id: 'silver', label: 'Bạc' },
-  { id: 'platinum', label: 'Bạch Kim' },
-  { id: 'diamond', label: 'Kim Cương' },
-];
+interface FilterOption {
+  id: string;
+  label: string;
+}
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat('vi-VN', { notation: 'compact', compactDisplay: 'short' }).format(price);
 
 const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, totalResults }) => {
   const [openSections, setOpenSections] = useState<string[]>(['category', 'material', 'price']);
+  const [categories, setCategories] = useState<FilterOption[]>([]);
+  const [materials, setMaterials] = useState<FilterOption[]>([]);
+
+  React.useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const [catRes, matRes] = await Promise.all([
+          api.get('/categories'),
+          api.get('/materials')
+        ]);
+        setCategories(catRes.data.map((c: any) => ({ id: c.slug, label: c.name })));
+        setMaterials(matRes.data);
+      } catch (err) {
+        console.error('Failed to load filter options:', err);
+      }
+    };
+    fetchFilters();
+  }, []);
 
   const toggleSection = (section: string) => {
     setOpenSections(prev =>
@@ -98,7 +108,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
         </button>
         {openSections.includes('category') && (
           <div className="filter-section__content">
-            {CATEGORIES.map(cat => (
+            {categories.map(cat => (
               <label key={cat.id} className="filter-checkbox">
                 <input
                   type="checkbox"
@@ -129,7 +139,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
         </button>
         {openSections.includes('material') && (
           <div className="filter-section__content">
-            {MATERIALS.map(mat => (
+            {materials.map(mat => (
               <label key={mat.id} className="filter-checkbox">
                 <input
                   type="checkbox"

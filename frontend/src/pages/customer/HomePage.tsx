@@ -199,8 +199,8 @@ const HomePage: React.FC = () => {
               ))}
             </div>
             <div className="section__footer">
-              <Link to="/products" className="btn-outline">
-                Xem Tất Cả Sản Phẩm
+              <Link to="/products?sort=popular" className="btn-outline">
+                Xem Tất Cả Sản Phẩm Liên Quan
               </Link>
             </div>
           </div>

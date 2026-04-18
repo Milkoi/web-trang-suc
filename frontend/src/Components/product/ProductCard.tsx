@@ -16,7 +16,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
   const [showSizePicker, setShowSizePicker] = useState(false);
-  const [quickSize, setQuickSize] = useState<string>(product.availableSizes?.[0] || '');
+  const [quickSize, setQuickSize] = useState<string>('');
   const [quickQuantity, setQuickQuantity] = useState<number>(1);
   const sizePickerRef = useRef<HTMLDivElement | null>(null);
 
@@ -40,9 +40,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     e.preventDefault();
     e.stopPropagation();
     if (product.availableSizes && product.availableSizes.length > 0) {
-      if (!quickSize) {
-        setQuickSize(product.availableSizes[0]);
-      }
       setShowSizePicker(true);
       return;
     }
@@ -142,7 +139,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                       onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
-                        setQuickSize(size);
+                        setQuickSize(prev => prev === size ? '' : size);
                       }}
                     >
                       {size}
@@ -178,8 +175,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <button
                   className="product-card__size-add-btn"
                   onClick={handleAddSizeToCart}
+                  disabled={!quickSize}
+                  style={{ opacity: !quickSize ? 0.5 : 1, cursor: !quickSize ? 'not-allowed' : 'pointer' }}
                 >
-                  Thêm {quickQuantity} size {quickSize}
+                  {quickSize ? `Thêm ${quickQuantity} size ${quickSize}` : 'Vui lòng chọn kích thước'}
                 </button>
               </div>
             )}
