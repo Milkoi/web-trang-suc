@@ -10,8 +10,11 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("id")]
         public long Id { get; set; }
 
-        [Column("user_id")]
+        [Column("userId")]
         public string UserId { get; set; } = string.Empty;
+
+        [Column("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties
         [ForeignKey("UserId")]

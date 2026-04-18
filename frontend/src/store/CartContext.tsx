@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { CartItem, Product, ProductVariant } from '../types';
 import { useAuth } from './AuthContext';
+import api from '../services/api';
 
 interface CartState {
   items: CartItem[];
@@ -150,30 +151,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user, isAuthenticated, openAuth } = useAuth();
 
   const [state, dispatch] = useReducer(cartReducer, {
-    items: user ? JSON.parse(localStorage.getItem(`cart_${user.id}`) || '[]') : [],
+    items: [],
     isOpen: false,
     discountCode: '',
     discountAmount: 0,
   });
 
+  // Fetch from server when logged in
   useEffect(() => {
-    if (isAuthenticated && user) {
-      const savedCart = localStorage.getItem(`cart_${user.id}`);
-      if (savedCart) {
-        dispatch({ type: 'SET_CART', payload: JSON.parse(savedCart) });
+    const fetchCart = async () => {
+      if (isAuthenticated && user) {
+        try {
+          const response = await api.get('/carts');
+          dispatch({ type: 'SET_CART', payload: response.data });
+        } catch (error) {
+          console.error('Failed to fetch cart', error);
+          dispatch({ type: 'CLEAR_CART' });
+        }
       } else {
         dispatch({ type: 'CLEAR_CART' });
       }
-    } else {
-      dispatch({ type: 'CLEAR_CART' });
-    }
+    };
+    fetchCart();
   }, [isAuthenticated, user?.id]);
-
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      localStorage.setItem(`cart_${user.id}`, JSON.stringify(state.items));
-    }
-  }, [state.items, isAuthenticated, user?.id]);
 
   const selectedItems = state.items.filter((i: CartItem) => i.selected);
   const totalItems = state.items.reduce((sum: number, i: CartItem) => sum + i.quantity, 0);
@@ -183,18 +183,71 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, 0);
   const total = subtotal * (1 - state.discountAmount);
 
-  const addToCart = (product: Product, quantity = 1, size?: string, variant?: ProductVariant) => {
+  // Sync wrappers
+  const addToCart = async (product: Product, quantity = 1, size?: string, variant?: ProductVariant) => {
     if (!isAuthenticated) {
       openAuth('login');
       return;
     }
+    
+    // Optimistic UI updates
     dispatch({ type: 'ADD_ITEM', payload: { product, quantity, size, variant } });
     dispatch({ type: 'OPEN_CART' });
+
+    // Server Call
+    try {
+      await api.post('/carts/items', {
+        productId: product.id,
+        variantId: variant?.id,
+        quantity: quantity,
+        size: size,
+      });
+    } catch(err) {
+      console.error('API failed to add to cart', err);
+      // Fallback: sync from server again
+      const serverState = await api.get('/carts');
+      dispatch({ type: 'SET_CART', payload: serverState.data });
+    }
   };
-  const removeFromCart = (id: number, size?: string, variantId?: number) => dispatch({ type: 'REMOVE_ITEM', payload: { id, size, variantId } });
-  const updateQuantity = (id: number, quantity: number, size?: string, variantId?: number) =>
+
+  const removeFromCart = async (id: number, size?: string, variantId?: number) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: { id, size, variantId } });
+    if(isAuthenticated) {
+      try {
+        await api.delete('/carts/items', {
+          data: { productId: id, variantId, size }
+        });
+      } catch (err) {
+        console.error('Failed API remove', err);
+      }
+    }
+  };
+
+  const updateQuantity = async (id: number, quantity: number, size?: string, variantId?: number) => {
     dispatch({ type: 'UPDATE_QUANTITY', payload: { id, size, variantId, quantity } });
-  const clearCart = () => dispatch({ type: 'CLEAR_CART' });
+    if(isAuthenticated) {
+      try {
+        await api.put('/carts/items', {
+          productId: id,
+          variantId,
+          size,
+          quantity
+        });
+      } catch (err) {
+        console.error('Failed API update quant', err);
+      }
+    }
+  };
+
+  const clearCart = async () => {
+    dispatch({ type: 'CLEAR_CART' });
+    if (isAuthenticated) {
+      try {
+        await api.delete('/carts');
+      } catch(err){}
+    }
+  };
+
   const clearSelectedItems = () => dispatch({ type: 'CLEAR_SELECTED_ITEMS' });
   const toggleItemSelected = (id: number, size?: string, variantId?: number) => dispatch({ type: 'TOGGLE_ITEM_SELECTED', payload: { id, size, variantId } });
   const toggleAllSelected = (selected: boolean) => dispatch({ type: 'TOGGLE_ALL_SELECTED', payload: selected });

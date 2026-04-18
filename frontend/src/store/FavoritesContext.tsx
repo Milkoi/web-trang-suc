@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '../types';
 import { useAuth } from './AuthContext';
+import api from '../services/api';
 
 interface FavoritesContextType {
   favorites: Product[];
@@ -12,52 +13,50 @@ const FavoritesContext = createContext<FavoritesContextType | undefined>(undefin
 
 export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated, openAuth } = useAuth();
-  const [favorites, setFavorites] = useState<Product[]>(() => {
-    if (user) {
-      const stored = localStorage.getItem(`favorites_${user.id}`);
-      return stored ? JSON.parse(stored) : [];
-    }
-    return [];
-  });
+  const [favorites, setFavorites] = useState<Product[]>([]);
 
-  // Sync from local storage on auth change
+  // Fetch favorites from API on auth change
   useEffect(() => {
-    if (isAuthenticated && user) {
-      const storedFavs = localStorage.getItem(`favorites_${user.id}`);
-      if (storedFavs) {
+    const fetchFavorites = async () => {
+      if (isAuthenticated && user) {
         try {
-          setFavorites(JSON.parse(storedFavs));
-        } catch (e) {
-          console.error('Failed to parse favorites from local storage');
+          const response = await api.get('/favorites');
+          setFavorites(response.data);
+        } catch (error) {
+          console.error('Failed to fetch favorites from server', error);
+          setFavorites([]);
         }
       } else {
         setFavorites([]);
       }
-    } else {
-      setFavorites([]);
-    }
+    };
+    fetchFavorites();
   }, [isAuthenticated, user?.id]);
 
-  // Save to local storage whenever favorites change
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      localStorage.setItem(`favorites_${user.id}`, JSON.stringify(favorites));
-    }
-  }, [favorites, isAuthenticated, user?.id]);
-
-  const toggleFavorite = (product: Product) => {
+  const toggleFavorite = async (product: Product) => {
     if (!isAuthenticated) {
       openAuth('login');
       return;
     }
-    setFavorites(prev => {
-      const exists = prev.some(p => p.id === product.id);
-      if (exists) {
-        return prev.filter(p => p.id !== product.id);
+
+    const isFav = isFavorite(product.id);
+
+    try {
+      if (isFav) {
+        // Optimistic UI update
+        setFavorites(prev => prev.filter(p => p.id !== product.id));
+        await api.delete(`/favorites/${product.id}`);
       } else {
-        return [...prev, product];
+        // Optimistic UI update
+        setFavorites(prev => [...prev, product]);
+        await api.post(`/favorites/${product.id}`);
       }
-    });
+    } catch (error) {
+      console.error('Failed to update favorite status', error);
+      // Revert optimistic update on failure
+      const response = await api.get('/favorites');
+      setFavorites(response.data);
+    }
   };
 
   const isFavorite = (id: number) => {
