@@ -26,12 +26,14 @@ export interface Product {
   rating: number;
   reviews: number;
   sku: string;
+  stockQuantity?: number;
   originStory?: string;
   availableSizes?: string[];
   variants?: ProductVariant[];
 }
 
 export interface CartItem {
+  id: number;
   product: Product;
   quantity: number;
   size?: string;
@@ -40,6 +42,7 @@ export interface CartItem {
   priceAtPurchase?: number;
   selected?: boolean;
 }
+
 
 export interface Cart {
   items: CartItem[];

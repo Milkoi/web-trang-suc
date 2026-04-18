@@ -12,11 +12,11 @@ interface CartState {
 
 type CartAction =
   | { type: 'ADD_ITEM'; payload: { product: Product; quantity?: number; size?: string; variant?: ProductVariant } }
-  | { type: 'REMOVE_ITEM'; payload: { id: number; size?: string; variantId?: number } }
-  | { type: 'UPDATE_QUANTITY'; payload: { id: number; size?: string; variantId?: number; quantity: number } }
+  | { type: 'REMOVE_ITEM'; payload: { id?: number; productId: number; size?: string; variantId?: number } }
+  | { type: 'UPDATE_QUANTITY'; payload: { id?: number; productId: number; size?: string; variantId?: number; quantity: number } }
   | { type: 'CLEAR_CART' }
   | { type: 'CLEAR_SELECTED_ITEMS' }
-  | { type: 'TOGGLE_ITEM_SELECTED'; payload: { id: number; size?: string; variantId?: number } }
+  | { type: 'TOGGLE_ITEM_SELECTED'; payload: { id: number; productId: number; size?: string; variantId?: number } }
   | { type: 'TOGGLE_ALL_SELECTED'; payload: boolean }
   | { type: 'TOGGLE_CART' }
   | { type: 'OPEN_CART' }
@@ -25,21 +25,29 @@ type CartAction =
   | { type: 'APPLY_DISCOUNT'; payload: { code: string; amount: number } }
   | { type: 'CLEAR_DISCOUNT' };
 
-const areSameCartItem = (item: CartItem, id: number, variantId?: number, size?: string) =>
-  item.product.id === id &&
-  ((variantId !== undefined && variantId !== null)
-    ? (item.variant?.id ?? item.variantId ?? -1) === variantId
-    : (item.size ?? '') === (size ?? ''));
+const areSameCartItem = (item: CartItem, selector: { id?: number; productId: number; variantId?: number; size?: string }) => {
+  if (selector.id && item.id === selector.id) return true;
+
+  return item.product.id === selector.productId &&
+    ((selector.variantId !== undefined && selector.variantId !== null)
+      ? (item.variant?.id ?? item.variantId ?? -1) === selector.variantId
+      : (item.size ?? '') === (selector.size ?? ''));
+};
 
 const cartReducer = (state: CartState, action: CartAction): CartState => {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existingIndex = state.items.findIndex(i => areSameCartItem(i, action.payload.product.id, action.payload.variant?.id, action.payload.size));
+      const existingIndex = state.items.findIndex(i => areSameCartItem(i, { productId: action.payload.product.id, variantId: action.payload.variant?.id, size: action.payload.size }));
       const priceAtPurchase = action.payload.variant?.price ?? action.payload.product.price;
       if (existingIndex >= 0) {
+        const item = state.items[existingIndex];
+        const maxStock = item.variant ? (item.variant.stockQuantity ?? 0) : (item.product.stockQuantity ?? 0);
+        const requestedQty = action.payload.quantity || 1;
+        const newQuantity = Math.min(item.quantity + requestedQty, maxStock);
+
         const updatedItem = {
-          ...state.items[existingIndex],
-          quantity: state.items[existingIndex].quantity + (action.payload.quantity || 1),
+          ...item,
+          quantity: newQuantity,
         };
         return {
           ...state,
@@ -49,12 +57,16 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
           ],
         };
       }
+      const maxStock = action.payload.variant ? (action.payload.variant.stockQuantity ?? 0) : (action.payload.product.stockQuantity ?? 0);
+      const initialQty = Math.min(action.payload.quantity || 1, maxStock);
+
       return {
         ...state,
         items: [
           {
+            id: -1, // Temporary ID for optimistic local only items
             product: action.payload.product,
-            quantity: action.payload.quantity || 1,
+            quantity: initialQty,
             size: action.payload.size,
             variant: action.payload.variant,
             variantId: action.payload.variant?.id,
@@ -68,22 +80,24 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case 'REMOVE_ITEM':
       return {
         ...state,
-        items: state.items.filter(i => !areSameCartItem(i, action.payload.id, action.payload.variantId, action.payload.size)),
+        items: state.items.filter(i => !areSameCartItem(i, { id: action.payload.id, productId: action.payload.productId, variantId: action.payload.variantId, size: action.payload.size })),
       };
     case 'UPDATE_QUANTITY':
       if (action.payload.quantity <= 0) {
         return {
           ...state,
-          items: state.items.filter(i => !areSameCartItem(i, action.payload.id, action.payload.variantId, action.payload.size)),
+          items: state.items.filter(i => !areSameCartItem(i, { id: action.payload.id, productId: action.payload.productId, variantId: action.payload.variantId, size: action.payload.size })),
         };
       }
       return {
         ...state,
-        items: state.items.map(i =>
-          areSameCartItem(i, action.payload.id, action.payload.variantId, action.payload.size)
-            ? { ...i, quantity: action.payload.quantity }
-            : i
-        ),
+        items: state.items.map(i => {
+          if (areSameCartItem(i, { id: action.payload.id, productId: action.payload.productId, variantId: action.payload.variantId, size: action.payload.size })) {
+            const maxStock = i.variant ? (i.variant.stockQuantity ?? 0) : (i.product.stockQuantity ?? 0);
+            return { ...i, quantity: Math.min(action.payload.quantity, maxStock) };
+          }
+          return i;
+        }),
       };
     case 'CLEAR_CART':
       return { ...state, items: [] };
@@ -95,11 +109,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
       return {
         ...state,
         items: state.items.map(i =>
-          areSameCartItem(i, action.payload.id, action.payload.variantId, action.payload.size)
+          areSameCartItem(i, { id: action.payload.id, productId: action.payload.productId, variantId: action.payload.variantId, size: action.payload.size })
             ? { ...i, selected: !i.selected }
             : i
         ),
       };
+
     case 'TOGGLE_ALL_SELECTED':
       return {
         ...state,
@@ -123,9 +138,9 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 interface CartContextType {
   state: CartState;
   addToCart: (product: Product, quantity?: number, size?: string, variant?: ProductVariant) => void;
-  removeFromCart: (id: number, size?: string, variantId?: number) => void;
-  updateQuantity: (id: number, quantity: number, size?: string, variantId?: number) => void;
-  toggleItemSelected: (id: number, size?: string, variantId?: number) => void;
+  removeFromCart: (id: number, size?: string, variantId?: number, cartItemId?: number) => void;
+  updateQuantity: (id: number, quantity: number, size?: string, variantId?: number, cartItemId?: number) => void;
+  toggleItemSelected: (id: number, size?: string, variantId?: number, cartItemId?: number) => void;
   toggleAllSelected: (selected: boolean) => void;
   clearCart: () => void;
   clearSelectedItems: () => void;
@@ -134,6 +149,7 @@ interface CartContextType {
   closeCart: () => void;
   applyDiscount: (code: string) => void;
   clearDiscount: () => void;
+  refreshCart: () => void;
   totalItems: number;
   subtotal: number;
   total: number;
@@ -189,7 +205,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       openAuth('login');
       return;
     }
-    
+
     // Optimistic UI updates
     dispatch({ type: 'ADD_ITEM', payload: { product, quantity, size, variant } });
     dispatch({ type: 'OPEN_CART' });
@@ -202,7 +218,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         quantity: quantity,
         size: size,
       });
-    } catch(err) {
+    } catch (err) {
       console.error('API failed to add to cart', err);
       // Fallback: sync from server again
       const serverState = await api.get('/carts');
@@ -210,12 +226,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const removeFromCart = async (id: number, size?: string, variantId?: number) => {
-    dispatch({ type: 'REMOVE_ITEM', payload: { id, size, variantId } });
-    if(isAuthenticated) {
+  const removeFromCart = async (id: number, size?: string, variantId?: number, cartItemId?: number) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: { id: cartItemId, productId: id, size, variantId } });
+    if (isAuthenticated) {
       try {
         await api.delete('/carts/items', {
-          data: { productId: id, variantId, size }
+          data: { cartItemId, productId: id, variantId, size }
         });
       } catch (err) {
         console.error('Failed API remove', err);
@@ -223,9 +239,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateQuantity = async (id: number, quantity: number, size?: string, variantId?: number) => {
-    dispatch({ type: 'UPDATE_QUANTITY', payload: { id, size, variantId, quantity } });
-    if(isAuthenticated) {
+  const updateQuantity = async (id: number, quantity: number, size?: string, variantId?: number, cartItemId?: number) => {
+    dispatch({ type: 'UPDATE_QUANTITY', payload: { id: cartItemId, productId: id, size, variantId, quantity } });
+    if (isAuthenticated) {
       try {
         await api.put('/carts/items', {
           productId: id,
@@ -244,13 +260,15 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isAuthenticated) {
       try {
         await api.delete('/carts');
-      } catch(err){}
+      } catch (err) { }
     }
   };
 
   const clearSelectedItems = () => dispatch({ type: 'CLEAR_SELECTED_ITEMS' });
-  const toggleItemSelected = (id: number, size?: string, variantId?: number) => dispatch({ type: 'TOGGLE_ITEM_SELECTED', payload: { id, size, variantId } });
+  const toggleItemSelected = (id: number, size?: string, variantId?: number, cartItemId?: number) =>
+    dispatch({ type: 'TOGGLE_ITEM_SELECTED', payload: { id: cartItemId!, productId: id, size, variantId } });
   const toggleAllSelected = (selected: boolean) => dispatch({ type: 'TOGGLE_ALL_SELECTED', payload: selected });
+
   const toggleCart = () => dispatch({ type: 'TOGGLE_CART' });
   const openCart = () => dispatch({ type: 'OPEN_CART' });
   const closeCart = () => dispatch({ type: 'CLOSE_CART' });
@@ -262,11 +280,22 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshCart = async () => {
+    if (isAuthenticated && user) {
+      try {
+        const response = await api.get('/carts');
+        dispatch({ type: 'SET_CART', payload: response.data });
+      } catch (error) {
+        console.error('Failed to refresh cart', error);
+      }
+    }
+  };
+
   return (
     <CartContext.Provider value={{
       state, addToCart, removeFromCart, updateQuantity,
       toggleItemSelected, toggleAllSelected, clearCart, clearSelectedItems,
-      toggleCart, openCart, closeCart, applyDiscount, clearDiscount,
+      toggleCart, openCart, closeCart, applyDiscount, clearDiscount, refreshCart,
       totalItems, subtotal, total
     }}>
       {children}

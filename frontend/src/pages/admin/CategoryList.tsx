@@ -4,7 +4,9 @@ import './AdminLayout.css';
 
 interface Category {
   id: number;
+  slug: string;
   name: string;
+  imageUrl?: string;
   description: string;
   productCount: number;
 }
@@ -14,7 +16,7 @@ const CategoryList: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [formData, setFormData] = useState({ name: '', description: '' });
+  const [formData, setFormData] = useState({ slug: '', name: '', imageUrl: '', description: '' });
 
   const fetchCategories = async () => {
     try {
@@ -42,7 +44,7 @@ const CategoryList: React.FC = () => {
       }
       setIsModalOpen(false);
       setEditingCategory(null);
-      setFormData({ name: '', description: '' });
+      setFormData({ slug: '', name: '', imageUrl: '', description: '' });
       fetchCategories();
     } catch (err) {
       alert('Có lỗi xảy ra. Tên danh mục có thể đã tồn tại.');
@@ -65,7 +67,7 @@ const CategoryList: React.FC = () => {
         <h2 className="admin-title">Quản lý Danh mục</h2>
         <button className="btn-primary" onClick={() => {
           setEditingCategory(null);
-          setFormData({ name: '', description: '' });
+          setFormData({ slug: '', name: '', imageUrl: '', description: '' });
           setIsModalOpen(true);
         }}>
           Thêm danh mục
@@ -77,7 +79,8 @@ const CategoryList: React.FC = () => {
           <thead>
             <tr>
               <th>ID</th>
-              <th>Tên danh mục</th>
+              <th>Hình Ảnh</th>
+              <th>Tên (Slug)</th>
               <th>Mô tả</th>
               <th>Số sản phẩm</th>
               <th>Hành động</th>
@@ -89,14 +92,24 @@ const CategoryList: React.FC = () => {
             ) : categories.map(cat => (
               <tr key={cat.id}>
                 <td>{cat.id}</td>
-                <td style={{ fontWeight: 600 }}>{cat.name}</td>
+                <td>
+                  {cat.imageUrl ? (
+                    <img src={cat.imageUrl} alt={cat.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 4 }} />
+                  ) : (
+                    <div style={{ width: 40, height: 40, background: '#eee', borderRadius: 4 }} />
+                  )}
+                </td>
+                <td>
+                  <div style={{ fontWeight: 600 }}>{cat.name}</div>
+                  <div style={{ fontSize: 12, color: '#666' }}>{cat.slug}</div>
+                </td>
                 <td>{cat.description || '—'}</td>
                 <td>{cat.productCount}</td>
                 <td>
                   <div className="table-actions">
                     <button className="btn-icon" onClick={() => {
                       setEditingCategory(cat);
-                      setFormData({ name: cat.name, description: cat.description });
+                      setFormData({ slug: cat.slug, name: cat.name, imageUrl: cat.imageUrl || '', description: cat.description || '' });
                       setIsModalOpen(true);
                     }}>
                       Sửa
@@ -115,22 +128,69 @@ const CategoryList: React.FC = () => {
       {isModalOpen && (
         <div className="admin-modal-overlay">
           <div className="admin-modal">
+            <button className="admin-modal-close" onClick={() => setIsModalOpen(false)}>×</button>
             <h3>{editingCategory ? 'Sửa' : 'Thêm'} Danh mục</h3>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} className="admin-form">
               <div className="form-group">
-                <label>Tên danh mục</label>
+                <label>Đường dẫn (Slug) <span className="required-star">*</span></label>
                 <input 
                   type="text" 
+                  className="form-control"
+                  value={formData.slug} 
+                  onChange={e => setFormData({ ...formData, slug: e.target.value })} 
+                  required 
+                  placeholder="vi-du-danh-muc"
+                />
+              </div>
+              <div className="form-group">
+                <label>Tên danh mục <span className="required-star">*</span></label>
+                <input 
+                  type="text" 
+                  className="form-control"
                   value={formData.name} 
-                  onChange={e => setFormData({ ...formData, name: e.target.value })} 
+                  onChange={e => {
+                    const name = e.target.value;
+                    // Auto-generate slug from name if adding a new category and slug is empty or matches previous auto-slug
+                    if (!editingCategory) {
+                      const autoSlug = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                      setFormData({ ...formData, name, slug: autoSlug });
+                    } else {
+                      setFormData({ ...formData, name });
+                    }
+                  }} 
                   required 
                 />
               </div>
               <div className="form-group">
+                <label>Đường dẫn hình ảnh (URL)</label>
+                <input 
+                  type="text" 
+                  className="form-control"
+                  value={formData.imageUrl} 
+                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })} 
+                  placeholder="https://..."
+                />
+                {formData.imageUrl && (
+                  <div style={{ marginTop: 8, padding: 8, border: '1px dashed var(--color-border-dark)', borderRadius: 8, background: 'var(--color-bg)', alignSelf: 'flex-start' }}>
+                    <span style={{ fontSize: 11, color: 'var(--color-muted)', display: 'block', marginBottom: 4, fontWeight: 500 }}>Ảnh xem trước:</span>
+                    <img 
+                      src={formData.imageUrl} 
+                      alt="Preview" 
+                      style={{ maxHeight: 120, maxWidth: '100%', objectFit: 'contain', borderRadius: 4, display: 'block' }}
+                      onError={(e) => { 
+                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/200x120?text=URL+L%E1%BB%97i'; 
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="form-group">
                 <label>Mô tả</label>
                 <textarea 
+                  className="form-control"
                   value={formData.description} 
                   onChange={e => setFormData({ ...formData, description: e.target.value })} 
+                  rows={4}
                 />
               </div>
               <div className="modal-actions">

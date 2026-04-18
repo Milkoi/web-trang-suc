@@ -25,7 +25,15 @@ const CartDrawer: React.FC = () => {
   }, [discountInput, state.discountAmount, clearDiscount]);
   const [showConsultModal, setShowConsultModal] = useState(false);
   const [isEditingCart, setIsEditingCart] = useState(false);
-  const [cartAlert, setCartAlert] = useState<{ message: string; type: 'alert' | 'confirm'; onConfirm?: () => void } | null>(null);
+  const [cartAlert, setCartAlert] = useState<{ 
+    message: string; 
+    type: 'alert' | 'confirm'; 
+    onConfirm?: () => void;
+    title?: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
+  } | null>(null);
+
   const navigate = useNavigate();
 
   const handleApplyDiscount = () => {
@@ -48,10 +56,12 @@ const CartDrawer: React.FC = () => {
   };
 
   const handleCheckoutClick = () => {
-    if (state.items.filter(i => i.selected).length === 0) {
-       setCartAlert({ message: "Vui lòng chọn ít nhất một sản phẩm để thanh toán.", type: 'alert' });
-       return;
+    const selectedItems = state.items.filter(i => i.selected);
+    if (selectedItems.length === 0) {
+      setCartAlert({ message: "Vui lòng chọn ít nhất một sản phẩm để thanh toán.", type: 'alert' });
+      return;
     }
+
     setShowConsultModal(true);
   };
 
@@ -77,7 +87,7 @@ const CartDrawer: React.FC = () => {
           </div>
           <button className="cart-drawer__close" onClick={closeCart} aria-label="Đóng">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
         </div>
@@ -86,9 +96,9 @@ const CartDrawer: React.FC = () => {
           <div className="cart-drawer__empty">
             <div className="cart-drawer__empty-icon">
               <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
-                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
-                <line x1="3" y1="6" x2="21" y2="6"/>
-                <path d="M16 10a4 4 0 01-8 0"/>
+                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <path d="M16 10a4 4 0 01-8 0" />
               </svg>
             </div>
             <p className="cart-drawer__empty-text">Giỏ hàng của bạn đang trống</p>
@@ -101,84 +111,180 @@ const CartDrawer: React.FC = () => {
             {/* Items */}
             <div className="cart-drawer__items-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 24px', borderBottom: '1px solid #eee' }}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
-                <input 
-                    type="checkbox" 
-                    style={{ marginRight: '12px', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer' }}
-                    checked={state.items.length > 0 && state.items.every(i => i.selected)}
-                    onChange={(e) => toggleAllSelected(e.target.checked)}
-                /> 
+                <input
+                  type="checkbox"
+                  style={{ marginRight: '12px', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer' }}
+                  checked={state.items.length > 0 && state.items.every(i => i.selected)}
+                  onChange={(e) => toggleAllSelected(e.target.checked)}
+                />
                 <span style={{ fontSize: '14px', fontWeight: '500' }}>Chọn tất cả ({state.items.length} sản phẩm)</span>
               </div>
-              <button 
-                onClick={() => setIsEditingCart(!isEditingCart)} 
+              <button
+                onClick={() => setIsEditingCart(!isEditingCart)}
                 style={{ fontSize: '13px', color: isEditingCart ? 'var(--color-charcoal)' : 'var(--color-muted)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
               >
                 {isEditingCart ? 'Xong' : 'Sửa'}
               </button>
             </div>
             <div className="cart-drawer__items">
-              {state.items.map(item => (
-                <div key={`${item.product.id}-${item.size || 'default'}`} className="cart-item" style={{ position: 'relative', paddingLeft: '52px' }}>
-                  <input 
-                    type="checkbox" 
-                    style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', width: '16px', height: '16px', accentColor: '#1a1a1a', cursor: 'pointer', zIndex: 2 }} 
-                    checked={!!item.selected}
-                    onChange={() => toggleItemSelected(item.product.id, item.size, item.variantId)}
-                  />
-                  <div className="cart-item__image">
-                    <img src={item.product.images[0]} alt={item.product.name} />
-                  </div>
-                  <div className="cart-item__info">
-                    <div className="cart-item__top">
-                      <div>
-                        <p className="cart-item__sku">{item.product.sku}</p>
-                        <h4 className="cart-item__name">{item.product.name}</h4>
-                        <p className="cart-item__material">
-                          {item.product.material === 'gold' ? 'Vàng' :
-                           item.product.material === 'silver' ? 'Bạc' :
-                           item.product.material === 'platinum' ? 'Bạch Kim' : 'Kim Cương'}
-                        </p>
-                        {item.size && (
-                          <p className="cart-item__size">Kích thước: {item.size}</p>
-                        )}
-                      </div>
-                      <button
-                        className="cart-item__remove"
-                        onClick={() => setCartAlert({
-                          message: `Bạn có chắc muốn xóa "${item.product.name}" khỏi giỏ hàng?`,
+              {state.items.map(item => {
+                // Improved logic to differentiate between "Out of Size" and "Out of Stock"
+                const currentVariant = item.variant || item.product.variants?.find(v => v.size === item.size);
+                const stockLeft = currentVariant 
+                  ? (currentVariant.stockQuantity ?? 0) 
+                  : (item.product.stockQuantity ?? 0);
+                
+                const totalStock = item.product.variants && item.product.variants.length > 0
+                  ? item.product.variants.reduce((sum, v) => sum + (v.stockQuantity || 0), 0)
+                  : (item.product.stockQuantity || 0);
+
+                const isOutOfStock = stockLeft <= 0;
+                const isProductCompletelyOutOfStock = totalStock <= 0;
+                const availableSizes = item.product.variants
+                  ?.filter(v => (v.stockQuantity ?? 0) > 0)
+                  .map(v => v.size) || [];
+
+                return (
+                  <div 
+                    key={`${item.product.id}-${item.size || 'default'}-${item.variant?.id || item.variantId}`} 
+                    className={`cart-item ${isOutOfStock ? 'cart-item--out-of-stock' : ''}`} 
+                    style={{ position: 'relative', paddingLeft: '52px' }}
+                    onClick={() => {
+                      if (!isEditingCart && isOutOfStock) {
+                        const message = isProductCompletelyOutOfStock 
+                          ? "Sản phẩm đã hết hàng hoàn toàn, vui lòng chọn mẫu khác" 
+                          : `Size này hiện đã hết. Các size còn hàng: ${availableSizes.join(', ') || 'Liên hệ tư vấn'}. Bạn có muốn đến trang chi tiết để chọn size khác?`;
+                        
+                        setCartAlert({
+                          title: "Thông báo",
+                          message: message,
                           type: 'confirm',
-                          onConfirm: () => removeFromCart(item.product.id, item.size, item.variantId)
-                        })}
-                        aria-label="Xóa"
-                      >
-                        Xóa
-                      </button>
+                          confirmLabel: "Đồng ý",
+                          cancelLabel: "Hủy",
+                          onConfirm: () => {
+                            closeCart();
+                            navigate(`/products/${item.product.id}`);
+                          }
+                        });
+                      }
+                    }}
+                  >
+
+                    <input
+                      type="checkbox"
+                      style={{ 
+                        position: 'absolute', 
+                        left: '16px', 
+                        top: '50%', 
+                        transform: 'translateY(-50%)', 
+                        width: '16px', 
+                        height: '16px', 
+                        accentColor: '#1a1a1a', 
+                        cursor: 'pointer', 
+                        zIndex: 2,
+                        opacity: isOutOfStock ? 0.3 : 1
+                      }}
+                      checked={!!item.selected}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        if (!isEditingCart && isOutOfStock) {
+                          const message = isProductCompletelyOutOfStock 
+                            ? "Sản phẩm đã hết hàng hoàn toàn, vui lòng chọn mẫu khác" 
+                            : `Size này hiện đã hết. Các size còn hàng: ${availableSizes.join(', ') || 'Liên hệ tư vấn'}. Bạn có muốn đến trang chi tiết để chọn size khác?`;
+                          
+                          setCartAlert({
+                            title: "Thông báo",
+                            message: message,
+                            type: 'confirm',
+                            confirmLabel: "Đồng ý",
+                            cancelLabel: "Hủy",
+                            onConfirm: () => {
+                              closeCart();
+                              navigate(`/products/${item.product.id}`);
+                            }
+                          });
+                        } else {
+                          toggleItemSelected(item.product.id, item.size, item.variant?.id || item.variantId, item.id);
+                        }
+                      }}
+                    />
+
+
+                    <div className="cart-item__image">
+                      <img src={item.product.images[0]} alt={item.product.name} />
+                      {isOutOfStock && (
+                        <div className="cart-item__out-of-stock-overlay">
+                          <span>{isProductCompletelyOutOfStock ? 'Hết hàng' : 'Hết size'}</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="cart-item__bottom">
-                      <div className="cart-item__qty">
+
+                    <div className="cart-item__info">
+                      <div className="cart-item__top">
+                        <div style={{ opacity: isOutOfStock ? 0.6 : 1 }}>
+                          <p className="cart-item__sku">{item.product.sku}</p>
+                          <h4 className="cart-item__name">{item.product.name}</h4>
+                          <p className="cart-item__material">
+                            {item.product.material === 'gold' ? 'Vàng' :
+                              item.product.material === 'silver' ? 'Bạc' :
+                                item.product.material === 'platinum' ? 'Bạch Kim' : 'Kim Cương'}
+                          </p>
+                          {item.size && (
+                            <p className="cart-item__size">Kích thước: {item.size}</p>
+                          )}
+                          {isOutOfStock && !isProductCompletelyOutOfStock && availableSizes.length > 0 && (
+                            <p className="cart-item__available-suggestion" style={{ fontSize: '10px', color: 'var(--color-gold-dark)', marginTop: '4px', fontStyle: 'italic' }}>
+                              Các size còn hàng: {availableSizes.join(', ')}
+                            </p>
+                          )}
+                          {!isOutOfStock && stockLeft > 0 && stockLeft <= 10 && (
+                            <p className="cart-item__low-stock">Chỉ còn {stockLeft} sản phẩm cuối</p>
+                          )}
+                        </div>
+
                         <button
-                          className="cart-item__qty-btn"
-                          onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.size, item.variantId)}
-                        >−</button>
-                        <span className="cart-item__qty-num">{item.quantity}</span>
-                        <button
-                          className="cart-item__qty-btn"
-                          onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.size, item.variantId)}
-                        >+</button>
+                          className="cart-item__remove"
+                          onClick={() => setCartAlert({
+                            message: `Bạn có chắc muốn xóa "${item.product.name}" khỏi giỏ hàng?`,
+                            type: 'confirm',
+                            onConfirm: () => removeFromCart(item.product.id, item.size, item.variant?.id || item.variantId, item.id)
+                          })}
+                          aria-label="Xóa"
+                        >
+                          Xóa
+                        </button>
                       </div>
-                      <span className="cart-item__price">
-                        {formatPrice((item.priceAtPurchase ?? item.variant?.price ?? item.product.price) * item.quantity)}
-                      </span>
+                      <div className="cart-item__bottom">
+                        <div className={`cart-item__qty ${isOutOfStock ? 'cart-item__qty--disabled' : ''}`}>
+                          <button
+                            className="cart-item__qty-btn"
+                            disabled={isOutOfStock}
+                            onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.size, item.variant?.id || item.variantId, item.id)}
+                          >−</button>
+                          <span className="cart-item__qty-num">{item.quantity}</span>
+                          <button
+                            className="cart-item__qty-btn"
+                            disabled={isOutOfStock}
+                            onClick={() => {
+                              updateQuantity(item.product.id, item.quantity + 1, item.size, item.variant?.id || item.variantId, item.id);
+                            }}
+                          >+</button>
+                        </div>
+                        <span className="cart-item__price" style={{ opacity: isOutOfStock ? 0.6 : 1 }}>
+                          {formatPrice((item.priceAtPurchase ?? item.variant?.price ?? item.product.price) * item.quantity)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+
             </div>
 
             {isEditingCart ? (
               <div className="cart-drawer__actions" style={{ borderTop: '1px solid var(--color-border)', marginTop: 'auto' }}>
-                <button 
-                  className="btn-primary" 
+                <button
+                  className="btn-primary"
                   style={{ background: 'var(--color-error)', borderColor: 'var(--color-error)' }}
                   onClick={() => {
                     const selectedCount = state.items.filter(i => i.selected).length;
@@ -190,8 +296,8 @@ const CartDrawer: React.FC = () => {
                       message: `Bạn có chắc chắn muốn xóa ${selectedCount} sản phẩm đã chọn khỏi giỏ hàng?`,
                       type: 'confirm',
                       onConfirm: () => {
-                         clearSelectedItems();
-                         setIsEditingCart(false);
+                        clearSelectedItems();
+                        setIsEditingCart(false);
                       }
                     });
                   }}
@@ -260,7 +366,7 @@ const CartDrawer: React.FC = () => {
                   <button className="btn-primary cart-drawer__checkout-btn" onClick={handleCheckoutClick}>
                     Thanh Toán Ngay
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+                      <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
                     </svg>
                   </button>
                   <button className="cart-drawer__continue" onClick={closeCart}>
@@ -269,7 +375,7 @@ const CartDrawer: React.FC = () => {
                 </div>
               </>
             )}
-            
+
             {/* Consultation Modal */}
             {showConsultModal && (
               <div className="cart-drawer__consult-modal">
@@ -290,7 +396,7 @@ const CartDrawer: React.FC = () => {
                 </div>
               </div>
             )}
-            
+
             {/* Custom Alert/Confirm Modal */}
             {cartAlert && (
               <div className="cart-drawer__consult-modal" style={{ zIndex: 1100 }}>
@@ -306,41 +412,42 @@ const CartDrawer: React.FC = () => {
                       <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
                     </svg>
                   )}
-                  
+
                   <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', marginBottom: '12px', color: 'var(--color-charcoal)', fontWeight: 400, letterSpacing: '0.5px' }}>
-                    {cartAlert.type === 'alert' ? 'Thông báo' : 'Xác nhận xóa'}
+                    {cartAlert.title || (cartAlert.type === 'alert' ? 'Thông báo' : 'Xác nhận xóa')}
                   </h3>
                   <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--color-muted)', marginBottom: '32px' }}>
                     {cartAlert.message}
                   </p>
-                  
+
                   <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                     {cartAlert.type === 'confirm' && (
-                       <button 
-                         style={{ flex: 1, padding: '12px', fontSize: '13px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '4px', cursor: 'pointer', color: 'var(--color-charcoal)' }} 
-                         onClick={() => setCartAlert(null)}>
-                         Hủy
-                       </button>
+                      <button
+                        style={{ flex: 1, padding: '12px', fontSize: '13px', background: 'transparent', border: '1px solid var(--color-border)', borderRadius: '4px', cursor: 'pointer', color: 'var(--color-charcoal)' }}
+                        onClick={() => setCartAlert(null)}>
+                        {cartAlert.cancelLabel || 'Hủy'}
+                      </button>
                     )}
-                    <button 
-                      className="btn-primary" 
-                      style={{ 
-                        flex: 1, 
-                        padding: '12px', 
-                        fontSize: '13px', 
-                        background: 'var(--color-charcoal)', 
+                    <button
+                      className="btn-primary"
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        fontSize: '13px',
+                        background: 'var(--color-charcoal)',
                         borderColor: 'var(--color-charcoal)',
                         borderRadius: '4px'
-                      }} 
+                      }}
                       onClick={() => {
                         if (cartAlert.type === 'confirm' && cartAlert.onConfirm) {
                           cartAlert.onConfirm();
                         }
                         setCartAlert(null);
                       }}>
-                      {cartAlert.type === 'confirm' ? 'Xóa' : 'Đã hiểu'}
+                      {cartAlert.confirmLabel || (cartAlert.type === 'confirm' ? 'Xóa' : 'Đã hiểu')}
                     </button>
                   </div>
+
                 </div>
               </div>
             )}

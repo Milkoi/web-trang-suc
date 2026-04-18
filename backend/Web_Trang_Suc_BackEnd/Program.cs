@@ -13,7 +13,7 @@ builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend",
-        policy => policy.WithOrigins("http://localhost:5173", "http://localhost:3000") // Common React ports
+        policy => policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:3000") // Added ports to fix 5174 issue
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials());

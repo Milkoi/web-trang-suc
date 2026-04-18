@@ -28,8 +28,10 @@ namespace web_Trang_suc_BE.Models.DTOs
 
     public class RemoveCartItemDto
     {
+        public long? CartItemId { get; set; }
         public long ProductId { get; set; }
         public long? VariantId { get; set; }
         public string? Size { get; set; }
     }
+
 }

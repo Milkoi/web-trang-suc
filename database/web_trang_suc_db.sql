@@ -330,6 +330,7 @@ INSERT INTO `banners` (`imageUrl`, `subtitle`, `title`, `description`, `isActive
  'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\nSang trọng, tinh tế, vĩnh cửu.', 
  1);
 
+ALTER TABLE cart_items ADD COLUMN size VARCHAR(50) DEFAULT NULL;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

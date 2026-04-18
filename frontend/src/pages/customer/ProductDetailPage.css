@@ -415,6 +415,33 @@
   color: var(--color-white);
 }
 
+.size-option.out-of-stock {
+  opacity: 0.5;
+  cursor: not-allowed;
+  position: relative;
+  background: #f9f9f9;
+  color: #999;
+  border-color: #eee;
+  text-decoration: line-through;
+}
+
+.size-option.out-of-stock:hover {
+  border-color: #eee;
+}
+
+.out-of-stock-label {
+  display: block;
+  font-size: 9px;
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  color: #ff4d4f;
+  font-weight: bold;
+  text-decoration: none !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 /* Tabbed Section */
 .product-detail__tabs-section {
   margin-top: 60px;

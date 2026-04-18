@@ -18,14 +18,25 @@ namespace web_Trang_suc_BE.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts([FromQuery] string? search)
         {
-            var products = await _context.Products!
+            var query = _context.Products!
                 .Include(p => p.Category)
                 .Include(p => p.Material)
                 .Include(p => p.Images)
                 .Include(p => p.Variants)
-                .ToListAsync();
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var searchLower = search.ToLower();
+                query = query.Where(p => 
+                    p.Name.ToLower().Contains(searchLower) || 
+                    (p.Description != null && p.Description.ToLower().Contains(searchLower)) ||
+                    (p.Category != null && p.Category.Name.ToLower().Contains(searchLower)));
+            }
+
+            var products = await query.ToListAsync();
 
             return products.Select(p => new ProductDto
             {
@@ -105,6 +116,19 @@ namespace web_Trang_suc_BE.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateProduct(CreateProductDto dto)
         {
+            try
+            {
+                // Check if SKU already exists
+                if (await _context.Products.AnyAsync(p => p.Sku.ToLower() == dto.Sku.ToLower()))
+                {
+                    return BadRequest(new { message = $"Mã SKU '{dto.Sku}' đã tồn tại trong hệ thống." });
+                }
+
+                var resolvedCategoryId = dto.CategoryId != 0 ? dto.CategoryId : await _context.Categories
+                    .Where(c => c.Slug.ToLower() == (dto.Category ?? "").ToLower() || c.Name.ToLower() == (dto.Category ?? "").ToLower())
+                    .Select(c => c.Id)
+                    .FirstOrDefaultAsync();
+
             var product = new Product
             {
                 Sku = dto.Sku,
@@ -113,7 +137,7 @@ namespace web_Trang_suc_BE.Controllers
                 OriginalPrice = dto.OriginalPrice,
                 Description = dto.Description,
                 OriginStory = dto.OriginStory,
-                CategoryId = dto.CategoryId != 0 ? dto.CategoryId : await _context.Categories.Where(c => c.Name.ToLower() == (dto.Category ?? "").ToLower()).Select(c => c.Id).FirstOrDefaultAsync(),
+                CategoryId = resolvedCategoryId != 0 ? resolvedCategoryId : null,
                 MaterialId = dto.MaterialId != 0 ? (int?)dto.MaterialId : null,
                 StockQuantity = dto.StockQuantity,
                 IsNew = dto.IsNew,
@@ -140,41 +164,77 @@ namespace web_Trang_suc_BE.Controllers
                 });
             }
 
-            _context.Products!.Add(product);
-            await _context.SaveChangesAsync();
-            return Ok();
+                _context.Products!.Add(product);
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi hệ thống khi lưu sản phẩm.", details = ex.Message });
+            }
         }
         // PUT: api/Products/5 (Admin only)
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, ProductDto dto)
+        public async Task<IActionResult> UpdateProduct(long id, CreateProductDto dto)
         {
-            var product = await _context.Products!
-                .Include(p => p.Variants)
-                .Include(p => p.Images)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (product == null) return NotFound();
-
-            product.Name = dto.Name;
-            product.Description = dto.Description;
-            product.OriginStory = dto.OriginStory;
-            
-            // Simplified variant update logic: clear and re-add for now
-            _context.ProductVariants.RemoveRange(product.Variants);
-            foreach (var v in dto.Variants ?? new())
+            try
             {
-                product.Variants.Add(new ProductVariant
-                {
-                    Sku = v.Sku,
-                    Size = v.Size,
-                    Price = v.Price,
-                    StockQuantity = v.StockQuantity,
-                    IsSale = v.IsSale
-                });
-            }
+                var product = await _context.Products!
+                    .Include(p => p.Variants)
+                    .Include(p => p.Images)
+                    .FirstOrDefaultAsync(p => p.Id == id);
 
-            await _context.SaveChangesAsync();
-            return NoContent();
+                if (product == null) return NotFound();
+
+                // Check SKU duplicate (excluding current product)
+                if (await _context.Products.AnyAsync(p => p.Sku.ToLower() == dto.Sku.ToLower() && p.Id != id))
+                {
+                    return BadRequest(new { message = $"Mã SKU '{dto.Sku}' đã bị trùng với một sản phẩm khác." });
+                }
+
+                product.Sku = dto.Sku;
+                product.Name = dto.Name;
+                product.Price = dto.Price;
+                product.OriginalPrice = dto.OriginalPrice;
+                product.Description = dto.Description;
+                product.OriginStory = dto.OriginStory;
+                product.StockQuantity = dto.StockQuantity;
+                product.IsNew = dto.IsNew;
+                product.IsSale = dto.IsSale;
+
+                var resolvedCategoryId = dto.CategoryId != 0 ? dto.CategoryId : await _context.Categories
+                    .Where(c => c.Slug.ToLower() == (dto.Category ?? "").ToLower() || c.Name.ToLower() == (dto.Category ?? "").ToLower())
+                    .Select(c => c.Id)
+                    .FirstOrDefaultAsync();
+                
+                product.CategoryId = resolvedCategoryId != 0 ? resolvedCategoryId : null;
+                
+                _context.ProductImages.RemoveRange(product.Images);
+                foreach (var url in dto.Images)
+                {
+                    product.Images.Add(new ProductImage { Url = url });
+                }
+                
+                _context.ProductVariants.RemoveRange(product.Variants);
+                foreach (var v in dto.Variants ?? new())
+                {
+                    product.Variants.Add(new ProductVariant
+                    {
+                        Sku = v.Sku,
+                        Size = v.Size,
+                        Price = v.Price,
+                        StockQuantity = v.StockQuantity,
+                        IsSale = v.IsSale
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Lỗi hệ thống khi cập nhật sản phẩm.", details = ex.Message });
+            }
         }
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteProduct(long id)

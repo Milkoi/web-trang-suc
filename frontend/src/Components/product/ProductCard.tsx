@@ -132,19 +132,27 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <div className="product-card__size-picker" ref={sizePickerRef} onClick={e => e.stopPropagation()}>
                 <div className="product-card__size-picker-title">Chọn kích thước</div>
                 <div className="product-card__size-picker-options">
-                  {product.availableSizes.map(size => (
-                    <button
-                      key={size}
-                      className={`product-card__size-option ${quickSize === size ? 'selected' : ''}`}
-                      onClick={e => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setQuickSize(prev => prev === size ? '' : size);
-                      }}
-                    >
-                      {size}
-                    </button>
-                  ))}
+                  {product.availableSizes.map(size => {
+                    const variant = product.variants?.find(v => v.size === size);
+                    const isOutOfStock = variant ? variant.stockQuantity <= 0 : !product.inStock;
+                    return (
+                      <button
+                        key={size}
+                        disabled={isOutOfStock}
+                        className={`product-card__size-option ${quickSize === size ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}`}
+                        onClick={e => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (!isOutOfStock) {
+                            setQuickSize(prev => prev === size ? '' : size);
+                            setQuickQuantity(1); // Reset quantity when changing size
+                          }
+                        }}
+                      >
+                        {size}
+                      </button>
+                    );
+                  })}
                 </div>
                 <div className="product-card__quantity-selector">
                   <span>Số lượng</span>
@@ -162,10 +170,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     <span>{quickQuantity}</span>
                     <button
                       type="button"
+                      disabled={(() => {
+                        const variant = product.variants?.find(v => v.size === quickSize);
+                        const maxStock = variant ? variant.stockQuantity : (product.inStock ? product.stockQuantity : 0);
+                        return quickQuantity >= maxStock;
+                      })()}
                       onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
-                        setQuickQuantity(q => q + 1);
+                        const variant = product.variants?.find(v => v.size === quickSize);
+                        const maxStock = variant ? variant.stockQuantity : (product.inStock ? product.stockQuantity : 0);
+                        if (quickQuantity < maxStock) {
+                          setQuickQuantity(q => q + 1);
+                        }
                       }}
                     >
                       +

@@ -40,7 +40,9 @@ const ProductsPage: React.FC = () => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get('/products');
+        const searchQuery = searchParams.get('q');
+        const url = searchQuery ? `/products?search=${encodeURIComponent(searchQuery)}` : '/products';
+        const response = await api.get(url);
         setProductsList(response.data);
       } catch (err) {
         console.error('Error fetching products:', err);
@@ -49,7 +51,7 @@ const ProductsPage: React.FC = () => {
       }
     };
     fetchProducts();
-  }, []);
+  }, [searchParams.get('q')]);
 
   // Sync URL params to filter
   useEffect(() => {
@@ -71,13 +73,7 @@ const ProductsPage: React.FC = () => {
   const filtered = useMemo(() => {
     let list = [...productsList];
 
-    // Search
-    if (searchQuery) {
-      list = list.filter(p =>
-        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
+    // Search filtering is now done by Backend
 
     // Categories
     if (filters.categories.length > 0) {

@@ -55,7 +55,10 @@ namespace web_Trang_suc_BE.Controllers
                 .Include(c => c.CartItems)
                     .ThenInclude(ci => ci.Product)
                         .ThenInclude(p => p.Variants)
+                .Include(c => c.CartItems)
+                    .ThenInclude(ci => ci.ProductVariant)
                 .FirstOrDefaultAsync(c => c.UserId == userId);
+
 
             if (cart == null) return Ok(new List<CartItemDto>());
 
@@ -167,9 +170,19 @@ namespace web_Trang_suc_BE.Controllers
             var cart = await _context.Carts.Include(c => c.CartItems).FirstOrDefaultAsync(c => c.UserId == userId);
             if (cart == null) return NotFound();
 
-            var item = cart.CartItems.FirstOrDefault(i => 
-                i.ProductId == dto.ProductId && 
-                i.VariantId == dto.VariantId);
+            CartItem? item = null;
+            if (dto.CartItemId.HasValue)
+            {
+                item = cart.CartItems.FirstOrDefault(i => i.Id == dto.CartItemId.Value);
+            }
+            
+            // Fallback to ProductId/VariantId if CartItemId not provided or not found
+            if (item == null)
+            {
+                item = cart.CartItems.FirstOrDefault(i => 
+                    i.ProductId == dto.ProductId && 
+                    i.VariantId == dto.VariantId);
+            }
 
             if (item != null)
             {
@@ -179,6 +192,7 @@ namespace web_Trang_suc_BE.Controllers
 
             return Ok();
         }
+
 
         [HttpDelete]
         public async Task<ActionResult> ClearCart()

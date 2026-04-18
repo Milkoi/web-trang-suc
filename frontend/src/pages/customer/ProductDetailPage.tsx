@@ -217,15 +217,22 @@ const ProductDetailPage: React.FC = () => {
                   </div>
                   
                   <div className="size-options">
-                    {product.availableSizes.map(size => (
-                      <button 
-                        key={size}
-                        className={`size-option ${selectedSize === size ? 'selected' : ''}`}
-                        onClick={() => setSelectedSize(s => s === size ? '' : size)}
-                      >
-                        {size}
-                      </button>
-                    ))}
+                    {product.availableSizes.map(size => {
+                      const variant = product.variants?.find(v => v.size === size);
+                      const isOutOfStock = variant ? variant.stockQuantity <= 0 : !product.inStock;
+                      
+                      return (
+                        <button 
+                          key={size}
+                          disabled={isOutOfStock}
+                          className={`size-option ${selectedSize === size ? 'selected' : ''} ${isOutOfStock ? 'out-of-stock' : ''}`}
+                          onClick={() => !isOutOfStock && setSelectedSize(s => s === size ? '' : size)}
+                        >
+                          {size}
+                          {isOutOfStock && <span className="out-of-stock-label">Hết</span>}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -236,7 +243,20 @@ const ProductDetailPage: React.FC = () => {
                   <div className="product-detail__qty">
                     <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
                     <span>{quantity}</span>
-                    <button onClick={() => setQuantity(q => q + 1)}>+</button>
+                    <button 
+                      disabled={(() => {
+                        const variant = product.variants?.find(v => v.size === selectedSize);
+                        const maxStock = variant ? variant.stockQuantity : product.stockQuantity;
+                        return quantity >= maxStock;
+                      })()}
+                      onClick={() => {
+                        const variant = product.variants?.find(v => v.size === selectedSize);
+                        const maxStock = variant ? variant.stockQuantity : product.stockQuantity;
+                        if (quantity < maxStock) {
+                          setQuantity(q => q + 1);
+                        }
+                      }}
+                    >+</button>
                   </div>
                 <button
                   className={`btn-primary product-detail__add-btn ${added ? 'added' : ''}`}
