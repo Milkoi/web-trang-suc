@@ -34,34 +34,34 @@ namespace web_Trang_suc_BE.Controllers
             var favorites = await _context.Favorites
                 .Where(f => f.UserId == userId)
                 .Include(f => f.Product)
-                    .ThenInclude(p => p.Category)
+                    .ThenInclude(p => p!.Category)
                 .Include(f => f.Product)
-                    .ThenInclude(p => p.Material)
+                    .ThenInclude(p => p!.Material)
                 .Include(f => f.Product)
-                    .ThenInclude(p => p.Images)
+                    .ThenInclude(p => p!.Images)
                 .Include(f => f.Product)
-                    .ThenInclude(p => p.Variants)
+                    .ThenInclude(p => p!.Variants)
                 .Select(f => f.Product)
                 .ToListAsync();
 
-            var result = favorites.Select(p => new ProductDto
+            var result = favorites.Where(p => p != null).Select(p => new ProductDto
             {
-                Id = p.Id,
+                Id = p!.Id,
                 Sku = p.Sku,
                 Name = p.Name,
                 Price = p.Price,
                 OriginalPrice = p.OriginalPrice,
                 Category = p.Category?.Slug ?? "",
                 Material = p.Material?.Slug ?? "",
-                Images = p.Images.OrderBy(i => i.DisplayOrder).Select(i => i.Url).ToList(),
+                Images = p.Images?.OrderBy(i => i.DisplayOrder).Select(i => i.Url).ToList() ?? new List<string>(),
                 Description = p.Description ?? "",
-                InStock = p.StockQuantity > 0 || p.Variants.Any(v => v.StockQuantity > 0),
+                InStock = p.StockQuantity > 0 || (p.Variants?.Any(v => v.StockQuantity > 0) ?? false),
                 IsNew = p.IsNew,
                 IsSale = p.IsSale,
                 Rating = p.Rating,
                 Reviews = p.ReviewCount,
-                AvailableSizes = p.Variants.Select(v => v.Size).Distinct().ToList(),
-                Variants = p.Variants.Select(v => new ProductVariantDto
+                AvailableSizes = p.Variants?.Select(v => v.Size).Distinct().ToList() ?? new List<string>(),
+                Variants = p.Variants?.Select(v => new ProductVariantDto
                 {
                     Id = v.Id,
                     ProductId = v.ProductId,
@@ -71,7 +71,7 @@ namespace web_Trang_suc_BE.Controllers
                     OriginalPrice = v.OriginalPrice,
                     StockQuantity = v.StockQuantity,
                     IsSale = v.IsSale
-                }).ToList()
+                }).ToList() ?? new List<ProductVariantDto>()
             }).ToList();
 
             return Ok(result);

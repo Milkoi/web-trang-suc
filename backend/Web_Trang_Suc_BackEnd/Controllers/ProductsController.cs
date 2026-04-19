@@ -78,7 +78,6 @@ namespace web_Trang_suc_BE.Controllers
                 .Include(prod => prod.Material)
                 .Include(prod => prod.Images)
                 .Include(prod => prod.Variants)
-                .Include(prod => prod.Reviews)
                 .FirstOrDefaultAsync(prod => prod.Id == id);
 
             if (p == null) return NotFound();

@@ -10,10 +10,10 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("userId")]
+        [Column("user_id")]
         public string UserId { get; set; } = string.Empty;
 
-        [Column("productId")]
+        [Column("product_id")]
         public long ProductId { get; set; }
 
         [Column("rating")]
@@ -22,7 +22,7 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("comment")]
         public string? Comment { get; set; }
 
-        [Column("createdAt")]
+        [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation properties

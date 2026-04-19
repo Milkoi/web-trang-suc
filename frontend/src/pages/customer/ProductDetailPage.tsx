@@ -61,17 +61,24 @@ const ProductDetailPage: React.FC = () => {
     const fetchProduct = async () => {
       try {
         setIsLoading(true);
-        const [prodRes, allRes, revRes] = await Promise.all([
+        const [prodRes, allRes] = await Promise.all([
           api.get(`/products/${id}`),
-          api.get('/products'),
-          api.get(`/reviews/product/${id}`)
+          api.get('/products')
         ]);
         setProduct(prodRes.data);
-        setReviews(revRes.data);
         
         // Filter related
         const all = allRes.data as Product[];
         setRelated(all.filter(p => p.category === prodRes.data.category && p.id !== prodRes.data.id).slice(0, 4));
+
+        // Fetch reviews separately so it doesn't block product loading
+        try {
+          const revRes = await api.get(`/reviews/product/${id}`);
+          setReviews(revRes.data);
+        } catch (revErr) {
+          console.warn('Could not fetch reviews:', revErr);
+          setReviews([]);
+        }
       } catch (err) {
         console.error('Error fetching product detail:', err);
       } finally {

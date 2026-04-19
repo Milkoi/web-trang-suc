@@ -45,7 +45,51 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Cấu hình thông tin Swagger
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "VELMORA API - Jewelry E-Commerce Platform",
+        Version = "v1.0",
+        Description = "API documentation cho hệ thống bán trang sức VELMORA. Bao gồm các endpoint quản lý sản phẩm, người dùng, đơn hàng và thanh toán.",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "VELMORA Development Team",
+            Email = "support@velmora.com",
+            Url = new Uri("https://velmora.com")
+        },
+        License = new Microsoft.OpenApi.Models.OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://opensource.org/licenses/MIT")
+        }
+    });
+
+    // Hỗ trợ XML Comments từ các file .xml
+    var xmlFile = System.IO.Path.Combine(System.AppContext.BaseDirectory, "web_Trang_suc_BE.xml");
+    if (System.IO.File.Exists(xmlFile))
+    {
+        options.IncludeXmlComments(xmlFile);
+    }
+
+    // Chia thành các groups theo chức năng
+    options.TagActionsBy(api =>
+    {
+        if (api.GroupName != null)
+            return new[] { api.GroupName };
+
+        var controllerActionDescriptor = api.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
+        if (controllerActionDescriptor != null)
+        {
+            return new[] { controllerActionDescriptor.ControllerName };
+        }
+
+        return new[] { "Default" };
+    });
+
+    options.DocInclusionPredicate((name, api) => true);
+});
 
 var app = builder.Build();
 

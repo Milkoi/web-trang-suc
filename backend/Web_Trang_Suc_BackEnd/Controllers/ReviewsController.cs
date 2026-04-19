@@ -22,7 +22,6 @@ namespace web_Trang_suc_BE.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetProductReviews(long productId)
         {
             var reviews = await _context.Reviews!
-                .Include(r => r.User)
                 .Where(r => r.ProductId == productId)
                 .OrderByDescending(r => r.CreatedAt)
                 .Select(r => new {

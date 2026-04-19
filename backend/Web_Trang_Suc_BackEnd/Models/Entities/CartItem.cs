@@ -11,7 +11,7 @@ namespace web_Trang_suc_BE.Models.Entities
         public long Id { get; set; }
 
         [Column("cartId")]
-        public long CartId { get; set; }
+        public int CartId { get; set; }
 
         [Column("productId")]
         public long ProductId { get; set; }
