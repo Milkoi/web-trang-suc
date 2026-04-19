@@ -142,9 +142,22 @@ const CheckoutPage: React.FC = () => {
         }))
       };
 
-      await api.post('/orders/place-order', orderData);
+      const res = await api.post('/orders/place-order', orderData);
       
       clearSelectedItems();
+
+      if (form.payment.method === 'vnpay' && res.data.orderId) {
+        // GET VNPAY URL
+        const payRes = await api.post('/payment/create-vnpay-url', {
+          orderId: res.data.orderId,
+          amount: grandTotal
+        });
+        if (payRes.data.url) {
+          window.location.href = payRes.data.url;
+          return;
+        }
+      }
+
       navigate('/checkout/success');
     } catch (err) {
       alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');

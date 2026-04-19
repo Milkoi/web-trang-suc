@@ -16,6 +16,7 @@ namespace web_Trang_suc_BE.Controllers
         public OrdersController(AppDbContext context) { _context = context; }
 
         [HttpGet]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<IEnumerable<object>>> GetAllOrders()
         {
             var list = await _context.Orders!.Include(o => o.Items).ThenInclude(i => i.Product).ToListAsync();

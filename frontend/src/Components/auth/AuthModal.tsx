@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useAuth } from '../../store/AuthContext';
 import './AuthModal.css';
 
@@ -51,13 +52,21 @@ const AuthModal: React.FC = () => {
     }
   };
 
-  const handleGoogle = async () => {
-    setIsLoading(true);
-    try {
-      await loginWithGoogle();
-    } finally {
-      setIsLoading(false);
-    }
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      try {
+        const ok = await loginWithGoogle(tokenResponse.access_token);
+        if (!ok) setError('Đăng nhập bằng Google thất bại.');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => setError('Lỗi khi kết nối Google.'),
+  });
+
+  const handleGoogle = () => {
+    googleLogin();
   };
 
   return (

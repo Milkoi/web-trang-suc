@@ -11,7 +11,7 @@ interface AuthContextType {
   openAuth: (tab?: 'login' | 'register') => void;
   closeAuth: () => void;
   login: (email: string, password: string) => Promise<boolean>;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (token: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
   updateUser: (data: Partial<Pick<User, 'name' | 'email'>>) => void;
   logout: () => void;
@@ -65,19 +65,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const loginWithGoogle = async () => {
-    // Keep mock for google for now
-    await new Promise(r => setTimeout(r, 1000));
-    const mockUser: User = {
-      id: 'g-1',
-      name: 'Google User',
-      email: 'user@gmail.com',
-      avatar: 'https://ui-avatars.com/api/?name=Google+User&background=c9a96e&color=fff',
-      provider: 'google',
-    };
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
-    closeAuth();
+  const loginWithGoogle = async (token: string): Promise<boolean> => {
+    try {
+      const response = await api.post('/account/google-login', { token });
+      const { token: jwtToken, user: userData } = response.data;
+      
+      const userName = userData.name || userData.fullName || 'Google User';
+      const formattedUser: User = {
+        id: userData.id.toString(),
+        name: userName,
+        email: userData.email,
+        avatar: userData.avatar || userData.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=c9a96e&color=fff`,
+        provider: 'google',
+        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer'
+      };
+
+      setUser(formattedUser);
+      localStorage.setItem('user', JSON.stringify(formattedUser));
+      localStorage.setItem('token', jwtToken);
+      closeAuth();
+      return true;
+    } catch (err) {
+      console.error('Google login error:', err);
+      return false;
+    }
   };
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using web_Trang_suc_BE.Models;
 using web_Trang_suc_BE.Models.Entities;
@@ -39,6 +40,7 @@ namespace web_Trang_suc_BE.Controllers
 
         // POST: api/ProductVariants
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<ProductVariant>> PostProductVariant(ProductVariant productVariant)
         {
             _context.ProductVariants.Add(productVariant);
@@ -49,6 +51,7 @@ namespace web_Trang_suc_BE.Controllers
 
         // DELETE: api/ProductVariants/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteProductVariant(int id)
         {
             var productVariant = await _context.ProductVariants.FindAsync(id);

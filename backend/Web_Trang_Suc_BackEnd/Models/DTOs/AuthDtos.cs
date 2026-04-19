@@ -36,4 +36,9 @@ namespace web_Trang_suc_BE.Models.DTOs
         public string CurrentPassword { get; set; } = string.Empty;
         public string NewPassword { get; set; } = string.Empty;
     }
+
+    public class GoogleLoginDto
+    {
+        public string Token { get; set; } = string.Empty;
+    }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using web_Trang_suc_BE.Models;
 
@@ -12,6 +13,7 @@ namespace web_Trang_suc_BE.Controllers
         public StatisticsController(AppDbContext context) { _context = context; }
 
         [HttpGet("dashboard")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<object>> GetDashboardStats()
         {
             var totalOrders = await _context.Orders!.CountAsync();

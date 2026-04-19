@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react';
 import api from '../../services/api';
 import { Product } from '../../types';
 import { useCart } from '../../store/CartContext';
+import { useAuth } from '../../store/AuthContext';
 import { useFavorites } from '../../store/FavoritesContext';
 import ProductCard from '../../Components/product/ProductCard';
 import SizeGuideDrawer from '../../Components/product/SizeGuideDrawer';
@@ -32,8 +33,11 @@ const ProductDetailPage: React.FC = () => {
   
   const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'policy' | 'description' | 'faq'>('description');
+  const [activeTab, setActiveTab] = useState<'policy' | 'description' | 'faq' | 'reviews'>('description');
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
+  const { isAuthenticated } = useAuth();
 
   const productFaqs = [
     {
@@ -57,11 +61,13 @@ const ProductDetailPage: React.FC = () => {
     const fetchProduct = async () => {
       try {
         setIsLoading(true);
-        const [prodRes, allRes] = await Promise.all([
+        const [prodRes, allRes, revRes] = await Promise.all([
           api.get(`/products/${id}`),
-          api.get('/products')
+          api.get('/products'),
+          api.get(`/reviews/product/${id}`)
         ]);
         setProduct(prodRes.data);
+        setReviews(revRes.data);
         
         // Filter related
         const all = allRes.data as Product[];
@@ -99,6 +105,21 @@ const ProductDetailPage: React.FC = () => {
     addToCart(product, quantity, selectedSize, selectedVariant);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  };
+
+  const submitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await api.post('/reviews', {
+        productId: product.id,
+        rating: newReview.rating,
+        comment: newReview.comment
+      });
+      setReviews([res.data, ...reviews]);
+      setNewReview({ rating: 5, comment: '' });
+    } catch {
+      alert("Lỗi khi gửi đánh giá.");
+    }
   };
 
   const disc = (selectedVariant?.originalPrice ?? product.originalPrice)
@@ -328,6 +349,12 @@ const ProductDetailPage: React.FC = () => {
             >
               Câu hỏi thường gặp
             </button>
+            <button 
+              className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
+              onClick={() => setActiveTab('reviews')}
+            >
+              Đánh giá ({reviews.length})
+            </button>
           </div>
 
           <div className="product-detail__tabs-content">
@@ -386,6 +413,64 @@ const ProductDetailPage: React.FC = () => {
                   ))}
                   <div style={{ marginTop: '24px', textAlign: 'center' }}>
                     <Link to="/faq" className="view-more-faq">Xem tất cả các câu hỏi khác</Link>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'reviews' && (
+              <div className="tab-content reviews-content">
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                  {isAuthenticated ? (
+                    <form onSubmit={submitReview} className="review-form">
+                      <h4 style={{ marginBottom: 16 }}>Viết đánh giá của bạn</h4>
+                      <div className="form-group">
+                        <select 
+                           value={newReview.rating} 
+                           onChange={e => setNewReview({...newReview, rating: Number(e.target.value)})}
+                           className="form-control"
+                           style={{ width: '150px' }}
+                        >
+                           <option value="5">5 Sao (Tuyệt vời)</option>
+                           <option value="4">4 Sao (Khá tốt)</option>
+                           <option value="3">3 Sao (Bình thường)</option>
+                           <option value="2">2 Sao (Kém)</option>
+                           <option value="1">1 Sao (Tệ)</option>
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <textarea 
+                          placeholder="Nhận xét của bạn về sản phẩm này..." 
+                          className="form-control"
+                          rows={4}
+                          value={newReview.comment}
+                          onChange={e => setNewReview({...newReview, comment: e.target.value})}
+                          required
+                        />
+                      </div>
+                      <button type="submit" className="btn-primary">Gửi đánh giá</button>
+                    </form>
+                  ) : (
+                    <div style={{ padding: 24, background: '#f5f5f5', textAlign: 'center', marginBottom: 32, borderRadius: 8 }}>
+                      Vui lòng đăng nhập để đánh giá sản phẩm.
+                    </div>
+                  )}
+
+                  <div className="reviews-list">
+                     {reviews.length === 0 ? (
+                       <p style={{ textAlign: 'center', color: '#666', marginTop: 32 }}>Chưa có đánh giá nào cho sản phẩm này.</p>
+                     ) : reviews.map(r => (
+                       <div key={r.id} className="review-item" style={{ borderBottom: '1px solid #eee', padding: '24px 0' }}>
+                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                           <strong>{r.userName}</strong>
+                           <span style={{ color: '#999', fontSize: 14 }}>{new Date(r.createdAt).toLocaleDateString('vi-VN')}</span>
+                         </div>
+                         <div style={{ color: 'var(--color-gold)', marginBottom: 8 }}>
+                           {'★'.repeat(r.rating)}{'☆'.repeat(5 - r.rating)}
+                         </div>
+                         <p style={{ margin: 0, color: '#444' }}>{r.comment}</p>
+                       </div>
+                     ))}
                   </div>
                 </div>
               </div>

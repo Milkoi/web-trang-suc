@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using web_Trang_suc_BE.Models;
 using web_Trang_suc_BE.Models.DTOs;
@@ -33,6 +34,7 @@ namespace web_Trang_suc_BE.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> CreateCategory(CreateCategoryDto dto)
         {
             if (await _context.Categories.AnyAsync(c => c.Name == dto.Name || c.Slug == dto.Slug))
@@ -55,6 +57,7 @@ namespace web_Trang_suc_BE.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> UpdateCategory(int id, CreateCategoryDto dto)
         {
             var category = await _context.Categories.FindAsync(id);
@@ -75,6 +78,7 @@ namespace web_Trang_suc_BE.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> DeleteCategory(int id)
         {
             var category = await _context.Categories

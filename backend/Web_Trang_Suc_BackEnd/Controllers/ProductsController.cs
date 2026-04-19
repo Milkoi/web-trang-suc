@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using web_Trang_suc_BE.Models;
 using web_Trang_suc_BE.Models.DTOs;
@@ -114,6 +115,7 @@ namespace web_Trang_suc_BE.Controllers
         }
         
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> CreateProduct(CreateProductDto dto)
         {
             try
@@ -175,6 +177,7 @@ namespace web_Trang_suc_BE.Controllers
         }
         // PUT: api/Products/5 (Admin only)
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateProduct(long id, CreateProductDto dto)
         {
             try
@@ -183,6 +186,53 @@ namespace web_Trang_suc_BE.Controllers
                     .Include(p => p.Variants)
                     .Include(p => p.Images)
                     .FirstOrDefaultAsync(p => p.Id == id);
+
+                if (product == null) return NotFound();
+
+                // Refined variant update logic: Sync instead of Clear-and-Add
+                var existingVariants = product.Variants.ToList();
+                var incomingVariants = dto.Variants ?? new List<ProductVariantDto>();
+
+                // 1. Update or Add
+                foreach (var vDto in incomingVariants)
+                {
+                    var existing = existingVariants.FirstOrDefault(v => v.Id == vDto.Id || (vDto.Id == 0 && v.Sku == vDto.Sku));
+                    if (existing != null)
+                    {
+                        existing.Sku = vDto.Sku;
+                        existing.Size = vDto.Size;
+                        existing.Price = vDto.Price;
+                        existing.OriginalPrice = vDto.OriginalPrice;
+                        existing.StockQuantity = vDto.StockQuantity;
+                        existing.IsSale = vDto.IsSale;
+                    }
+                    else
+                    {
+                        product.Variants.Add(new ProductVariant
+                        {
+                            Sku = vDto.Sku,
+                            Size = vDto.Size,
+                            Price = vDto.Price,
+                            OriginalPrice = vDto.OriginalPrice,
+                            StockQuantity = vDto.StockQuantity,
+                            IsSale = vDto.IsSale
+                        });
+                    }
+                }
+
+                // 2. Remove variants that are not in the incoming list
+                var incomingIds = incomingVariants.Select(v => v.Id).Where(vId => vId != 0).ToList();
+                var incomingSkus = incomingVariants.Select(v => v.Sku).ToList();
+
+                var toRemove = existingVariants.Where(v => !incomingIds.Contains(v.Id) && !incomingSkus.Contains(v.Sku)).ToList();
+                foreach (var vToRemove in toRemove)
+                {
+                    bool isUsed = await _context.OrderItems.AnyAsync(oi => oi.VariantId == vToRemove.Id);
+                    if (!isUsed)
+                    {
+                        _context.ProductVariants.Remove(vToRemove);
+                    }
+                }
 
                 if (product == null) return NotFound();
 
@@ -215,18 +265,7 @@ namespace web_Trang_suc_BE.Controllers
                     product.Images.Add(new ProductImage { Url = url });
                 }
                 
-                _context.ProductVariants.RemoveRange(product.Variants);
-                foreach (var v in dto.Variants ?? new())
-                {
-                    product.Variants.Add(new ProductVariant
-                    {
-                        Sku = v.Sku,
-                        Size = v.Size,
-                        Price = v.Price,
-                        StockQuantity = v.StockQuantity,
-                        IsSale = v.IsSale
-                    });
-                }
+
 
                 await _context.SaveChangesAsync();
                 return Ok();
@@ -237,6 +276,7 @@ namespace web_Trang_suc_BE.Controllers
             }
         }
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> DeleteProduct(long id)
         {
             var p = await _context.Products!.FindAsync(id);

@@ -8,7 +8,7 @@ namespace web_Trang_suc_BE.Models.Entities
     {
         [Key]
         [Column("id")]
-        public long Id { get; set; }
+        public int Id { get; set; }
 
         [Column("userId")]
         public string UserId { get; set; } = string.Empty;

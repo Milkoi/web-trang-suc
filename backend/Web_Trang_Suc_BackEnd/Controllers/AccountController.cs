@@ -4,6 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Google.Apis.Auth;
 using web_Trang_suc_BE.Models;
 using web_Trang_suc_BE.Models.DTOs;
 using web_Trang_suc_BE.Models.Entities;
@@ -119,6 +120,71 @@ namespace web_Trang_suc_BE.Controllers
 
             return Ok(new { message = "Mật khẩu đã được thay đổi thành công." });
         }
+
+        [HttpPost("google-login")]
+        public async Task<ActionResult<AuthResponseDto>> GoogleLogin([FromBody] GoogleLoginDto dto)
+        {
+            try
+            {
+                using var httpClient = new HttpClient();
+                using var request = new HttpRequestMessage(new HttpMethod("GET"), "https://www.googleapis.com/oauth2/v3/userinfo");
+                request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {dto.Token}"); 
+
+                var response = await httpClient.SendAsync(request);
+                if (!response.IsSuccessStatusCode) return BadRequest("Invalid Google Token");
+
+                var content = await response.Content.ReadAsStringAsync();
+                var payload = System.Text.Json.JsonSerializer.Deserialize<GoogleUserInfoDto>(content);
+
+                if (payload == null || string.IsNullOrEmpty(payload.Email)) return BadRequest("Invalid Google Token Payload");
+
+                var user = await _context.Users!.FirstOrDefaultAsync(u => u.Email == payload.Email);
+                if (user == null)
+                {
+                    // Create new user for google auth
+                    user = new User
+                    {
+                        FullName = payload.Name ?? "Google User",
+                        Email = payload.Email,
+                        Avatar = payload.Picture,
+                        Role = "customer",
+                        Provider = "google"
+                    };
+
+                    _context.Users!.Add(user);
+                    await _context.SaveChangesAsync();
+                }
+
+                return Ok(new AuthResponseDto
+                {
+                    Token = CreateToken(user),
+                    User = new UserDto
+                    {
+                        Id = user.Id,
+                        Name = user.FullName,
+                        Email = user.Email,
+                        Role = user.Role,
+                        Avatar = user.Avatar,
+                        Provider = user.Provider
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        public class GoogleUserInfoDto
+        {
+            [System.Text.Json.Serialization.JsonPropertyName("email")]
+            public string? Email { get; set; }
+            [System.Text.Json.Serialization.JsonPropertyName("name")]
+            public string? Name { get; set; }
+            [System.Text.Json.Serialization.JsonPropertyName("picture")]
+            public string? Picture { get; set; }
+        }
+
 
         private string CreateToken(User user)
         {
