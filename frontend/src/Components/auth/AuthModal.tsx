@@ -15,7 +15,24 @@ const AuthModal: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  const googleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setIsLoading(true);
+      try {
+        const ok = await loginWithGoogle(tokenResponse.access_token);
+        if (!ok) setError('Đăng nhập bằng Google thất bại.');
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => setError('Lỗi khi kết nối Google.'),
+  });
+
   if (!isAuthOpen) return null;
+
+  const handleGoogle = () => {
+    googleLogin();
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,24 +68,6 @@ const AuthModal: React.FC = () => {
       setIsLoading(false);
     }
   };
-
-  const googleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setIsLoading(true);
-      try {
-        const ok = await loginWithGoogle(tokenResponse.access_token);
-        if (!ok) setError('Đăng nhập bằng Google thất bại.');
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    onError: () => setError('Lỗi khi kết nối Google.'),
-  });
-
-  const handleGoogle = () => {
-    googleLogin();
-  };
-
   return (
     <>
       <div className="overlay auth-overlay" onClick={closeAuth} />

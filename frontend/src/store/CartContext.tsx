@@ -208,7 +208,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // Optimistic UI updates
     dispatch({ type: 'ADD_ITEM', payload: { product, quantity, size, variant } });
-    dispatch({ type: 'OPEN_CART' });
+    
+    // Open cart after a small delay to ensure state is updated
+    setTimeout(() => {
+      dispatch({ type: 'OPEN_CART' });
+    }, 100);
 
     // Server Call
     try {
@@ -221,8 +225,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error('API failed to add to cart', err);
       // Fallback: sync from server again
-      const serverState = await api.get('/carts');
-      dispatch({ type: 'SET_CART', payload: serverState.data });
+      try {
+        const serverState = await api.get('/carts');
+        dispatch({ type: 'SET_CART', payload: serverState.data });
+      } catch (syncErr) {
+        console.error('Failed to sync cart from server', syncErr);
+      }
     }
   };
 

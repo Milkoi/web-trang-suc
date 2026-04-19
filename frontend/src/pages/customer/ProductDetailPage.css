@@ -456,7 +456,7 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-.tab-btn {
+.product-tab-btn {
   padding: 24px 12px;
   background: none;
   border: none;
@@ -468,16 +468,16 @@
   transition: all 0.3s ease;
 }
 
-.tab-btn:hover {
+.product-tab-btn:hover {
   color: var(--color-charcoal);
 }
 
-.tab-btn.active {
+.product-tab-btn.active {
   color: var(--color-charcoal);
   font-weight: 500;
 }
 
-.tab-btn.active::after {
+.product-tab-btn.active::after {
   content: '';
   position: absolute;
   bottom: -1px;
@@ -624,7 +624,7 @@
   .product-detail__tabs-nav {
     gap: 15px;
   }
-  .tab-btn {
+  .product-tab-btn {
     font-size: 14px;
     padding: 16px 8px;
   }

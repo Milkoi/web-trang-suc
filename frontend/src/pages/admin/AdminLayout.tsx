@@ -15,8 +15,10 @@ const AdminLayout: React.FC = () => {
     { path: '/admin', label: 'Tổng quan', icon: '📊' },
     { path: '/admin/products', label: 'Sản phẩm', icon: '💎' },
     { path: '/admin/categories', label: 'Danh mục', icon: '📁' },
-    { path: '/admin/orders', label: 'Đơn hàng', icon: '📦' },
-    { path: '/admin/customers', label: 'Khách hàng', icon: '👤' },
+    { path: '/admin/promotions', label: 'Khuyến mãi', icon: '🎁' },
+    { path: '/admin/customers', label: 'Khách hàng', icon: '�' },
+    { path: '/admin/content', label: 'Nội dung', icon: '📝' },
+    { path: '/admin/orders', label: 'Đơn hàng', icon: '�' },
     { path: '/admin/settings', label: 'Cấu hình', icon: '⚙️' },
   ];
 

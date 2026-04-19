@@ -10,22 +10,39 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("id")]
         public int Id { get; set; }
 
-        [Column("phone")]
-        [Required]
-        [MaxLength(50)]
-        public string Phone { get; set; } = string.Empty;
-
-        [Column("email")]
-        [Required]
+        [Column("siteName")]
         [MaxLength(255)]
-        public string Email { get; set; } = string.Empty;
+        public string SiteName { get; set; } = string.Empty;
+
+        [Column("siteDescription")]
+        [MaxLength(1000)]
+        public string? SiteDescription { get; set; }
+
+        [Column("contactEmail")]
+        [MaxLength(255)]
+        public string? ContactEmail { get; set; }
+
+        [Column("contactPhone")]
+        [MaxLength(50)]
+        public string? ContactPhone { get; set; }
+
+        [Column("address")]
+        [MaxLength(500)]
+        public string? Address { get; set; }
 
         [Column("workingHours")]
-        [Required]
-        [MaxLength(255)]
-        public string WorkingHours { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public string? WorkingHours { get; set; }
 
-        [Column("updatedAt")]
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        [Column("facebookUrl")]
+        [MaxLength(255)]
+        public string? FacebookUrl { get; set; }
+
+        [Column("instagramUrl")]
+        [MaxLength(255)]
+        public string? InstagramUrl { get; set; }
+
+        [Column("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

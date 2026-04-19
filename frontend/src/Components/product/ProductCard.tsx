@@ -76,14 +76,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           className="product-card__image product-card__image--primary"
           loading="lazy"
         />
-        {product.images[1] && (
-          <img
-            src={product.images[1]}
-            alt={product.name + ' alt'}
-            className="product-card__image product-card__image--secondary"
-            loading="lazy"
-          />
-        )}
+        <img
+          src={product.images[1] || product.images[0]}
+          alt={product.name + ' alt'}
+          className="product-card__image product-card__image--secondary"
+          loading="lazy"
+        />
 
         {/* Favorite Button */}
         <button

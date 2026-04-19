@@ -21,6 +21,9 @@ import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import ProductList from './pages/admin/ProductList';
 import CategoryList from './pages/admin/CategoryList';
+import PromotionList from './pages/admin/PromotionList';
+import CustomerList from './pages/admin/CustomerList';
+import ContentManagement from './pages/admin/ContentManagement';
 import OrderList from './pages/admin/OrderList';
 import AdminPlaceholder from './pages/admin/AdminPlaceholder';
 import './index.css';
@@ -38,8 +41,10 @@ function App() {
                 <Route index element={<Dashboard />} />
                 <Route path="products" element={<ProductList />} />
                 <Route path="categories" element={<CategoryList />} />
+                <Route path="promotions" element={<PromotionList />} />
+                <Route path="customers" element={<CustomerList />} />
+                <Route path="content" element={<ContentManagement />} />
                 <Route path="orders" element={<OrderList />} />
-                <Route path="customers" element={<AdminPlaceholder title="Quản lý Khách hàng" />} />
                 <Route path="settings" element={<AdminPlaceholder title="Cấu hình hệ thống" />} />
               </Route>
 

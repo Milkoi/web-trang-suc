@@ -247,7 +247,7 @@ const ProductDetailPage: React.FC = () => {
                   <div className="size-options">
                     {product.availableSizes.map(size => {
                       const variant = product.variants?.find(v => v.size === size);
-                      const isOutOfStock = variant ? variant.stockQuantity <= 0 : !product.inStock;
+                      const isOutOfStock = variant ? (variant.stockQuantity ?? 0) <= 0 : !product.inStock;
                       
                       return (
                         <button 
@@ -274,12 +274,12 @@ const ProductDetailPage: React.FC = () => {
                     <button 
                       disabled={(() => {
                         const variant = product.variants?.find(v => v.size === selectedSize);
-                        const maxStock = variant ? variant.stockQuantity : product.stockQuantity;
+                        const maxStock = variant ? (variant.stockQuantity ?? 0) : (product.stockQuantity ?? 0);
                         return quantity >= maxStock;
                       })()}
                       onClick={() => {
                         const variant = product.variants?.find(v => v.size === selectedSize);
-                        const maxStock = variant ? variant.stockQuantity : product.stockQuantity;
+                        const maxStock = variant ? (variant.stockQuantity ?? 0) : (product.stockQuantity ?? 0);
                         if (quantity < maxStock) {
                           setQuantity(q => q + 1);
                         }
@@ -339,25 +339,25 @@ const ProductDetailPage: React.FC = () => {
         <div className="product-detail__tabs-section">
           <div className="product-detail__tabs-nav">
             <button 
-              className={`tab-btn ${activeTab === 'policy' ? 'active' : ''}`}
+              className={`product-tab-btn ${activeTab === 'policy' ? 'active' : ''}`}
               onClick={() => setActiveTab('policy')}
             >
               Chính sách hậu mãi
             </button>
             <button 
-              className={`tab-btn ${activeTab === 'description' ? 'active' : ''}`}
+              className={`product-tab-btn ${activeTab === 'description' ? 'active' : ''}`}
               onClick={() => setActiveTab('description')}
             >
               Mô tả sản phẩm
             </button>
             <button 
-              className={`tab-btn ${activeTab === 'faq' ? 'active' : ''}`}
+              className={`product-tab-btn ${activeTab === 'faq' ? 'active' : ''}`}
               onClick={() => setActiveTab('faq')}
             >
               Câu hỏi thường gặp
             </button>
             <button 
-              className={`tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
+              className={`product-tab-btn ${activeTab === 'reviews' ? 'active' : ''}`}
               onClick={() => setActiveTab('reviews')}
             >
               Đánh giá ({reviews.length})
