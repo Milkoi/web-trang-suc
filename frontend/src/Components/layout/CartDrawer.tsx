@@ -7,22 +7,8 @@ const formatPrice = (price: number) =>
   new Intl.NumberFormat('vi-VN').format(price) + '₫';
 
 const CartDrawer: React.FC = () => {
-  const { state, closeCart, removeFromCart, updateQuantity, applyDiscount, clearDiscount, subtotal, total, toggleItemSelected, toggleAllSelected, clearSelectedItems } = useCart();
-  const [discountInput, setDiscountInput] = useState('');
-  const [discountError, setDiscountError] = useState('');
-  const [discountSuccess, setDiscountSuccess] = useState('');
+  const { state, closeCart, removeFromCart, updateQuantity, subtotal, total, toggleItemSelected, toggleAllSelected, clearSelectedItems } = useCart();
 
-  useEffect(() => {
-    setDiscountInput(state.discountCode);
-  }, [state.discountCode]);
-
-  useEffect(() => {
-    if (discountInput.trim() === '' && state.discountAmount > 0) {
-      clearDiscount();
-      setDiscountError('');
-      setDiscountSuccess('');
-    }
-  }, [discountInput, state.discountAmount, clearDiscount]);
   const [showConsultModal, setShowConsultModal] = useState(false);
   const [isEditingCart, setIsEditingCart] = useState(false);
   const [cartAlert, setCartAlert] = useState<{ 
@@ -35,25 +21,6 @@ const CartDrawer: React.FC = () => {
   } | null>(null);
 
   const navigate = useNavigate();
-
-  const handleApplyDiscount = () => {
-    const code = discountInput.trim().toUpperCase();
-    setDiscountError('');
-    setDiscountSuccess('');
-    if (!code) {
-      clearDiscount();
-      setDiscountError('Vui lòng nhập mã giảm giá');
-      return;
-    }
-    const validCodes: Record<string, number> = { LUXURY10: 10, SALE20: 20, VIP30: 30 };
-    if (validCodes[code]) {
-      applyDiscount(code);
-      setDiscountInput(code);
-      setDiscountSuccess(`Áp dụng thành công! Giảm ${validCodes[code]}%`);
-    } else {
-      setDiscountError('Mã giảm giá không hợp lệ');
-    }
-  };
 
   const handleCheckoutClick = () => {
     const selectedItems = state.items.filter(i => i.selected);
@@ -306,46 +273,13 @@ const CartDrawer: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <>
-                {/* Discount Code */}
-                <div className="cart-drawer__discount">
-                  <div className="cart-drawer__discount-row">
-                    <input
-                      type="text"
-                      value={discountInput}
-                      onChange={e => {
-                        const value = e.target.value;
-                        setDiscountInput(value);
-                        if (!value.trim()) {
-                          clearDiscount();
-                          setDiscountError('');
-                          setDiscountSuccess('');
-                        }
-                      }}
-                      placeholder="Mã giảm giá hoặc thẻ quà tặng"
-                      className="cart-drawer__discount-input"
-                      onKeyDown={e => e.key === 'Enter' && handleApplyDiscount()}
-                    />
-                    <button className="cart-drawer__discount-btn" onClick={handleApplyDiscount}>
-                      Áp Dụng
-                    </button>
-                  </div>
-                  {discountError && <p className="cart-drawer__discount-error">{discountError}</p>}
-                  {discountSuccess && <p className="cart-drawer__discount-success">{discountSuccess}</p>}
-                </div>
-
+              <div className="cart-drawer__summary-container" style={{ marginTop: 'auto' }}>
                 {/* Summary */}
                 <div className="cart-drawer__summary">
                   <div className="cart-drawer__summary-row">
                     <span>Tạm tính</span>
                     <span>{formatPrice(subtotal)}</span>
                   </div>
-                  {state.discountAmount > 0 && (
-                    <div className="cart-drawer__summary-row cart-drawer__summary-discount">
-                      <span>Giảm giá ({state.discountCode})</span>
-                      <span>−{formatPrice(subtotal * state.discountAmount)}</span>
-                    </div>
-                  )}
                   <div className="cart-drawer__summary-row">
                     <span>Vận chuyển</span>
                     <span className={subtotal >= 10000000 ? 'cart-drawer__free-ship' : ''}>
@@ -355,8 +289,7 @@ const CartDrawer: React.FC = () => {
                   <div className="cart-drawer__summary-row cart-drawer__total-row">
                     <span>Tổng cộng</span>
                     <span className="cart-drawer__total-price">
-                      {formatPrice(total)}
-                      {state.discountAmount > 0 && <small> (đã giảm)</small>}
+                      {formatPrice(subtotal)}
                     </span>
                   </div>
                 </div>
@@ -373,7 +306,7 @@ const CartDrawer: React.FC = () => {
                     ← Tiếp Tục Mua Sắm
                   </button>
                 </div>
-              </>
+              </div>
             )}
 
             {/* Consultation Modal */}

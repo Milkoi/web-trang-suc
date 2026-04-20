@@ -37,6 +37,9 @@ const CheckoutPage: React.FC = () => {
   const [discountInput, setDiscountInput] = useState('');
   const [discountError, setDiscountError] = useState('');
   const [discountSuccess, setDiscountSuccess] = useState('');
+  const [showVoucherSelector, setShowVoucherSelector] = useState(false);
+  const [myVouchers, setMyVouchers] = useState<any[]>([]);
+  const [loadingVouchers, setLoadingVouchers] = useState(false);
 
   useEffect(() => {
     setDiscountInput(state.discountCode);
@@ -79,13 +82,35 @@ const CheckoutPage: React.FC = () => {
           }
         };
       });
+      fetchVouchers();
     }
   }, [user]);
+
+  const fetchVouchers = async () => {
+    setLoadingVouchers(true);
+    try {
+      const res = await api.get('/promotions/my-vouchers');
+      // Lọc các mã: chưa dùng, và đúng hạn (việc kiểm tra minOrderAmount sẽ được hiện ở UI)
+      const now = new Date();
+      const validVouchers = res.data.filter((uv: any) => {
+        const promo = uv.promotion;
+        const isUsed = uv.isUsed;
+        const isExpired = promo.endDate && new Date(promo.endDate) < now;
+        const isStarted = !promo.startDate || new Date(promo.startDate) <= now;
+        return !isUsed && !isExpired && isStarted;
+      });
+      setMyVouchers(validVouchers);
+    } catch (error) {
+      console.error('Error fetching vouchers:', error);
+    } finally {
+      setLoadingVouchers(false);
+    }
+  };
 
   const shippingFee = form.shippingMethod === 'standard' ? 30000 : form.shippingMethod === 'express' ? 60000 : 0;
   const grandTotal = total + shippingFee;
 
-  const handleApplyDiscount = () => {
+  const handleApplyDiscount = async () => {
     const code = discountInput.trim().toUpperCase();
     if (!code) {
       clearDiscount();
@@ -94,15 +119,33 @@ const CheckoutPage: React.FC = () => {
       return;
     }
 
-    const validCodes = ['LUXURY10', 'SALE20', 'VIP30'];
-    if (validCodes.includes(code)) {
-      applyDiscount(code);
-      setDiscountInput(code);
-      setDiscountSuccess('Áp dụng mã giảm giá thành công');
-      setDiscountError('');
-    } else {
-      setDiscountError('Mã giảm giá không hợp lệ');
+    try {
+      const res = await api.get(`/promotions/validate/${code}?orderAmount=${subtotal}`);
+      if (res.data.valid) {
+        applyDiscount(code, res.data.discountAmount); // Now passing absolute amount
+        setDiscountInput(code);
+        setDiscountSuccess(`Áp dụng thành công! Giảm ${formatPrice(res.data.discountAmount)}`);
+        setDiscountError('');
+      }
+    } catch (err: any) {
+      setDiscountError(err.response?.data?.message || 'Mã giảm giá không hợp lệ');
       setDiscountSuccess('');
+      clearDiscount();
+    }
+  };
+
+  const applyVoucher = async (code: string) => {
+    try {
+      const res = await api.get(`/promotions/validate/${code}?orderAmount=${subtotal}`);
+      if (res.data.valid) {
+        applyDiscount(code, res.data.discountAmount);
+        setDiscountInput(code);
+        setDiscountSuccess(`Áp dụng thành công! Giảm ${formatPrice(res.data.discountAmount)}`);
+        setDiscountError('');
+        setShowVoucherSelector(false);
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Không thể áp dụng mã này');
     }
   };
 
@@ -144,7 +187,17 @@ const CheckoutPage: React.FC = () => {
 
       const res = await api.post('/orders/place-order', orderData);
       
+      // Đánh dấu sử dụng voucher nếu có
+      if (state.discountCode) {
+        try {
+          await api.post('/promotions/use-voucher', { code: state.discountCode });
+        } catch (vErr) {
+          console.error('Failed to mark voucher as used', vErr);
+        }
+      }
+
       clearSelectedItems();
+      clearDiscount();
 
       if (form.payment.method === 'vnpay' && res.data.orderId) {
         // GET VNPAY URL
@@ -583,25 +636,36 @@ const CheckoutPage: React.FC = () => {
               ))}
             </div>
 
-            {/* Discount */}
             <div className="checkout-summary__discount">
-              <input
-                type="text"
-                placeholder="Mã giảm giá hoặc thẻ quà tặng"
-                value={discountInput}
-                onChange={e => {
-                  const value = e.target.value;
-                  setDiscountInput(value);
-                  if (!value.trim()) {
-                    clearDiscount();
-                    setDiscountError('');
-                    setDiscountSuccess('');
-                  }
-                }}
-                onKeyDown={e => e.key === 'Enter' && handleApplyDiscount()}
-                className="checkout-summary__discount-input"
-              />
-              <button className="checkout-summary__discount-btn" type="button" onClick={handleApplyDiscount}>Áp Dụng</button>
+              <div className="checkout-summary__discount-field">
+                <input
+                  type="text"
+                  placeholder="Mã giảm giá hoặc thẻ quà tặng"
+                  value={discountInput}
+                  onChange={e => {
+                    const value = e.target.value;
+                    setDiscountInput(value);
+                    if (!value.trim()) {
+                      clearDiscount();
+                      setDiscountError('');
+                      setDiscountSuccess('');
+                    }
+                  }}
+                  onKeyDown={e => e.key === 'Enter' && handleApplyDiscount()}
+                  className="checkout-summary__discount-input"
+                />
+                <button className="checkout-summary__discount-btn" type="button" onClick={handleApplyDiscount}>Áp Dụng</button>
+              </div>
+              <button 
+                type="button" 
+                className="checkout-voucher-list-trigger"
+                onClick={() => setShowVoucherSelector(true)}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                </svg>
+                Chọn mã giảm giá của bạn
+              </button>
             </div>
             {(discountError || discountSuccess) && (
               <div className="checkout-summary__discount-message">
@@ -618,7 +682,7 @@ const CheckoutPage: React.FC = () => {
               {state.discountAmount > 0 && (
                 <div className="checkout-summary__total-row checkout-summary__discount-row">
                   <span>Giảm giá ({state.discountCode})</span>
-                  <span>-{formatPrice(subtotal * state.discountAmount)}</span>
+                  <span>-{formatPrice(state.discountAmount)}</span>
                 </div>
               )}
               <div className="checkout-summary__total-row">
@@ -638,6 +702,60 @@ const CheckoutPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Voucher Selection Modal */}
+      {showVoucherSelector && (
+        <div className="voucher-selector-overlay" onClick={() => setShowVoucherSelector(false)}>
+          <div className="voucher-selector-modal" onClick={e => e.stopPropagation()}>
+            <div className="voucher-selector-header">
+              <h3>Mã giảm giá của bạn</h3>
+              <button className="voucher-selector-close" onClick={() => setShowVoucherSelector(false)}>&times;</button>
+            </div>
+            
+            <div className="voucher-selector-list">
+              {loadingVouchers ? (
+                <div className="voucher-selector-loading">Đang tải...</div>
+              ) : myVouchers.length === 0 ? (
+                <div className="voucher-selector-empty">Bạn chưa có mã giảm giá nào</div>
+              ) : (
+                myVouchers.map(uv => {
+                  const promo = uv.promotion;
+                  const isUsed = uv.isUsed;
+                  const isExpired = promo.endDate && new Date(promo.endDate) < new Date();
+                  const isEligible = subtotal >= (promo.minOrderAmount || 0);
+                  
+                  const disabled = isUsed || isExpired || !isEligible;
+                  
+                  return (
+                    <div 
+                      key={uv.id} 
+                      className={`voucher-selector-card ${disabled ? 'disabled' : ''}`}
+                      onClick={() => !disabled && applyVoucher(promo.code)}
+                    >
+                      <div className="voucher-selector-card-left">
+                        <span className="vsc-discount">{promo.discount}%</span>
+                        <span className="vsc-label">GIẢM</span>
+                      </div>
+                      <div className="voucher-selector-card-right">
+                        <h4 className="vsc-name">{promo.name}</h4>
+                        <p className="vsc-min">Đơn tối thiểu: {formatPrice(promo.minOrderAmount || 0)}</p>
+                        <p className="vsc-expiry">HSD: {promo.endDate ? new Date(promo.endDate).toLocaleDateString('vi-VN') : 'Vô hạn'}</p>
+                        
+                        {!isEligible && !isUsed && !isExpired && (
+                          <p className="vsc-error">Chưa đủ điều kiện (Thiếu {formatPrice((promo.minOrderAmount || 0) - subtotal)})</p>
+                        )}
+                        {isUsed && <p className="vsc-status used">Đã sử dụng</p>}
+                        {isExpired && <p className="vsc-status expired">Hết hạn</p>}
+                      </div>
+                      {!disabled && <button className="vsc-apply-btn">Dùng</button>}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

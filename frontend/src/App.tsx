@@ -1,12 +1,15 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { CartProvider } from './store/CartContext';
-import { AuthProvider } from './store/AuthContext';
+import { AuthProvider, useAuth } from './store/AuthContext';
 import { FavoritesProvider } from './store/FavoritesContext';
+import { VoucherProvider, useVouchers } from './store/VoucherContext';
 import ScrollToTop from './Components/layout/ScrollToTop';
 import Navbar from './Components/layout/Navbar';
 import Footer from './Components/layout/Footer';
 import CartDrawer from './Components/layout/CartDrawer';
 import AuthModal from './Components/auth/AuthModal';
+import VoucherPopup from './Components/VoucherPopup';
 import HomePage from './pages/customer/HomePage';
 import AboutPage from './pages/customer/AboutPage';
 import FAQPage from './pages/customer/FAQPage';
@@ -28,55 +31,87 @@ import OrderList from './pages/admin/OrderList';
 import AdminPlaceholder from './pages/admin/AdminPlaceholder';
 import './index.css';
 
+function AppContent() {
+  const { isAuthenticated } = useAuth();
+  const { isVoucherOpen, openVoucher, closeVoucher } = useVouchers();
+  const [hasShownOnce, setHasShownOnce] = useState(false);
+  const prevAuthRef = useRef(isAuthenticated);
+
+  // Show on first access
+  useEffect(() => {
+    const sessionSeen = sessionStorage.getItem('voucher_hub_seen');
+    if (!sessionSeen) {
+      const timer = setTimeout(() => {
+        openVoucher();
+        sessionStorage.setItem('voucher_hub_seen', 'true');
+        setHasShownOnce(true);
+      }, 2000);
+      return () => clearTimeout(timer);
+    } else {
+      setHasShownOnce(true);
+    }
+  }, [openVoucher]);
+
+  // Show ONLY when logging in (transition from false to true)
+  useEffect(() => {
+    if (isAuthenticated && !prevAuthRef.current && hasShownOnce) {
+      openVoucher();
+    }
+    prevAuthRef.current = isAuthenticated;
+  }, [isAuthenticated, hasShownOnce, openVoucher]);
+
+  return (
+    <Routes>
+      <Route path="/admin" element={<AdminLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="products" element={<ProductList />} />
+        <Route path="categories" element={<CategoryList />} />
+        <Route path="promotions" element={<PromotionList />} />
+        <Route path="customers" element={<CustomerList />} />
+        <Route path="content" element={<ContentManagement />} />
+        <Route path="orders" element={<OrderList />} />
+        <Route path="settings" element={<AdminPlaceholder title="Cấu hình hệ thống" />} />
+      </Route>
+
+      <Route path="*" element={
+        <>
+          <Navbar />
+          <main style={{ paddingTop: '96px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/products/:id" element={<ProductDetailPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/checkout/success" element={<CheckoutSuccess />} />
+              <Route path="/orders" element={<OrdersPage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/account" element={<AccountPage />} />
+            </Routes>
+          </main>
+          <Footer />
+          <CartDrawer />
+          <AuthModal />
+          <VoucherPopup isOpen={isVoucherOpen} onClose={closeVoucher} />
+        </>
+      } />
+    </Routes>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
       <AuthProvider>
-        <FavoritesProvider>
-          <CartProvider>
-            <Routes>
-              {/* Admin Routes */}
-              <Route path="/admin" element={<AdminLayout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="products" element={<ProductList />} />
-                <Route path="categories" element={<CategoryList />} />
-                <Route path="promotions" element={<PromotionList />} />
-                <Route path="customers" element={<CustomerList />} />
-                <Route path="content" element={<ContentManagement />} />
-                <Route path="orders" element={<OrderList />} />
-                <Route path="settings" element={<AdminPlaceholder title="Cấu hình hệ thống" />} />
-              </Route>
-
-              {/* Customer Routes */}
-              <Route
-                path="*"
-                element={
-                  <>
-                    <Navbar />
-                    <main style={{ paddingTop: '96px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/about" element={<AboutPage />} />
-                        <Route path="/faq" element={<FAQPage />} />
-                        <Route path="/products" element={<ProductsPage />} />
-                        <Route path="/products/:id" element={<ProductDetailPage />} />
-                        <Route path="/checkout" element={<CheckoutPage />} />
-                        <Route path="/checkout/success" element={<CheckoutSuccess />} />
-                        <Route path="/orders" element={<OrdersPage />} />
-                        <Route path="/favorites" element={<FavoritesPage />} />
-                        <Route path="/account" element={<AccountPage />} />
-                      </Routes>
-                    </main>
-                    <Footer />
-                    <CartDrawer />
-                    <AuthModal />
-                  </>
-                }
-              />
-            </Routes>
-          </CartProvider>
-        </FavoritesProvider>
+        <VoucherProvider>
+          <FavoritesProvider>
+            <CartProvider>
+              <AppContent />
+            </CartProvider>
+          </FavoritesProvider>
+        </VoucherProvider>
       </AuthProvider>
     </BrowserRouter>
   );

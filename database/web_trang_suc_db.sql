@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 19, 2026 lúc 11:38 AM
+-- Thời gian đã tạo: Th4 21, 2026 lúc 12:42 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -60,7 +60,8 @@ CREATE TABLE `carts` (
 --
 
 INSERT INTO `carts` (`id`, `userId`, `createdAt`) VALUES
-(4, 'admin-uuid-001', '2026-04-18 15:49:46');
+(4, 'admin-uuid-001', '2026-04-18 15:49:46'),
+(5, 'd7662f9f-f41b-4ec0-8cbc-21018e5018fa', '2026-04-20 08:41:08');
 
 -- --------------------------------------------------------
 
@@ -83,7 +84,9 @@ CREATE TABLE `cart_items` (
 
 INSERT INTO `cart_items` (`id`, `cartId`, `productId`, `variantId`, `quantity`, `size`) VALUES
 (25, 4, 1, 589, 1, '7'),
-(26, 4, 2, 201, 1, 'S');
+(26, 4, 2, 201, 1, 'S'),
+(28, 5, 4, 401, 1, NULL),
+(29, 4, 1, 601, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -183,6 +186,13 @@ CREATE TABLE `orders` (
   `paidAt` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Đang đổ dữ liệu cho bảng `orders`
+--
+
+INSERT INTO `orders` (`id`, `userId`, `firstName`, `lastName`, `email`, `phone`, `company`, `address`, `apartment`, `city`, `country`, `postalCode`, `shippingMethod`, `shippingFee`, `paymentMethod`, `paymentStatus`, `orderStatus`, `discountCode`, `discountAmount`, `totalAmount`, `estimatedDelivery`, `createdAt`, `paidAt`) VALUES
+('ORD-5423', 'd7662f9f-f41b-4ec0-8cbc-21018e5018fa', '', '', 'tranvankhoand1983@gmail.com', '', NULL, '', NULL, '', '', NULL, 'free', 0.00, '', 'unpaid', 'pending', NULL, 0.00, 0.00, NULL, '2026-04-20 08:44:16', NULL);
+
 -- --------------------------------------------------------
 
 --
@@ -254,12 +264,12 @@ CREATE TABLE `product_images` (
 --
 
 INSERT INTO `product_images` (`id`, `productId`, `url`, `isMain`, `displayOrder`) VALUES
-(5, 3, 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80', 1, 1),
-(6, 4, 'https://images.unsplash.com/photo-1506630448388-4e683c67ddb0?w=800&q=80', 1, 1),
-(7, 5, 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80', 1, 1),
-(19, 15, 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80', 0, 0),
-(46, 2, 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80', 0, 0),
-(49, 1, 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=800&q=80', 0, 0);
+(5, 3, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997784_ED_M.jpg', 1, 1),
+(6, 4, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/elsa-perettidiamonds-by-the-yardearrings-12818653_936173_ED.jpg', 1, 1),
+(7, 5, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997784_ED_M.jpg', 1, 1),
+(19, 15, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-knotring-68886364_1020084_ED_M.jpg', 0, 0),
+(46, 2, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-lockbangle-70180422_1052959_ED.jpg', 0, 0),
+(49, 1, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-knotring-68886364_1020084_ED_M.jpg', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -301,9 +311,32 @@ INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `orig
 
 CREATE TABLE `promotions` (
   `id` int(11) NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `discount` int(11) DEFAULT NULL
+  `name` varchar(255) NOT NULL,
+  `code` varchar(50) NOT NULL,
+  `discount` int(11) NOT NULL,
+  `startDate` timestamp NULL DEFAULT NULL,
+  `endDate` timestamp NULL DEFAULT NULL,
+  `usageLimit` int(11) DEFAULT NULL,
+  `usedCount` int(11) DEFAULT 0,
+  `minOrderAmount` decimal(15,2) DEFAULT 0.00,
+  `maxDiscountAmount` decimal(15,2) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `imageUrl` text DEFAULT NULL,
+  `isActive` tinyint(1) DEFAULT 1,
+  `isVisible` tinyint(1) DEFAULT 1,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `promotions`
+--
+
+INSERT INTO `promotions` (`id`, `name`, `code`, `discount`, `startDate`, `endDate`, `usageLimit`, `usedCount`, `minOrderAmount`, `maxDiscountAmount`, `description`, `imageUrl`, `isActive`, `isVisible`, `createdAt`) VALUES
+(1, 'NEW', 'MA1NEW', 10, '2026-04-20 17:00:00', '2026-04-21 17:00:00', -4, 0, 5000.00, 1000.00, '', '', 1, 1, '2026-04-20 14:55:20'),
+(2, 'HELLO', 'MA2HELLO', 50, '2026-04-20 17:00:00', '2026-04-29 17:00:00', 100, 0, 1000000.00, 500000.00, '', '', 1, 1, '2026-04-20 15:04:27'),
+(3, 'Hub Test', 'MA3HUBTEST', 10, '2026-04-20 17:00:00', '2026-04-29 17:00:00', 102, 0, 100000.00, 50000.00, '', '', 1, 1, '2026-04-20 15:17:45'),
+(4, 'HUBREADY', 'MA4HUBREADY', 15, '2026-04-19 17:00:00', '2026-04-27 17:00:00', 100, 0, 500000.00, 100000.00, '', '', 1, 1, '2026-04-20 15:20:13'),
+(5, 'HIGHMIN', 'MA5HIGHMIN', 10, '2026-04-19 17:00:00', '2026-04-29 17:00:00', 100, 0, 600000000.00, 1000000.00, '', '', 1, 1, '2026-04-20 15:21:54');
 
 -- --------------------------------------------------------
 
@@ -388,7 +421,33 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `fullName`, `email`, `password`, `avatar`, `role`, `provider`, `phone`, `defaultAddress`, `newsletterOptin`, `createdAt`) VALUES
-('admin-uuid-001', 'Admin Velmora', 'admin@velmora.com', '$2a$11$HeK3rWPI9G2IgBToEpYiDucfPiNfxpAD3NcsvW8NSCq5u99igvwJa', NULL, 'admin', 'email', '0901234567', NULL, 0, '2026-04-16 19:31:48');
+('admin-uuid-001', 'Admin Velmora', 'admin@velmora.com', '$2a$11$HeK3rWPI9G2IgBToEpYiDucfPiNfxpAD3NcsvW8NSCq5u99igvwJa', NULL, 'admin', 'email', '0901234567', NULL, 0, '2026-04-16 19:31:48'),
+('d7662f9f-f41b-4ec0-8cbc-21018e5018fa', 'Trần Minh Nguyệt (TMN)', 'tranvankhoand1983@gmail.com', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocJFchnczOLMGSIB1_cyVTXi140FRHs3aIJiTg3A9aQyOpkA7UkI=s96-c', 'customer', 'google', NULL, NULL, 0, '2026-04-20 08:39:28');
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `user_vouchers`
+--
+
+CREATE TABLE `user_vouchers` (
+  `id` bigint(20) NOT NULL,
+  `userId` char(36) NOT NULL,
+  `promotionId` int(11) NOT NULL,
+  `savedAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `isUsed` tinyint(1) DEFAULT 0,
+  `usedAt` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `user_vouchers`
+--
+
+INSERT INTO `user_vouchers` (`id`, `userId`, `promotionId`, `savedAt`, `isUsed`, `usedAt`) VALUES
+(1, 'admin-uuid-001', 4, '2026-04-20 15:20:35', 0, NULL),
+(2, 'admin-uuid-001', 5, '2026-04-20 15:22:21', 0, NULL),
+(3, 'admin-uuid-001', 3, '2026-04-20 22:33:24', 0, NULL),
+(4, 'admin-uuid-001', 2, '2026-04-20 22:41:03', 0, NULL);
 
 -- --------------------------------------------------------
 
@@ -527,6 +586,14 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `email_unique` (`email`);
 
 --
+-- Chỉ mục cho bảng `user_vouchers`
+--
+ALTER TABLE `user_vouchers`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_uservouchers_user` (`userId`),
+  ADD KEY `fk_uservouchers_promotion` (`promotionId`);
+
+--
 -- Chỉ mục cho bảng `wishlist`
 --
 ALTER TABLE `wishlist`
@@ -547,13 +614,13 @@ ALTER TABLE `banners`
 -- AUTO_INCREMENT cho bảng `carts`
 --
 ALTER TABLE `carts`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
 
 --
 -- AUTO_INCREMENT cho bảng `categories`
@@ -595,7 +662,7 @@ ALTER TABLE `product_variants`
 -- AUTO_INCREMENT cho bảng `promotions`
 --
 ALTER TABLE `promotions`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT cho bảng `reviews`
@@ -620,6 +687,12 @@ ALTER TABLE `shop_settings`
 --
 ALTER TABLE `suppliers`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT cho bảng `user_vouchers`
+--
+ALTER TABLE `user_vouchers`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Các ràng buộc cho các bảng đã đổ
@@ -684,6 +757,13 @@ ALTER TABLE `product_variants`
 ALTER TABLE `reviews`
   ADD CONSTRAINT `fk_reviews_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_reviews_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Các ràng buộc cho bảng `user_vouchers`
+--
+ALTER TABLE `user_vouchers`
+  ADD CONSTRAINT `fk_uservouchers_promotion` FOREIGN KEY (`promotionId`) REFERENCES `promotions` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `fk_uservouchers_user` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
 --
 -- Các ràng buộc cho bảng `wishlist`

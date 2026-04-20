@@ -490,7 +490,7 @@ const ProductList: React.FC = () => {
 
               <div className="modal-actions">
                 <button type="button" onClick={() => setIsModalOpen(false)}>Hủy</button>
-                <button type="submit" className="btn-primary">Lưu sản phẩm</button>
+                <button type="submit" className="btn-primary">Lưu</button>
               </div>
             </form>
           </div>

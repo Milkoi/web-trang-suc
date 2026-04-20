@@ -118,7 +118,12 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case 'TOGGLE_ALL_SELECTED':
       return {
         ...state,
-        items: state.items.map(i => ({ ...i, selected: action.payload })),
+        items: state.items.map(i => {
+          const maxStock = i.variant ? (i.variant.stockQuantity ?? 0) : (i.product.stockQuantity ?? 0);
+          // Chỉ cho phép chọn nếu còn hàng
+          const canSelect = maxStock > 0;
+          return { ...i, selected: canSelect ? action.payload : false };
+        }),
       };
     case 'TOGGLE_CART':
       return { ...state, isOpen: !state.isOpen };
@@ -147,7 +152,7 @@ interface CartContextType {
   toggleCart: () => void;
   openCart: () => void;
   closeCart: () => void;
-  applyDiscount: (code: string) => void;
+  applyDiscount: (code: string, amount: number) => void;
   clearDiscount: () => void;
   refreshCart: () => void;
   totalItems: number;
@@ -157,11 +162,6 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const VALID_CODES: Record<string, number> = {
-  LUXURY10: 0.1,
-  SALE20: 0.2,
-  VIP30: 0.3,
-};
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, isAuthenticated, openAuth } = useAuth();
@@ -197,7 +197,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const itemPrice = i.priceAtPurchase ?? i.variant?.price ?? i.product.price;
     return sum + itemPrice * i.quantity;
   }, 0);
-  const total = subtotal * (1 - state.discountAmount);
+  const total = Math.max(0, subtotal - state.discountAmount);
 
   // Sync wrappers
   const addToCart = async (product: Product, quantity = 1, size?: string, variant?: ProductVariant) => {
@@ -281,11 +281,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const openCart = () => dispatch({ type: 'OPEN_CART' });
   const closeCart = () => dispatch({ type: 'CLOSE_CART' });
   const clearDiscount = () => dispatch({ type: 'CLEAR_DISCOUNT' });
-  const applyDiscount = (code: string) => {
-    const discount = VALID_CODES[code.toUpperCase()];
-    if (discount) {
-      dispatch({ type: 'APPLY_DISCOUNT', payload: { code, amount: discount } });
-    }
+  const applyDiscount = (code: string, amount: number) => {
+    dispatch({ type: 'APPLY_DISCOUNT', payload: { code, amount } });
   };
 
   const refreshCart = async () => {

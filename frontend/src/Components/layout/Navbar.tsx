@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../store/CartContext';
 import { useAuth } from '../../store/AuthContext';
+import { useVouchers } from '../../store/VoucherContext';
 import './Navbar.css';
 
 const Navbar: React.FC = () => {
@@ -12,6 +13,7 @@ const Navbar: React.FC = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { totalItems, openCart } = useCart();
   const { user, isAuthenticated, openAuth, logout } = useAuth();
+  const { openVoucher } = useVouchers();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -117,6 +119,12 @@ const Navbar: React.FC = () => {
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
             </Link>
+
+            <button className="navbar__icon-btn navbar__voucher-btn" onClick={openVoucher} aria-label="Voucher">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+              </svg>
+            </button>
 
             <button className="navbar__icon-btn navbar__cart-btn" onClick={openCart} aria-label="Giỏ hàng">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

@@ -24,25 +24,37 @@ namespace web_Trang_suc_BE.Models.Entities
         [Range(0, 100)]
         public int Discount { get; set; }
 
-        [Column("start_date")]
-        public DateTime StartDate { get; set; }
+        [Column("startDate")]
+        public DateTime? StartDate { get; set; }
 
-        [Column("end_date")]
-        public DateTime EndDate { get; set; }
+        [Column("endDate")]
+        public DateTime? EndDate { get; set; }
 
-        [Column("usage_limit")]
+        [Column("usageLimit")]
         public int? UsageLimit { get; set; }
 
-        [Column("used_count")]
+        [Column("usedCount")]
         public int UsedCount { get; set; } = 0;
 
-        [Column("is_active")]
+        [Column("minOrderAmount")]
+        public decimal? MinOrderAmount { get; set; }
+
+        [Column("maxDiscountAmount")]
+        public decimal? MaxDiscountAmount { get; set; }
+
+        [Column("description")]
+        public string? Description { get; set; }
+
+        [Column("imageUrl")]
+        public string? ImageUrl { get; set; }
+
+        [Column("isActive")]
         public bool IsActive { get; set; } = true;
 
-        [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        [Column("isVisible")]
+        public bool IsVisible { get; set; } = true;
 
-        [Column("min_order_amount")]
-        public decimal? MinOrderAmount { get; set; }
+        [Column("createdAt")]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

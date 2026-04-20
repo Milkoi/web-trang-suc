@@ -3,6 +3,8 @@
   min-height: 100vh;
   background: #f8f9fa;
   font-family: var(--font-sans);
+  --color-primary: #FE7A7A;
+  /* Màu đỏ san hô chuẩn Velmora */
 }
 
 /* Sidebar */
@@ -135,7 +137,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  min-width: 0; /* Fix flexbox expansion bug making overflow fail */
+  min-width: 0;
+  /* Fix flexbox expansion bug making overflow fail */
 }
 
 .admin-header {
@@ -202,7 +205,8 @@
   padding: 10px 20px;
   font-size: 13px;
   letter-spacing: 0.5px;
-  text-transform: none; /* Keep it normal case for admin actions */
+  text-transform: none;
+  /* Keep it normal case for admin actions */
   border-radius: 6px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border: none;
@@ -212,7 +216,7 @@
 
 .admin-page .btn-primary:active {
   transform: translateY(1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .modal-actions {
@@ -222,6 +226,23 @@
   margin-top: 32px;
   padding-top: 20px;
   border-top: 1px solid var(--color-border);
+}
+
+.modal-actions .btn-primary {
+  background: var(--color-primary) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(254, 122, 122, 0.2) !important;
+}
+
+.modal-actions .btn-primary:hover {
+  background: #e55555 !important;
+  transform: translateY(-1px);
+}
+
+.modal-actions .btn-primary:active {
+  transform: translateY(1px);
 }
 
 .modal-actions button[type="button"] {
@@ -263,7 +284,7 @@
 .btn-icon:hover {
   background: var(--color-border-dark);
   border-color: var(--color-muted);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .btn-icon.delete {
@@ -281,7 +302,7 @@
 .admin-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 2000;
   display: flex;
   align-items: center;
@@ -296,11 +317,12 @@
   border-radius: 12px;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   max-height: 90vh;
   overflow-y: auto;
   animation: scaleIn 0.2s ease;
-  position: relative; /* Bắt buộc để đặt nút X */
+  position: relative;
+  /* Bắt buộc để đặt nút X */
 }
 
 .admin-modal-close {
@@ -360,26 +382,32 @@
   background: var(--color-white);
   border-radius: 12px;
   border: 1px solid var(--color-border);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
   margin-bottom: 24px;
-  overflow-x: auto; /* Kích hoạt trượt ngang */
+  overflow-x: auto;
+  /* Kích hoạt trượt ngang */
 }
 
 /* Tùy chỉnh thanh cuộn cho đẹp */
 .admin-card::-webkit-scrollbar,
 .admin-dashboard__section::-webkit-scrollbar {
-  height: 10px; /* Tăng độ dày lên để dễ nhìn hơn */
+  height: 10px;
+  /* Tăng độ dày lên để dễ nhìn hơn */
 }
+
 .admin-card::-webkit-scrollbar-track,
 .admin-dashboard__section::-webkit-scrollbar-track {
   background: var(--color-bg);
   border-radius: 4px;
 }
+
 .admin-card::-webkit-scrollbar-thumb,
 .admin-dashboard__section::-webkit-scrollbar-thumb {
-  background: #c0c0c0; /* Đổi màu xám bạc dễ thấy */
+  background: #c0c0c0;
+  /* Đổi màu xám bạc dễ thấy */
   border-radius: 4px;
 }
+
 .admin-card::-webkit-scrollbar-thumb:hover,
 .admin-dashboard__section::-webkit-scrollbar-thumb:hover {
   background: var(--color-muted);
@@ -388,7 +416,8 @@
 /* Ép bảng phải đủ rộng để không bị bóp méo chữ, từ đó hiện thanh cuộn */
 .admin-table {
   width: 100%;
-  min-width: 1000px; /* Tăng lên để ép hiện scrollbar rõ ràng */
+  min-width: 1000px;
+  /* Tăng lên để ép hiện scrollbar rõ ràng */
   border-collapse: collapse;
 }
 
@@ -397,7 +426,8 @@
   font-size: 14px;
   border-bottom: 1px solid var(--color-border);
   vertical-align: middle;
-  white-space: nowrap; /* Không cho chữ rớt dòng để ép chiều ngang */
+  white-space: nowrap;
+  /* Không cho chữ rớt dòng để ép chiều ngang */
 }
 
 /* ===================== EXPANDABLE ROW STYLES ===================== */
@@ -424,8 +454,15 @@
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .expanded-grid {
@@ -438,7 +475,7 @@
   margin-bottom: 24px;
 }
 
-.info-block label, 
+.info-block label,
 .expanded-info-side label {
   display: block;
   font-size: 11px;
@@ -483,9 +520,20 @@
   align-items: center;
 }
 
-.m-sku { font-weight: 600; color: #333; }
-.m-price { color: #c0392b; font-weight: 700; }
-.m-stock { color: #666; font-size: 12px; }
+.m-sku {
+  font-weight: 600;
+  color: #333;
+}
+
+.m-price {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.m-stock {
+  color: #666;
+  font-size: 12px;
+}
 
 /* HIDE NUMBER SPINNERS */
 input::-webkit-outer-spin-button,
@@ -493,7 +541,7 @@ input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 input[type=number] {
   -moz-appearance: textfield;
 }
-

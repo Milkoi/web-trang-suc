@@ -7,23 +7,31 @@ interface Promotion {
   name: string;
   code: string;
   discount: number;
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
   usageLimit: number | null;
   usedCount: number;
   isActive: boolean;
+  isVisible: boolean;
   createdAt: string;
   minOrderAmount: number | null;
+  maxDiscountAmount: number | null;
+  description: string | null;
+  imageUrl: string | null;
 }
 
 interface CreatePromotionDto {
   name: string;
   code: string;
   discount: number;
-  startDate: string;
-  endDate: string;
+  startDate: string | null;
+  endDate: string | null;
   usageLimit: number | null;
   minOrderAmount: number | null;
+  maxDiscountAmount: number | null;
+  description: string | null;
+  imageUrl: string | null;
+  isVisible: boolean;
 }
 
 const PromotionList: React.FC = () => {
@@ -35,11 +43,15 @@ const PromotionList: React.FC = () => {
   const [formData, setFormData] = useState<CreatePromotionDto>({
     name: '',
     code: '',
-    discount: 0,
-    startDate: '',
-    endDate: '',
+    discount: 10,
+    startDate: null,
+    endDate: null,
     usageLimit: null,
-    minOrderAmount: null
+    minOrderAmount: null,
+    maxDiscountAmount: null,
+    description: '',
+    imageUrl: '',
+    isVisible: true
   });
 
   useEffect(() => {
@@ -65,14 +77,12 @@ const PromotionList: React.FC = () => {
       } else {
         await api.post('/promotions', formData);
       }
-      
       fetchPromotions();
       setShowCreateModal(false);
       setShowEditModal(false);
-      setEditingPromotion(null);
       resetForm();
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Lôõi khi luu khuyên mãi');
+      alert(error.response?.data?.message || 'Có lỗi xảy ra khi lưu khuyến mãi');
     }
   };
 
@@ -81,59 +91,45 @@ const PromotionList: React.FC = () => {
       name: '',
       code: '',
       discount: 0,
-      startDate: '',
-      endDate: '',
+      startDate: null,
+      endDate: null,
       usageLimit: null,
-      minOrderAmount: null
+      minOrderAmount: null,
+      maxDiscountAmount: null,
+      description: '',
+      imageUrl: '',
+      isVisible: true
     });
-  };
-
-  const handleEdit = (promotion: Promotion) => {
-    setEditingPromotion(promotion);
-    setFormData({
-      name: promotion.name,
-      code: promotion.code,
-      discount: promotion.discount,
-      startDate: promotion.startDate.split('T')[0],
-      endDate: promotion.endDate.split('T')[0],
-      usageLimit: promotion.usageLimit,
-      minOrderAmount: promotion.minOrderAmount
-    });
-    setShowEditModal(true);
   };
 
   const handleDelete = async (id: number) => {
-    if (confirm('Bân châc muôn xóa khuyên mãi này?')) {
+    if (window.confirm('Bạn chắc chắn muốn xóa khuyến mãi này?')) {
       try {
         await api.delete(`/promotions/${id}`);
         fetchPromotions();
       } catch (error) {
-        alert('Lôõi khi xóa khuyên mãi');
+        alert('Lỗi khi xóa khuyến mãi');
       }
     }
   };
 
-  const togglePromotionStatus = async (promotion: Promotion) => {
+  const handleToggleStatus = async (promotion: Promotion) => {
     try {
       await api.put(`/promotions/${promotion.id}`, { isActive: !promotion.isActive });
       fetchPromotions();
     } catch (error) {
-      alert('Lôõi khi câp nhât trang thái');
+      alert('Lỗi khi cập nhật trạng thái');
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN');
   };
 
   const getStatusColor = (promotion: Promotion) => {
     const now = new Date();
-    const start = new Date(promotion.startDate);
-    const end = new Date(promotion.endDate);
+    const start = promotion.startDate ? new Date(promotion.startDate) : null;
+    const end = promotion.endDate ? new Date(promotion.endDate) : null;
     
     if (!promotion.isActive) return 'inactive';
-    if (now < start) return 'upcoming';
-    if (now > end) return 'expired';
+    if (start && now < start) return 'upcoming';
+    if (end && now > end) return 'expired';
     if (promotion.usageLimit && promotion.usedCount >= promotion.usageLimit) return 'exhausted';
     return 'active';
   };
@@ -141,277 +137,283 @@ const PromotionList: React.FC = () => {
   const getStatusText = (promotion: Promotion) => {
     const status = getStatusColor(promotion);
     switch (status) {
-      case 'active': return 'Hiêu luc';
-      case 'upcoming': return 'Sáp diên ra';
-      case 'expired': return 'Dã hêt hên';
-      case 'exhausted': return 'Dã hêt lân';
-      case 'inactive': return 'Vô hiêu';
-      default: return 'Không xác dinh';
+      case 'active': return 'Hiệu lực';
+      case 'upcoming': return 'Sắp tới';
+      case 'expired': return 'Hết hạn';
+      case 'exhausted': return 'Hết lượt';
+      case 'inactive': return 'Vô hiệu';
+      default: return 'Không xác định';
     }
   };
 
-  if (loading) return <div className="admin-loading">Dang tài...</div>;
+  const formatCurrency = (amount: number | null) => {
+    if (amount === null) return 'Không giới hạn';
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  };
+
+  if (loading) return <div className="admin-loading">Đang tải...</div>;
 
   return (
-    <div className="promotion-list">
-      <div className="promotion-list__header">
-        <h1>Quân lý Khuyên mãi</h1>
-        <button 
-          className="btn-primary"
-          onClick={() => {
-            resetForm();
-            setShowCreateModal(true);
-          }}
-        >
-          Thêm Khuyên mãi Môi
+    <div className="admin-page promotion-mgmt">
+      <div className="admin-header">
+        <h2 className="admin-title">Quản lý Khuyến mãi</h2>
+        <button className="btn-primary" onClick={() => {
+          setEditingPromotion(null);
+          resetForm();
+          setShowCreateModal(true);
+        }}>
+          Thêm khuyến mãi
         </button>
       </div>
 
-      <div className="promotion-list__content">
-        <div className="promotion-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Tên</th>
-                <th>Mã</th>
-                <th>Giâm gia</th>
-                <th>Thô gian hiêu luc</th>
-                <th>Sô lân sû dung</th>
-                <th>Trang thái</th>
-                <th>Thao tác</th>
+      <div className="admin-card">
+        <table className="admin-table">
+          <thead>
+            <tr>
+              <th>Tên chiến dịch</th>
+              <th>Mã</th>
+              <th>Giảm giá</th>
+              <th>Giới hạn tối đa</th>
+              <th>Thời hạn</th>
+              <th>Trạng thái</th>
+              <th>Hành động</th>
+            </tr>
+          </thead>
+          <tbody>
+            {promotions.map((promotion) => (
+              <tr key={promotion.id}>
+                <td style={{ fontWeight: 600 }}>{promotion.name}</td>
+                <td><code className="promotion-code">{promotion.code}</code></td>
+                <td>{promotion.discount}%</td>
+                <td>{formatCurrency(promotion.maxDiscountAmount)}</td>
+                <td>
+                  <div style={{ fontSize: '12px' }}>
+                    {promotion.startDate ? new Date(promotion.startDate).toLocaleDateString('vi-VN') : '—'} 
+                    {' - '}
+                    {promotion.endDate ? new Date(promotion.endDate).toLocaleDateString('vi-VN') : '—'}
+                  </div>
+                </td>
+                <td>
+                  <span className={`status ${getStatusColor(promotion)}`}>
+                    {getStatusText(promotion)}
+                  </span>
+                </td>
+                <td>
+                  <div className="table-actions">
+                    <button 
+                      className="btn-icon"
+                      onClick={() => {
+                        setEditingPromotion(promotion);
+                        setFormData({
+                          name: promotion.name,
+                          code: promotion.code,
+                          discount: promotion.discount,
+                          startDate: promotion.startDate ? promotion.startDate.split('T')[0] : null,
+                          endDate: promotion.endDate ? promotion.endDate.split('T')[0] : null,
+                          usageLimit: promotion.usageLimit,
+                          minOrderAmount: promotion.minOrderAmount,
+                          maxDiscountAmount: promotion.maxDiscountAmount,
+                          description: promotion.description || '',
+                          imageUrl: promotion.imageUrl || '',
+                          isVisible: promotion.isVisible
+                        });
+                        setShowEditModal(true);
+                      }}
+                    >
+                      Sửa
+                    </button>
+                    <button 
+                      className="btn-icon delete"
+                      onClick={() => handleDelete(promotion.id)}
+                    >
+                      Xóa
+                    </button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {promotions.map(promotion => (
-                <tr key={promotion.id}>
-                  <td>{promotion.name}</td>
-                  <td>
-                    <code className="promotion-code">{promotion.code}</code>
-                  </td>
-                  <td>{promotion.discount}%</td>
-                  <td>
-                    {formatDate(promotion.startDate)} - {formatDate(promotion.endDate)}
-                  </td>
-                  <td>
-                    {promotion.usedCount}
-                    {promotion.usageLimit && ` / ${promotion.usageLimit}`}
-                  </td>
-                  <td>
-                    <span className={`status ${getStatusColor(promotion)}`}>
-                      {getStatusText(promotion)}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="promotion-actions">
-                      <button 
-                        className="btn-edit"
-                        onClick={() => handleEdit(promotion)}
-                      >
-                        Sûa
-                      </button>
-                      <button 
-                        className="btn-toggle"
-                        onClick={() => togglePromotionStatus(promotion)}
-                      >
-                        {promotion.isActive ? 'Khóa' : 'Mô'}
-                      </button>
-                      <button 
-                        className="btn-delete"
-                        onClick={() => handleDelete(promotion.id)}
-                      >
-                        Xóa
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {/* Create Modal */}
+      {/* CREATE MODAL */}
       {showCreateModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Thêm Khuyên mãi Môi</h2>
-              <button className="modal-close" onClick={() => setShowCreateModal(false)}>
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="promotion-form">
+        <div className="admin-modal-overlay">
+          <div className="admin-modal" style={{ maxWidth: '600px' }}>
+            <button className="admin-modal-close" onClick={() => setShowCreateModal(false)}>&times;</button>
+            <h3>Tạo Khuyến mãi Mới</h3>
+            <form onSubmit={handleSubmit} className="admin-form">
               <div className="form-group">
-                <label>Tên khuyên mãi</label>
+                <label>Tên khuyến mãi *</label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
+                <small style={{ color: '#666' }}>Hệ thống sẽ tự sinh mã dựa trên tên này.</small>
               </div>
+
               <div className="form-group">
-                <label>Mã khuyên mãi</label>
-                <input
-                  type="text"
-                  value={formData.code}
-                  onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Giâm gia (%)</label>
+                <label>Mức giảm (%) *</label>
                 <input
                   type="number"
-                  min="0"
+                  min="1"
                   max="100"
-                  value={formData.discount}
-                  onChange={(e) => setFormData({...formData, discount: parseInt(e.target.value)})}
+                  value={formData.discount || ''}
+                  onChange={(e) => setFormData({ ...formData, discount: parseInt(e.target.value) || 0 })}
                   required
                 />
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Ngây bât dâu</label>
+
+              <div className="form-grid" style={{ display: 'flex', gap: '15px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Ngày bắt đầu</label>
                   <input
                     type="date"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                    required
+                    value={formData.startDate || ''}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value || null })}
                   />
                 </div>
-                <div className="form-group">
-                  <label>Ngây kêt thúc</label>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Ngày kết thúc</label>
                   <input
                     type="date"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({...formData, endDate: e.target.value})}
-                    required
+                    value={formData.endDate || ''}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value || null })}
                   />
                 </div>
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Giôi hên sô lân</label>
+
+              <div className="form-grid" style={{ display: 'flex', gap: '15px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Đơn tối thiểu (VNĐ)</label>
                   <input
                     type="number"
-                    min="1"
-                    value={formData.usageLimit || ''}
-                    onChange={(e) => setFormData({...formData, usageLimit: e.target.value ? parseInt(e.target.value) : null})}
+                    value={formData.minOrderAmount === null ? '' : formData.minOrderAmount}
+                    onChange={(e) => setFormData({ ...formData, minOrderAmount: e.target.value ? parseFloat(e.target.value) : null })}
                   />
                 </div>
-                <div className="form-group">
-                  <label>Giá don hàng tôi thiêu</label>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Giảm tối đa (VNĐ)</label>
                   <input
                     type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.minOrderAmount || ''}
-                    onChange={(e) => setFormData({...formData, minOrderAmount: e.target.value ? parseFloat(e.target.value) : null})}
+                    value={formData.maxDiscountAmount === null ? '' : formData.maxDiscountAmount}
+                    onChange={(e) => setFormData({ ...formData, maxDiscountAmount: e.target.value ? parseFloat(e.target.value) : null })}
+                    placeholder="Không giới hạn"
                   />
                 </div>
               </div>
+
+              <div className="form-group">
+                <label>Tổng lượt dùng tối đa (Hệ thống)</label>
+                <input
+                  type="number"
+                  value={formData.usageLimit || ''}
+                  onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value ? parseInt(e.target.value) : null })}
+                />
+                <small style={{ color: '#666' }}>Mỗi khách hàng lưu về sẽ chỉ được dùng mã này <b>1 lần duy nhất</b>.</small>
+              </div>
+
+              <div className="form-group">
+                <label className="checkbox-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.isVisible}
+                    onChange={(e) => setFormData({...formData, isVisible: e.target.checked})}
+                  />
+                  Hiển thị công khai trên Web Hub
+                </label>
+              </div>
+
               <div className="modal-actions">
-                <button type="button" onClick={() => setShowCreateModal(false)}>
-                  Hûy
-                </button>
-                <button type="submit" className="btn-primary">
-                  Thêm
-                </button>
+                <button type="button" onClick={() => setShowCreateModal(false)}>Hủy</button>
+                <button type="submit" className="btn-primary">Lưu chiến dịch</button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Edit Modal */}
+      {/* EDIT MODAL */}
       {showEditModal && editingPromotion && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <div className="modal-header">
-              <h2>Sûa Khuyên mãi</h2>
-              <button className="modal-close" onClick={() => setShowEditModal(false)}>
-                ×
-              </button>
-            </div>
-            <form onSubmit={handleSubmit} className="promotion-form">
+        <div className="admin-modal-overlay">
+          <div className="admin-modal" style={{ maxWidth: '600px' }}>
+            <button className="admin-modal-close" onClick={() => setShowEditModal(false)}>&times;</button>
+            <h3>Sửa Khuyến mãi</h3>
+            <form onSubmit={handleSubmit} className="admin-form">
               <div className="form-group">
-                <label>Tên khuyên mãi</label>
+                <label>Tên khuyến mãi *</label>
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) => setFormData({...formData, name: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
               </div>
+
               <div className="form-group">
-                <label>Mã khuyên mãi</label>
-                <input
-                  type="text"
-                  value={formData.code}
-                  onChange={(e) => setFormData({...formData, code: e.target.value.toUpperCase()})}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label>Giâm gia (%)</label>
+                <label>Mức giảm (%) *</label>
                 <input
                   type="number"
-                  min="0"
+                  min="1"
                   max="100"
-                  value={formData.discount}
-                  onChange={(e) => setFormData({...formData, discount: parseInt(e.target.value)})}
+                  value={formData.discount || ''}
+                  onChange={(e) => setFormData({ ...formData, discount: parseInt(e.target.value) || 0 })}
                   required
                 />
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Ngây bât dâu</label>
+
+              <div className="form-grid" style={{ display: 'flex', gap: '15px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Ngày bắt đầu</label>
                   <input
                     type="date"
-                    value={formData.startDate}
-                    onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                    required
+                    value={formData.startDate || ''}
+                    onChange={(e) => setFormData({ ...formData, startDate: e.target.value || null })}
                   />
                 </div>
-                <div className="form-group">
-                  <label>Ngây kêt thúc</label>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Ngày kết thúc</label>
                   <input
                     type="date"
-                    value={formData.endDate}
-                    onChange={(e) => setFormData({...formData, endDate: e.target.value})}
-                    required
+                    value={formData.endDate || ''}
+                    onChange={(e) => setFormData({ ...formData, endDate: e.target.value || null })}
                   />
                 </div>
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Giôi hên sô lân</label>
+
+              <div className="form-grid" style={{ display: 'flex', gap: '15px' }}>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Đơn tối thiểu (VNĐ)</label>
                   <input
                     type="number"
-                    min="1"
-                    value={formData.usageLimit || ''}
-                    onChange={(e) => setFormData({...formData, usageLimit: e.target.value ? parseInt(e.target.value) : null})}
+                    value={formData.minOrderAmount === null ? '' : formData.minOrderAmount}
+                    onChange={(e) => setFormData({ ...formData, minOrderAmount: e.target.value ? parseFloat(e.target.value) : null })}
                   />
                 </div>
-                <div className="form-group">
-                  <label>Giá don hàng tôi thiêu</label>
+                <div className="form-group" style={{ flex: 1 }}>
+                  <label>Giảm tối đa (VNĐ)</label>
                   <input
                     type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.minOrderAmount || ''}
-                    onChange={(e) => setFormData({...formData, minOrderAmount: e.target.value ? parseFloat(e.target.value) : null})}
+                    value={formData.maxDiscountAmount === null ? '' : formData.maxDiscountAmount}
+                    onChange={(e) => setFormData({ ...formData, maxDiscountAmount: e.target.value ? parseFloat(e.target.value) : null })}
                   />
                 </div>
               </div>
+
+              <div className="form-group">
+                <label>Tổng lượt dùng tối đa (Hệ thống)</label>
+                <input
+                  type="number"
+                  value={formData.usageLimit === null ? '' : formData.usageLimit}
+                  onChange={(e) => setFormData({ ...formData, usageLimit: e.target.value ? parseInt(e.target.value) : null })}
+                />
+              </div>
+
               <div className="modal-actions">
-                <button type="button" onClick={() => setShowEditModal(false)}>
-                  Hûy
-                </button>
-                <button type="submit" className="btn-primary">
-                  Câp nhât
-                </button>
+                <button type="button" onClick={() => setShowEditModal(false)}>Hủy</button>
+                <button type="submit" className="btn-primary">Cập nhật</button>
               </div>
             </form>
           </div>

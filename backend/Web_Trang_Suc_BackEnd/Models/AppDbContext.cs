@@ -25,6 +25,7 @@ namespace web_Trang_suc_BE.Models
         public DbSet<Supplier> Suppliers { get; set; } = null!;
         public DbSet<Review> Reviews { get; set; } = null!;
         public DbSet<Promotion> Promotions { get; set; } = null!;
+        public DbSet<UserVoucher> UserVouchers { get; set; } = null!;
         public DbSet<ShopSetting> ShopSettings { get; set; } = null!;
         public DbSet<Banner> Banners { get; set; } = null!;
 
