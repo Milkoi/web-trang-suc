@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
 import { useCart } from '../../store/CartContext';
+import { useNotification } from '../../store/NotificationContext';
 import './AdminLayout.css';
+
 
 interface Variant {
   id?: number;
@@ -53,6 +55,8 @@ const ProductList: React.FC = () => {
   const [expandedRowId, setExpandedRowId] = useState<number | null>(null);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const { refreshCart } = useCart();
+  const { showNotification } = useNotification();
+
 
   const [formData, setFormData] = useState<any>({
     sku: '',
@@ -131,7 +135,7 @@ const ProductList: React.FC = () => {
       const backendMsg = data?.message || (typeof data === 'string' ? data : JSON.stringify(data));
       const errorMsg = backendMsg || err.message || 'Lỗi không xác định';
       
-      alert('Không thể lưu sản phẩm!\n\nChi tiết: ' + (errorMsg.length > 500 ? errorMsg.substring(0, 500) + '...' : errorMsg));
+      showNotification('Không thể lưu sản phẩm!\n\nChi tiết: ' + (errorMsg.length > 500 ? errorMsg.substring(0, 500) + '...' : errorMsg), 'error');
     }
   };
 
@@ -141,8 +145,9 @@ const ProductList: React.FC = () => {
       await api.delete(`/products/${id}`);
       fetchProducts();
       refreshCart(); // Cập nhật giỏ hàng ngay lập tức
+      showNotification('Đã xóa sản phẩm', 'success');
     } catch (err) {
-      alert('Không thể xóa sản phẩm.');
+      showNotification('Không thể xóa sản phẩm.', 'error');
     }
   };
 

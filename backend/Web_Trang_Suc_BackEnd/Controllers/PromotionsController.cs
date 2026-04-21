@@ -12,7 +12,6 @@ namespace web_Trang_suc_BE.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
     public class PromotionsController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -95,8 +94,10 @@ namespace web_Trang_suc_BE.Controllers
         [Authorize]
         public async Task<ActionResult<IEnumerable<object>>> GetMyVouchers()
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst("userId")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
+
+            Console.WriteLine($"Fetching vouchers for UserID: [{userId}]");
 
             // Thực hiện Join để lấy cả thông tin Promotion
             var myVouchers = await (from uv in _context.UserVouchers!
@@ -262,28 +263,37 @@ namespace web_Trang_suc_BE.Controllers
         [HttpPost("save/{id}")]
         public async Task<IActionResult> SaveVoucher(int id)
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
-
-            var promotion = await _context.Promotions!.FindAsync(id);
-            if (promotion == null) return NotFound(new { message = "Khuyến mãi không tồn tại" });
-
-            var existing = await _context.UserVouchers!
-                .FirstOrDefaultAsync(uv => uv.UserId == userId && uv.PromotionId == id);
-            
-            if (existing != null) return BadRequest(new { message = "Bạn đã lưu mã này rồi" });
-
-            var userVoucher = new UserVoucher
+            try 
             {
-                UserId = userId,
-                PromotionId = id,
-                SavedAt = DateTime.Now,
-                IsUsed = false
-            };
+                var userId = User.FindFirst("userId")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
-            _context.UserVouchers!.Add(userVoucher);
-            await _context.SaveChangesAsync();
-            return Ok(new { message = "Lưu mã khuyến mãi thành công" });
+                var promotion = await _context.Promotions!.FindAsync(id);
+                if (promotion == null) return NotFound(new { message = "Khuyến mãi không tồn tại" });
+
+                var existing = await _context.UserVouchers!
+                    .FirstOrDefaultAsync(uv => uv.UserId == userId && uv.PromotionId == id);
+                
+                if (existing != null) return BadRequest(new { message = "Bạn đã lưu mã này rồi" });
+
+                var userVoucher = new UserVoucher
+                {
+                    UserId = userId,
+                    PromotionId = id,
+                    SavedAt = DateTime.Now,
+                    IsUsed = false
+                };
+
+                _context.UserVouchers!.Add(userVoucher);
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "Lưu mã khuyến mãi thành công" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in SaveVoucher: {ex.Message}");
+                if (ex.InnerException != null) Console.WriteLine($"Inner: {ex.InnerException.Message}");
+                return StatusCode(500, new { message = "Lỗi hệ thống khi lưu mã: " + ex.Message });
+            }
         }
 
         [HttpPost("use-voucher")]
@@ -296,7 +306,7 @@ namespace web_Trang_suc_BE.Controllers
             if (promotion == null) return NotFound();
 
             // Nếu User đăng nhập, đánh dấu trong bảng UserVouchers
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst("userId")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (!string.IsNullOrEmpty(userId))
             {
                 var userVoucher = await _context.UserVouchers!

@@ -54,19 +54,34 @@ namespace web_Trang_suc_BE.Controllers
         {
             try 
             {
-                var email = dto.Email?.Trim();
-                var password = dto.Password?.Trim();
+                var email = dto.Email?.Trim().ToLower();
+                var password = dto.Password; // Don't trim password as it might have intentional spaces
                 
-                var user = await _context.Users!.FirstOrDefaultAsync(u => u.Email == email);
+                var user = await _context.Users!.FirstOrDefaultAsync(u => u.Email.ToLower() == email);
 
-                if (user == null || user.Password == null) return Unauthorized("Invalid email or password");
+                if (user == null || string.IsNullOrEmpty(user.Password)) {
+                    Console.WriteLine($"LOGIN FAIL: User not found or no password for {email}");
+                    return Unauthorized("Email hoặc mật khẩu không chính xác.");
+                }
                 
-                bool isPasswordMatch = user.Password == password;
-                if (!isPasswordMatch && user.Password.StartsWith("$2")) {
-                    isPasswordMatch = BCrypt.Net.BCrypt.Verify(password, user.Password);
+                bool isPasswordMatch = false;
+                
+                // Try BCrypt first if it looks like a hash
+                if (user.Password.StartsWith("$2")) {
+                    try {
+                        isPasswordMatch = BCrypt.Net.BCrypt.Verify(password, user.Password);
+                    } catch (Exception ex) {
+                        Console.WriteLine($"BCrypt Verify Error: {ex.Message}");
+                        isPasswordMatch = (user.Password == password); // Fallback to plain text
+                    }
+                } else {
+                    isPasswordMatch = (user.Password == password);
                 }
 
-                if (!isPasswordMatch) return Unauthorized("Invalid email or password");
+                if (!isPasswordMatch) {
+                    Console.WriteLine($"LOGIN FAIL: Password mismatch for {email}");
+                    return Unauthorized("Email hoặc mật khẩu không chính xác.");
+                }
 
                 return Ok(new AuthResponseDto
                 {
@@ -190,6 +205,7 @@ namespace web_Trang_suc_BE.Controllers
         {
             var claims = new List<Claim> {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim("userId", user.Id), // Explicit claim for easier retrieval
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.Role, user.Role),
                 new Claim("FullName", user.FullName)

@@ -10,6 +10,9 @@ import Footer from './Components/layout/Footer';
 import CartDrawer from './Components/layout/CartDrawer';
 import AuthModal from './Components/auth/AuthModal';
 import VoucherPopup from './Components/VoucherPopup';
+import Notification from './Components/common/Notification';
+import { NotificationProvider } from './store/NotificationContext';
+
 import HomePage from './pages/customer/HomePage';
 import AboutPage from './pages/customer/AboutPage';
 import FAQPage from './pages/customer/FAQPage';
@@ -106,11 +109,14 @@ function App() {
       <ScrollToTop />
       <AuthProvider>
         <VoucherProvider>
-          <FavoritesProvider>
-            <CartProvider>
-              <AppContent />
-            </CartProvider>
-          </FavoritesProvider>
+          <NotificationProvider>
+            <FavoritesProvider>
+              <CartProvider>
+                <AppContent />
+                <Notification />
+              </CartProvider>
+            </FavoritesProvider>
+          </NotificationProvider>
         </VoucherProvider>
       </AuthProvider>
     </BrowserRouter>

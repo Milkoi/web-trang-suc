@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { useNotification } from '../../store/NotificationContext';
 import './AdminLayout.css';
+
 
 interface Order {
   id: number;
@@ -13,7 +15,9 @@ interface Order {
 
 const OrderList: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
+  const { showNotification } = useNotification();
   const [isLoading, setIsLoading] = useState(true);
+
 
   const fetchOrders = async () => {
     try {
@@ -35,8 +39,9 @@ const OrderList: React.FC = () => {
     try {
       await api.patch(`/orders/${id}/status`, { status: newStatus });
       fetchOrders();
+      showNotification('Cập nhật trạng thái thành công', 'success');
     } catch (err) {
-      alert('Không thể cập nhật trạng thái.');
+      showNotification('Không thể cập nhật trạng thái.', 'error');
     }
   };
 

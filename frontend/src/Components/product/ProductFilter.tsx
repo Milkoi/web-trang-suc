@@ -103,7 +103,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
             width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
             className={openSections.includes('category') ? 'rotate-180' : ''}
           >
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
         {openSections.includes('category') && (
@@ -134,7 +134,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
             width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
             className={openSections.includes('material') ? 'rotate-180' : ''}
           >
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
         {openSections.includes('material') && (
@@ -165,7 +165,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
             width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
             className={openSections.includes('price') ? 'rotate-180' : ''}
           >
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
         {openSections.includes('price') && (
@@ -202,7 +202,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
             width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
             className={openSections.includes('status') ? 'rotate-180' : ''}
           >
-            <polyline points="6 9 12 15 18 9"/>
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </button>
         {openSections.includes('status') && (

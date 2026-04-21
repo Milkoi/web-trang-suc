@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useCart } from '../../store/CartContext';
 import { useAuth } from '../../store/AuthContext';
+import { useNotification } from '../../store/NotificationContext';
+
 import { CheckoutForm, Order } from '../../types';
 import './CheckoutPage.css';
 
@@ -25,6 +27,8 @@ const INITIAL_FORM: CheckoutForm = {
 const CheckoutPage: React.FC = () => {
   const { state, subtotal, total, clearSelectedItems, applyDiscount, clearDiscount } = useCart();
   const { user, openAuth } = useAuth();
+  const { showNotification } = useNotification();
+
   const navigate = useNavigate();
   const selectedItems = state.items.filter(i => i.selected);
   const [step, setStep] = useState<Step>('shipping');
@@ -40,6 +44,8 @@ const CheckoutPage: React.FC = () => {
   const [showVoucherSelector, setShowVoucherSelector] = useState(false);
   const [myVouchers, setMyVouchers] = useState<any[]>([]);
   const [loadingVouchers, setLoadingVouchers] = useState(false);
+  const [showVietQR, setShowVietQR] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState('');
 
   useEffect(() => {
     setDiscountInput(state.discountCode);
@@ -145,7 +151,7 @@ const CheckoutPage: React.FC = () => {
         setShowVoucherSelector(false);
       }
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Không thể áp dụng mã này');
+      showNotification(err.response?.data?.message || 'Không thể áp dụng mã này', 'error');
     }
   };
 
@@ -165,7 +171,7 @@ const CheckoutPage: React.FC = () => {
   const handlePayNow = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
-    
+
     try {
       const orderData = {
         recipientName: `${form.shipping.firstName} ${form.shipping.lastName}`.trim(),
@@ -182,11 +188,12 @@ const CheckoutPage: React.FC = () => {
         items: selectedItems.map(item => ({
           productVariantId: item.variant?.id ?? item.product.variants?.[0]?.id,
           quantity: item.quantity
-        }))
+        })),
+        discountCode: state.discountCode
       };
 
       const res = await api.post('/orders/place-order', orderData);
-      
+
       // Đánh dấu sử dụng voucher nếu có
       if (state.discountCode) {
         try {
@@ -199,21 +206,16 @@ const CheckoutPage: React.FC = () => {
       clearSelectedItems();
       clearDiscount();
 
-      if (form.payment.method === 'vnpay' && res.data.orderId) {
-        // GET VNPAY URL
-        const payRes = await api.post('/payment/create-vnpay-url', {
-          orderId: res.data.orderId,
-          amount: grandTotal
-        });
-        if (payRes.data.url) {
-          window.location.href = payRes.data.url;
-          return;
-        }
+      if (form.payment.method === 'vietqr' && res.data.orderId) {
+        setCreatedOrderId(res.data.orderId);
+        setShowVietQR(true);
+        setIsProcessing(false);
+        return;
       }
 
       navigate('/checkout/success');
     } catch (err) {
-      alert('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.');
+      showNotification('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', 'error');
       console.error(err);
     } finally {
       setIsProcessing(false);
@@ -558,31 +560,28 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* VNPay */}
-                <label className={`checkout-payment-method ${form.payment.method === 'vnpay' ? 'active' : ''}`}>
+                {/* VietQR */}
+                <label className={`checkout-payment-method ${form.payment.method === 'vietqr' ? 'active' : ''}`}>
                   <input
                     type="radio"
                     name="paymentMethod"
-                    value="vnpay"
-                    checked={form.payment.method === 'vnpay'}
-                    onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'vnpay' } }))}
+                    value="vietqr"
+                    checked={form.payment.method === 'vietqr'}
+                    onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'vietqr' } }))}
                   />
                   <span className="checkout-payment-method__radio" />
-                  <span style={{ color: '#e51f22', fontWeight: '700' }}>VN</span>
-                  <span style={{ color: '#005baa', fontWeight: '700' }}>PAY</span>
-                </label>
-
-                {/* MoMo */}
-                <label className={`checkout-payment-method ${form.payment.method === 'momo' ? 'active' : ''}`}>
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="momo"
-                    checked={form.payment.method === 'momo'}
-                    onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'momo' } }))}
-                  />
-                  <span className="checkout-payment-method__radio" />
-                  <span style={{ color: '#a50064', fontWeight: '600' }}>MoMo</span>
+                  <div className="checkout-payment-method__label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: '#005baa', fontWeight: '800', fontSize: '1.1rem' }}>Viet</span>
+                    <span style={{ color: '#ea1e26', fontWeight: '800', fontSize: '1.1rem' }}>QR</span>
+                    <span style={{ 
+                      fontSize: '0.7rem', 
+                      background: '#eee', 
+                      padding: '2px 6px', 
+                      borderRadius: '4px',
+                      color: '#666',
+                      fontWeight: '600'
+                    }}>NAPAS 24/7</span>
+                  </div>
                 </label>
               </div>
 
@@ -656,8 +655,8 @@ const CheckoutPage: React.FC = () => {
                 />
                 <button className="checkout-summary__discount-btn" type="button" onClick={handleApplyDiscount}>Áp Dụng</button>
               </div>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 className="checkout-voucher-list-trigger"
                 onClick={() => setShowVoucherSelector(true)}
               >
@@ -711,7 +710,7 @@ const CheckoutPage: React.FC = () => {
               <h3>Mã giảm giá của bạn</h3>
               <button className="voucher-selector-close" onClick={() => setShowVoucherSelector(false)}>&times;</button>
             </div>
-            
+
             <div className="voucher-selector-list">
               {loadingVouchers ? (
                 <div className="voucher-selector-loading">Đang tải...</div>
@@ -723,12 +722,12 @@ const CheckoutPage: React.FC = () => {
                   const isUsed = uv.isUsed;
                   const isExpired = promo.endDate && new Date(promo.endDate) < new Date();
                   const isEligible = subtotal >= (promo.minOrderAmount || 0);
-                  
+
                   const disabled = isUsed || isExpired || !isEligible;
-                  
+
                   return (
-                    <div 
-                      key={uv.id} 
+                    <div
+                      key={uv.id}
                       className={`voucher-selector-card ${disabled ? 'disabled' : ''}`}
                       onClick={() => !disabled && applyVoucher(promo.code)}
                     >
@@ -740,7 +739,7 @@ const CheckoutPage: React.FC = () => {
                         <h4 className="vsc-name">{promo.name}</h4>
                         <p className="vsc-min">Đơn tối thiểu: {formatPrice(promo.minOrderAmount || 0)}</p>
                         <p className="vsc-expiry">HSD: {promo.endDate ? new Date(promo.endDate).toLocaleDateString('vi-VN') : 'Vô hạn'}</p>
-                        
+
                         {!isEligible && !isUsed && !isExpired && (
                           <p className="vsc-error">Chưa đủ điều kiện (Thiếu {formatPrice((promo.minOrderAmount || 0) - subtotal)})</p>
                         )}
@@ -752,6 +751,56 @@ const CheckoutPage: React.FC = () => {
                   );
                 })
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      {/* === VIETQR MODAL === */}
+      {showVietQR && (
+        <div className="vietqr-modal-overlay">
+          <div className="vietqr-modal">
+            <div className="vietqr-modal__header">
+              <h3>Thanh Toán Qua VietQR</h3>
+              <p>Vui lòng quét mã QR bên dưới để thanh toán đơn hàng <strong>{createdOrderId}</strong></p>
+            </div>
+            
+            <div className="vietqr-modal__content">
+              <div className="vietqr-image-wrapper">
+                <img 
+                  src={`https://img.vietqr.io/image/MB-0901234567-compact2.png?amount=${grandTotal}&addInfo=${encodeURIComponent(`Thanh toan don hang ${createdOrderId}`)}&accountName=${encodeURIComponent('VELMORA JEWELRY')}`} 
+                  alt="VietQR Payment" 
+                />
+              </div>
+              
+              <div className="vietqr-details">
+                <div className="vietqr-detail-item">
+                  <span className="label">Ngân hàng:</span>
+                  <span className="value">MB Bank (Quân Đội)</span>
+                </div>
+                <div className="vietqr-detail-item">
+                  <span className="label">Số tài khoản:</span>
+                  <span className="value">0901234567</span>
+                </div>
+                <div className="vietqr-detail-item">
+                  <span className="label">Số tiền:</span>
+                  <span className="value" style={{color: '#c9a96e', fontWeight: '700'}}>{formatPrice(grandTotal)}</span>
+                </div>
+                <div className="vietqr-detail-item">
+                  <span className="label">Nội dung:</span>
+                  <span className="value" style={{fontWeight: '600'}}>Thanh toan don hang {createdOrderId}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="vietqr-modal__footer">
+              <p className="vietqr-hint">Hệ thống sẽ tự động xác nhận sau khi nhận được tiền.</p>
+              <button 
+                className="btn-primary" 
+                onClick={() => navigate('/checkout/success')}
+                style={{width: '100%'}}
+              >
+                Tôi đã chuyển khoản
+              </button>
             </div>
           </div>
         </div>

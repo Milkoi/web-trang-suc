@@ -59,7 +59,7 @@ const ProductsPage: React.FC = () => {
     const q = searchParams.get('q');
     const isNew = searchParams.get('isNew');
     const isSale = searchParams.get('isSale');
-    
+
     setFilters((prev: ProductFilters) => ({
       ...prev,
       categories: cat ? [cat] : prev.categories,
@@ -153,9 +153,9 @@ const ProductsPage: React.FC = () => {
             onClick={() => setFilterOpen(!filterOpen)}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="4" y1="6" x2="20" y2="6"/>
-              <line x1="8" y1="12" x2="20" y2="12"/>
-              <line x1="12" y1="18" x2="20" y2="18"/>
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="8" y1="12" x2="20" y2="12" />
+              <line x1="12" y1="18" x2="20" y2="18" />
             </svg>
             {filterOpen ? 'Ẩn bộ lọc' : 'Bộ lọc'}
           </button>

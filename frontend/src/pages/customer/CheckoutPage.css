@@ -920,3 +920,128 @@
   color: #888;
   font-size: 14px;
 }
+
+/* === VIETQR PAYMENTS === */
+.vietqr-badge {
+  color: #005baa;
+  font-weight: 800;
+}
+
+.napas-badge {
+  color: #ea1e26;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+.vietqr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(10px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.vietqr-modal {
+  background: white;
+  width: 100%;
+  max-width: 440px;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+  animation: qrModalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+}
+
+@keyframes qrModalPop {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.vietqr-modal__header {
+  padding: 24px;
+  text-align: center;
+  background: #fdfdfd;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.vietqr-modal__header h3 {
+  margin: 0 0 4px;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  color: #1a1a1a;
+}
+
+.vietqr-modal__header p {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.vietqr-modal__content {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vietqr-image-wrapper {
+  background: white;
+  padding: 12px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  margin-bottom: 24px;
+  width: 240px;
+  height: 240px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vietqr-image-wrapper img {
+  width: 100%;
+  height: auto;
+}
+
+.vietqr-details {
+  width: 100%;
+  background: #f8f9fa;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.vietqr-detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.vietqr-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.vietqr-detail-item .label {
+  color: #888;
+}
+
+.vietqr-detail-item .value {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.vietqr-modal__footer {
+  padding: 24px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.vietqr-hint {
+  text-align: center;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 16px;
+  font-style: italic;
+}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../store/AuthContext';
 import api from '../services/api';
+import { useNotification } from '../store/NotificationContext';
 import './VoucherPopup.css';
+
 
 interface Promotion {
   id: number;
@@ -24,6 +26,8 @@ interface VoucherPopupProps {
 
 const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
   const { user, openAuth, isAuthenticated } = useAuth();
+  const { showNotification } = useNotification();
+
   const [activeTab, setActiveTab] = useState<'available' | 'mine'>('available');
   const [promotions, setPromotions] = useState<Promotion[]>([]);
   const [myVouchers, setMyVouchers] = useState<any[]>([]);
@@ -38,7 +42,7 @@ const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
         fetchMyVouchers();
       }
     }
-  }, [isOpen, activeTab, isAuthenticated]);
+  }, [isOpen, activeTab, isAuthenticated, user?.id]);
 
   const fetchAvailable = async () => {
     setLoading(true);
@@ -76,9 +80,9 @@ const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
       await api.post(`/promotions/save/${id}`);
       fetchAvailable();
       // Thông báo thành công nhẹ nhàng hơn alert
-      alert('Đã lưu ưu đãi vào ví của bạn!');
+      showNotification('Đã lưu ưu đãi vào ví của bạn!', 'success');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Có lỗi xảy ra khi lưu mã');
+      showNotification(error.response?.data?.message || 'Có lỗi xảy ra khi lưu mã', 'error');
     } finally {
       setClaimingId(null);
     }
@@ -97,7 +101,7 @@ const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
     <div className="voucher-hub-overlay" onClick={onClose}>
       <div className="voucher-hub-modal" onClick={e => e.stopPropagation()}>
         <button className="voucher-hub-close" onClick={onClose}>&times;</button>
-        
+
         <div className="voucher-hub-banner" style={{ backgroundImage: `url(${bgImage})` }}>
           <div className="voucher-hub-banner-content">
             <h2>Hệ Thống Ưu Đãi</h2>
@@ -106,13 +110,13 @@ const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
         </div>
 
         <div className="voucher-hub-tabs">
-          <button 
+          <button
             className={`voucher-tab ${activeTab === 'available' ? 'active' : ''}`}
             onClick={() => setActiveTab('available')}
           >
             Nhận Ưu Đãi
           </button>
-          <button 
+          <button
             className={`voucher-tab ${activeTab === 'mine' ? 'active' : ''}`}
             onClick={() => {
               if (!isAuthenticated) openAuth('login');
@@ -134,7 +138,7 @@ const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
                 {promotions.map(promo => {
                   const isExpired = promo.endDate && new Date(promo.endDate) < new Date();
                   const isOut = promo.usageLimit && promo.usedCount >= promo.usageLimit;
-                  
+
                   return (
                     <div key={promo.id} className={`voucher-card ${isExpired || isOut ? 'disabled' : ''}`}>
                       <div className="voucher-card-left">
@@ -144,23 +148,23 @@ const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
                         </div>
                         <div className="voucher-tag">SAVE</div>
                       </div>
-                      
+
                       <div className="voucher-card-right">
                         <h4 className="voucher-card-title">{promo.name}</h4>
                         <div className="voucher-card-info">
                           <p className="voucher-expiry">HSD: {formatDate(promo.endDate)}</p>
                           {promo.minOrderAmount && <p className="voucher-min">Đơn từ: {promo.minOrderAmount.toLocaleString()}₫</p>}
                         </div>
-                        
-                        <button 
+
+                        <button
                           className={`voucher-claim-btn ${promo.isClaimed ? 'claimed' : ''}`}
                           disabled={!!isExpired || !!isOut || claimingId === promo.id || promo.isClaimed}
                           onClick={() => handleClaim(promo.id)}
                         >
-                          {claimingId === promo.id ? 'Loading...' : 
-                           promo.isClaimed ? 'Đã lưu' :
-                           isExpired ? 'Hết hạn' : 
-                           isOut ? 'Hết lượt' : 'Lưu Ngay'}
+                          {claimingId === promo.id ? 'Loading...' :
+                            promo.isClaimed ? 'Đã lưu' :
+                              isExpired ? 'Hết hạn' :
+                                isOut ? 'Hết lượt' : 'Lưu Ngay'}
                         </button>
                       </div>
                     </div>
@@ -177,7 +181,7 @@ const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
                   const promo = uv.promotion;
                   const isExpired = promo.endDate && new Date(promo.endDate) < new Date();
                   const isUsed = uv.isUsed;
-                  
+
                   return (
                     <div key={uv.id} className={`voucher-card ${isUsed || isExpired ? 'disabled' : ''}`}>
                       <div className="voucher-card-left" style={{ background: isUsed ? '#ccc' : '#1a1a1a' }}>
@@ -187,14 +191,14 @@ const VoucherPopup: React.FC<VoucherPopupProps> = ({ isOpen, onClose }) => {
                         </div>
                         <div className="voucher-tag">{isUsed ? 'ĐÃ DÙNG' : 'CỦA TÔI'}</div>
                       </div>
-                      
+
                       <div className="voucher-card-right">
                         <h4 className="voucher-card-title">{promo.name}</h4>
                         <div className="voucher-card-info">
                           <p className="voucher-expiry">HSD: {formatDate(promo.endDate)}</p>
                           <p className="voucher-code-display">Mã: <strong>{promo.code}</strong></p>
                         </div>
-                        
+
                         <div className={`voucher-status-tag ${isUsed ? 'used' : isExpired ? 'expired' : 'valid'}`}>
                           {isUsed ? 'Đã sử dụng' : isExpired ? 'Đã hết hạn' : 'Sẵn sàng dùng'}
                         </div>

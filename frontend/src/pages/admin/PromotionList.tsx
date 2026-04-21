@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { useNotification } from '../../store/NotificationContext';
 import './PromotionList.css';
+
 
 interface Promotion {
   id: number;
@@ -36,7 +38,9 @@ interface CreatePromotionDto {
 
 const PromotionList: React.FC = () => {
   const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const { showNotification } = useNotification();
   const [loading, setLoading] = useState(true);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingPromotion, setEditingPromotion] = useState<Promotion | null>(null);
@@ -81,8 +85,9 @@ const PromotionList: React.FC = () => {
       setShowCreateModal(false);
       setShowEditModal(false);
       resetForm();
+      showNotification(editingPromotion ? 'Cập nhật khuyến mãi thành công' : 'Thêm khuyến mãi thành công', 'success');
     } catch (error: any) {
-      alert(error.response?.data?.message || 'Có lỗi xảy ra khi lưu khuyến mãi');
+      showNotification(error.response?.data?.message || 'Có lỗi xảy ra khi lưu khuyến mãi', 'error');
     }
   };
 
@@ -107,8 +112,9 @@ const PromotionList: React.FC = () => {
       try {
         await api.delete(`/promotions/${id}`);
         fetchPromotions();
+        showNotification('Đã xóa khuyến mãi', 'success');
       } catch (error) {
-        alert('Lỗi khi xóa khuyến mãi');
+        showNotification('Lỗi khi xóa khuyến mãi', 'error');
       }
     }
   };
@@ -117,8 +123,9 @@ const PromotionList: React.FC = () => {
     try {
       await api.put(`/promotions/${promotion.id}`, { isActive: !promotion.isActive });
       fetchPromotions();
+      showNotification('Cập nhật trạng thái thành công', 'success');
     } catch (error) {
-      alert('Lỗi khi cập nhật trạng thái');
+      showNotification('Lỗi khi cập nhật trạng thái', 'error');
     }
   };
 

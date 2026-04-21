@@ -6,6 +6,8 @@ import { Product } from '../../types';
 import { useCart } from '../../store/CartContext';
 import { useAuth } from '../../store/AuthContext';
 import { useFavorites } from '../../store/FavoritesContext';
+import { useNotification } from '../../store/NotificationContext';
+
 import ProductCard from '../../Components/product/ProductCard';
 import SizeGuideDrawer from '../../Components/product/SizeGuideDrawer';
 import './ProductDetailPage.css';
@@ -26,6 +28,8 @@ const ProductDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { addToCart } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const { showNotification } = useNotification();
+
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -105,7 +109,7 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = () => {
     if (product?.variants && product.variants.length > 0 && !selectedSize) {
-      alert('Vui lòng chọn size trước khi thêm vào giỏ hàng');
+      showNotification('Vui lòng chọn size trước khi thêm vào giỏ hàng', 'warning');
       return;
     }
 
@@ -124,8 +128,9 @@ const ProductDetailPage: React.FC = () => {
       });
       setReviews([res.data, ...reviews]);
       setNewReview({ rating: 5, comment: '' });
+      showNotification('Cảm ơn bạn đã đánh giá sản phẩm!', 'success');
     } catch {
-      alert("Lỗi khi gửi đánh giá.");
+      showNotification("Lỗi khi gửi đánh giá.", "error");
     }
   };
 
