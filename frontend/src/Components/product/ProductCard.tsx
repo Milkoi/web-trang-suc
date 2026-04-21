@@ -132,7 +132,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 <div className="product-card__size-picker-options">
                   {product.availableSizes.map(size => {
                     const variant = product.variants?.find(v => v.size === size);
-                    const isOutOfStock = variant ? variant.stockQuantity <= 0 : !product.inStock;
+                    const isOutOfStock = variant ? (variant.stockQuantity || 0) <= 0 : !product.inStock;
                     return (
                       <button
                         key={size}
@@ -170,14 +170,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                       type="button"
                       disabled={(() => {
                         const variant = product.variants?.find(v => v.size === quickSize);
-                        const maxStock = variant ? variant.stockQuantity : (product.inStock ? product.stockQuantity : 0);
+                        const maxStock = variant ? (variant.stockQuantity || 0) : (product.inStock ? (product.stockQuantity || 0) : 0);
                         return quickQuantity >= maxStock;
                       })()}
                       onClick={e => {
                         e.preventDefault();
                         e.stopPropagation();
                         const variant = product.variants?.find(v => v.size === quickSize);
-                        const maxStock = variant ? variant.stockQuantity : (product.inStock ? product.stockQuantity : 0);
+                        const maxStock = variant ? (variant.stockQuantity || 0) : (product.inStock ? (product.stockQuantity || 0) : 0);
                         if (quickQuantity < maxStock) {
                           setQuickQuantity(q => q + 1);
                         }
