@@ -1,10 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import api from '../../services/api';
 import './Footer.css';
+
+interface ShopInfo {
+  phone: string;
+  email: string;
+  workingHours: string;
+  address: string;
+}
 
 const Footer: React.FC = () => {
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const [shopInfo, setShopInfo] = useState<ShopInfo>({
+    phone: '1900 520 131',
+    email: 'luxelum@gmail.com',
+    workingHours: 'T2–CN: 8:00 – 23:00',
+    address: ''
+  });
+
+  useEffect(() => {
+    api.get('/shopsettings')
+      .then(res => {
+        if (res.data) {
+          setShopInfo({
+            phone: res.data.phone || '1900 520 131',
+            email: res.data.email || 'luxelum@gmail.com',
+            workingHours: res.data.workingHours || 'T2–CN: 8:00 – 23:00',
+            address: res.data.address || ''
+          });
+        }
+      })
+      .catch(() => {}); // fallback to defaults if API fails
+  }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,9 +108,10 @@ const Footer: React.FC = () => {
                 <li><Link to="#">Liên hệ</Link></li>
               </ul>
               <div className="footer__contact">
-                <p><span>📞</span> 1900 520 131</p>
-                <p><span>✉️</span> luxelum@gmail.com</p>
-                <p><span>🕐</span> T2–CN: 8:00 – 23:00</p>
+                <p><span>📞</span> {shopInfo.phone}</p>
+                <p><span>✉️</span> {shopInfo.email}</p>
+                <p><span>🕐</span> {shopInfo.workingHours}</p>
+                {shopInfo.address && <p><span>📍</span> {shopInfo.address}</p>}
               </div>
             </div>
 

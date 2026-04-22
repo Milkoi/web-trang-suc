@@ -6,6 +6,7 @@ interface ProductFilterProps {
   filters: ProductFilters;
   onFilterChange: (filters: ProductFilters) => void;
   totalResults: number;
+  maxPriceLimit: number;
 }
 
 import api from '../../services/api';
@@ -18,7 +19,7 @@ interface FilterOption {
 const formatPrice = (price: number) =>
   new Intl.NumberFormat('vi-VN', { notation: 'compact', compactDisplay: 'short' }).format(price);
 
-const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, totalResults }) => {
+const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, totalResults, maxPriceLimit }) => {
   const [openSections, setOpenSections] = useState<string[]>(['category', 'material', 'price']);
   const [categories, setCategories] = useState<FilterOption[]>([]);
   const [materials, setMaterials] = useState<FilterOption[]>([]);
@@ -63,7 +64,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
     onFilterChange({
       categories: [],
       materials: [],
-      priceRange: [0, 50000000],
+      priceRange: [0, maxPriceLimit],
       inStock: false,
       isNew: false,
       isSale: false,
@@ -77,7 +78,7 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
     filters.isNew ||
     filters.isSale ||
     filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 50000000;
+    filters.priceRange[1] < maxPriceLimit;
 
   return (
     <aside className="product-filter">
@@ -179,8 +180,8 @@ const ProductFilter: React.FC<ProductFilterProps> = ({ filters, onFilterChange, 
                 type="range"
                 className="filter-price__slider"
                 min={0}
-                max={50000000}
-                step={500000}
+                max={maxPriceLimit}
+                step={maxPriceLimit > 100000000 ? 1000000 : 1000}
                 value={filters.priceRange[1]}
                 onChange={e =>
                   onFilterChange({ ...filters, priceRange: [filters.priceRange[0], +e.target.value] })

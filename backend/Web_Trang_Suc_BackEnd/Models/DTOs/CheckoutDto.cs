@@ -2,7 +2,7 @@ namespace web_Trang_suc_BE.Models.DTOs
 {
     public class CheckoutItemDto
     {
-        public int ProductVariantId { get; set; }
+        public long ProductVariantId { get; set; }
         public int Quantity { get; set; }
     }
 

@@ -201,7 +201,7 @@ const ProductDetailPage: React.FC = () => {
               <span className={`product-detail__price-current ${(selectedVariant?.isSale ?? product.isSale) ? 'price-sale' : ''}`}>
                 {formatPrice(selectedVariant?.price ?? product.price)}
               </span>
-              {(selectedVariant?.originalPrice ?? product.originalPrice) && (
+              {(selectedVariant?.originalPrice ?? product.originalPrice ?? 0) > 0 && (
                 <span className="price-original">{formatPrice(selectedVariant?.originalPrice ?? product.originalPrice!)}</span>
               )}
             </div>

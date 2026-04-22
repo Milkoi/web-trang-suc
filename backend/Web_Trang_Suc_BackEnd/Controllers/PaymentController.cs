@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using web_Trang_suc_BE.Helpers;
+using web_Trang_suc_BE.Models;
+using web_Trang_suc_BE.Models.Entities;
 
 namespace web_Trang_suc_BE.Controllers
 {
@@ -9,10 +12,12 @@ namespace web_Trang_suc_BE.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly AppDbContext _context;
 
-        public PaymentController(IConfiguration configuration)
+        public PaymentController(IConfiguration configuration, AppDbContext context)
         {
             _configuration = configuration;
+            _context = context;
         }
 
         public class PaymentRequestDto
@@ -57,7 +62,7 @@ namespace web_Trang_suc_BE.Controllers
         }
 
         [HttpGet("vnpay-return")]
-        public IActionResult VnpayReturn()
+        public async Task<IActionResult> VnpayReturn()
         {
             var vnpayData = Request.Query;
             var vnpay = new VnPayLibrary();
@@ -83,13 +88,40 @@ namespace web_Trang_suc_BE.Controllers
 
             if (checkSignature)
             {
+                var order = await _context.Orders!
+                    .Include(o => o.Items)
+                    .FirstOrDefaultAsync(o => o.Id == vnp_orderId);
+
+                if (order == null) return NotFound("Order not found");
+
                 if (vnp_ResponseCode == "00" && vnp_TransactionStatus == "00")
                 {
                     // Payment success, update order db
+                    order.PaymentStatus = "Paid";
+                    order.OrderStatus = "Processing";
+                    order.PaidAt = DateTime.Now;
+                    await _context.SaveChangesAsync();
+
                     return Ok(new { message = "Giao dịch thành công", orderId = vnp_orderId });
                 }
                 else
                 {
+                    // Payment failed, update order status and RESTORE STOCK
+                    order.PaymentStatus = "Failed";
+                    order.OrderStatus = "Cancelled";
+
+                    foreach (var item in order.Items)
+                    {
+                        var variant = await _context.ProductVariants!
+                            .FirstOrDefaultAsync(v => v.Id == item.VariantId);
+                        if (variant != null)
+                        {
+                            variant.StockQuantity += item.Quantity;
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+
                     return BadRequest(new { message = "Giao dịch bị từ chối hoặc lỗi", orderId = vnp_orderId });
                 }
             }

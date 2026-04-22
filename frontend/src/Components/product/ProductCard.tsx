@@ -214,8 +214,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <span className={`product-card__price ${product.isSale ? 'price-sale' : ''}`}>
             {formatPrice(product.price)}
           </span>
-          {product.originalPrice && (
-            <span className="price-original">{formatPrice(product.originalPrice)}</span>
+          {(product.originalPrice ?? 0) > 0 && (
+            <span className="price-original">{formatPrice(product.originalPrice!)}</span>
           )}
         </div>
         {product.rating > 0 && (

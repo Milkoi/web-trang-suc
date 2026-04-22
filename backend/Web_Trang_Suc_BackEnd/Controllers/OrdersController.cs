@@ -169,6 +169,28 @@ namespace web_Trang_suc_BE.Controllers
 
                 // 8. Save Everything
                 _context.Orders!.Add(order);
+
+                // Clear items from cart after placing order
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    var cart = await _context.Carts
+                        .Include(c => c.CartItems)
+                        .FirstOrDefaultAsync(c => c.UserId == userId);
+
+                    if (cart != null)
+                    {
+                        var orderedVariantIds = dto.Items.Select(i => i.ProductVariantId).ToList();
+                        var itemsToRemove = cart.CartItems
+                            .Where(ci => ci.VariantId.HasValue && orderedVariantIds.Contains(ci.VariantId.Value))
+                            .ToList();
+
+                        if (itemsToRemove.Any())
+                        {
+                            _context.CartItems.RemoveRange(itemsToRemove);
+                        }
+                    }
+                }
+
                 await _context.SaveChangesAsync();
                 
                 await transaction.CommitAsync();

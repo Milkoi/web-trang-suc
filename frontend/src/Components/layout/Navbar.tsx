@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCart } from '../../store/CartContext';
 import { useAuth } from '../../store/AuthContext';
 import { useVouchers } from '../../store/VoucherContext';
+import { useFavorites } from '../../store/FavoritesContext';
 import './Navbar.css';
 
 const Navbar: React.FC = () => {
@@ -14,6 +15,7 @@ const Navbar: React.FC = () => {
   const { totalItems, openCart } = useCart();
   const { user, isAuthenticated, openAuth, logout } = useAuth();
   const { openVoucher } = useVouchers();
+  const { favorites } = useFavorites();
   const navigate = useNavigate();
   const searchRef = useRef<HTMLInputElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -65,7 +67,14 @@ const Navbar: React.FC = () => {
           </nav>
 
           {/* Center: Logo */}
-          <Link to="/" className="navbar__logo">
+          <Link 
+            to="/" 
+            className="navbar__logo"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = '/';
+            }}
+          >
             <span className="navbar__logo-text">VELMORA</span>
             <span className="navbar__logo-sub">JEWELRY HOUSE</span>
           </Link>
@@ -114,10 +123,11 @@ const Navbar: React.FC = () => {
               </button>
             )}
 
-            <Link to="/favorites" className="navbar__icon-btn navbar__fav-btn" aria-label="Yêu thích">
+            <Link to="/favorites" className="navbar__icon-btn navbar__fav-btn" aria-label="Yêu thích" style={{ position: 'relative' }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
               </svg>
+              {favorites.length > 0 && <span className="navbar__cart-badge">{favorites.length}</span>}
             </Link>
 
             <button className="navbar__icon-btn navbar__voucher-btn" onClick={openVoucher} aria-label="Voucher">

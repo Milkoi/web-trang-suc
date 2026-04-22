@@ -131,6 +131,34 @@ const ProductsPage: React.FC = () => {
     pageSubtitle = 'Khám phá sản phẩm theo danh mục bạn chọn';
   }
 
+  const absoluteMaxPrice = useMemo(() => {
+    if (productsList.length === 0) return 0;
+    const prices = productsList.flatMap(p => [
+      p.price,
+      ...(p.variants?.map(v => v.price) || [])
+    ]).filter(p => typeof p === 'number' && !isNaN(p));
+    
+    const rawMax = prices.length > 0 ? Math.max(...prices) : 50000000;
+    // Round up to nearest 1,000 to align with more precise slider step
+    return Math.ceil(rawMax / 1000) * 1000;
+  }, [productsList]);
+
+  // Update price range filter when max price changes
+  useEffect(() => {
+    if (absoluteMaxPrice > 0) {
+      setFilters(prev => {
+        // If it's the initial load (still at default) or if current filter is out of bounds
+        if (prev.priceRange[1] === DEFAULT_FILTERS.priceRange[1] || prev.priceRange[1] > absoluteMaxPrice) {
+          return {
+            ...prev,
+            priceRange: [prev.priceRange[0], absoluteMaxPrice]
+          };
+        }
+        return prev;
+      });
+    }
+  }, [absoluteMaxPrice]);
+
   return (
     <div className="products-page page-content">
       {/* Page Header */}
@@ -159,13 +187,14 @@ const ProductsPage: React.FC = () => {
             </svg>
             {filterOpen ? 'Ẩn bộ lọc' : 'Bộ lọc'}
           </button>
-
+ 
           {/* Sidebar */}
           <div className={`products-page__sidebar ${filterOpen ? 'products-page__sidebar--open' : ''}`}>
             <ProductFilter
               filters={filters}
               onFilterChange={setFilters}
               totalResults={filtered.length}
+              maxPriceLimit={absoluteMaxPrice}
             />
           </div>
 

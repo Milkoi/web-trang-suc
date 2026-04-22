@@ -38,8 +38,12 @@ const HomePage: React.FC = () => {
         ]);
         setCategories(catRes.data);
         setProducts(prodRes.data);
-        if (bannerRes.data) {
-          setBanner(bannerRes.data);
+        // API returns an array, take the first active banner
+        const bannerArr = bannerRes.data;
+        if (Array.isArray(bannerArr) && bannerArr.length > 0) {
+          setBanner(bannerArr[0]);
+        } else if (bannerArr && !Array.isArray(bannerArr) && bannerArr.title) {
+          setBanner(bannerArr);
         }
       } catch (err) {
         console.error('Failed to fetch home data:', err);

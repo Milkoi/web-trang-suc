@@ -172,6 +172,22 @@
   box-shadow: 0 0 0 1px var(--color-gold);
 }
 
+.filter-price__slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--color-charcoal);
+  cursor: pointer;
+  border: 2px solid var(--color-white);
+  box-shadow: 0 0 0 1px var(--color-charcoal);
+  transition: background var(--transition-fast);
+}
+
+.filter-price__slider::-moz-range-thumb:hover {
+  background: var(--color-gold);
+  box-shadow: 0 0 0 1px var(--color-gold);
+}
+
 @media (max-width: 768px) {
   .product-filter {
     width: 100%;

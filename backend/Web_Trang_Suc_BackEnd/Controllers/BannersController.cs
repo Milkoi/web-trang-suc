@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web_Trang_suc_BE.Models;
 using web_Trang_suc_BE.Models.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace web_Trang_suc_BE.Controllers
 {
@@ -21,26 +22,20 @@ namespace web_Trang_suc_BE.Controllers
         public async Task<ActionResult<IEnumerable<Banner>>> GetBanners()
         {
             if (_context.Banners == null) return NotFound();
-            return await _context.Banners.Where(b => b.IsActive).ToListAsync();
+            return await _context.Banners.OrderByDescending(b => b.Id).ToListAsync();
         }
 
         // GET: api/Banners/active
         [HttpGet("active")]
-        public async Task<ActionResult<Banner>> GetActiveBanner()
+        public async Task<ActionResult<IEnumerable<Banner>>> GetActiveBanners()
         {
             if (_context.Banners == null) return NotFound();
-            
-            var banner = await _context.Banners
-                .Where(b => b.IsActive)
-                .OrderByDescending(b => b.Id)
-                .FirstOrDefaultAsync();
-
-            if (banner == null) return NotFound();
-            return banner;
+            return await _context.Banners.Where(b => b.IsActive).OrderByDescending(b => b.Id).ToListAsync();
         }
 
         // POST: api/Banners
         [HttpPost]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<Banner>> CreateBanner(Banner banner)
         {
             if (_context.Banners == null) return Problem("Entity set 'AppDbContext.Banners' is null.");
@@ -52,6 +47,7 @@ namespace web_Trang_suc_BE.Controllers
 
         // PUT: api/Banners/5
         [HttpPut("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> UpdateBanner(int id, Banner banner)
         {
             if (id != banner.Id) return BadRequest();
@@ -68,11 +64,12 @@ namespace web_Trang_suc_BE.Controllers
                 else throw;
             }
 
-            return NoContent();
+            return Ok(banner);
         }
 
         // DELETE: api/Banners/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> DeleteBanner(int id)
         {
             if (_context.Banners == null) return NotFound();
