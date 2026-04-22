@@ -81,7 +81,7 @@ export interface ShippingAddress {
 }
 
 export interface PaymentInfo {
-  method: 'credit-card' | 'paypal' | 'momo' | 'vnpay';
+  method: 'credit-card' | 'paypal' | 'momo' | 'vnpay' | 'vietqr';
   cardNumber?: string;
   cardName?: string;
   expiry?: string;

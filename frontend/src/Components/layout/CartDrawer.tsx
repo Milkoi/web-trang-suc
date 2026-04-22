@@ -211,11 +211,7 @@ const CartDrawer: React.FC = () => {
 
                         <button
                           className="cart-item__remove"
-                          onClick={() => setCartAlert({
-                            message: `Bạn có chắc muốn xóa "${item.product.name}" khỏi giỏ hàng?`,
-                            type: 'confirm',
-                            onConfirm: () => removeFromCart(item.product.id, item.size, item.variant?.id || item.variantId, item.id)
-                          })}
+                          onClick={() => removeFromCart(item.product.id, item.size, item.variant?.id || item.variantId, item.id)}
                           aria-label="Xóa"
                         >
                           Xóa
@@ -259,14 +255,8 @@ const CartDrawer: React.FC = () => {
                       setCartAlert({ message: "Vui lòng chọn sản phẩm để xóa.", type: 'alert' });
                       return;
                     }
-                    setCartAlert({
-                      message: `Bạn có chắc chắn muốn xóa ${selectedCount} sản phẩm đã chọn khỏi giỏ hàng?`,
-                      type: 'confirm',
-                      onConfirm: () => {
-                        clearSelectedItems();
-                        setIsEditingCart(false);
-                      }
-                    });
+                    clearSelectedItems();
+                    setIsEditingCart(false);
                   }}
                 >
                   Xóa {state.items.filter(i => i.selected).length} sản phẩm

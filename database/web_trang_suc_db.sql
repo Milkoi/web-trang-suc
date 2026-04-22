@@ -111,8 +111,7 @@ INSERT INTO `categories` (`id`, `slug`, `name`, `imageUrl`, `description`, `crea
 (1, 'necklace', 'Dây Chuyền', 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80', 'Những mẫu dây chuyền tinh tế, tôn vinh vẻ đẹp vùng cổ.', '2026-04-16 19:05:28'),
 (2, 'ring', 'Nhẫn', 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80', 'Biểu tượng của tình yêu và sự cam kết vĩnh cửu.', '2026-04-16 19:05:28'),
 (3, 'bracelet', 'Lắc Tay', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80', 'Điểm nhấn sang trọng cho đôi tay phái đẹp.', '2026-04-16 19:05:28'),
-(4, 'anklet', 'Lắc Chân', 'https://images.unsplash.com/photo-1535633302704-b04049b39862?w=800&q=80', 'Sự nhẹ nhàng, duyên dáng trong từng bước chân.', '2026-04-16 19:05:28'),
-(5, 'earring', 'Bông Tai', 'https://images.unsplash.com/photo-1535633302704-b04049b39862?w=800&q=80', 'Lấp lánh và rạng rỡ, làm nổi bật khuôn mặt.', '2026-04-16 19:05:28');
+(4, 'earring', 'Bông Tai', 'https://media.tiffany.com/is/image/tco/2026_MKT_MDAY_STILL_4X5_28', 'Lấp lánh và rạng rỡ, làm nổi bật khuôn mặt.', '2026-04-16 19:05:28');
 
 -- --------------------------------------------------------
 
@@ -238,12 +237,25 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `sku`, `name`, `categoryId`, `materialId`, `price`, `originalPrice`, `description`, `originStory`, `stockQuantity`, `rating`, `reviewCount`, `isNew`, `isSale`, `createdAt`) VALUES
-(1, 'TIF-KNOT-WG', 'Tiffany Knot Ring', 2, 1, 145000000.00, 150000000.00, 'Nhẫn đính kim cương với thiết kế nút thắt tượng trưng cho sự gắn kết vĩnh cửu.', '', 0, 4.90, 128, 1, 1, '2026-04-16 19:05:29'),
-(2, 'TIF-LOCK-RG', 'Tiffany Lock Bangle', 3, 1, 190000000.00, 0.00, 'Lắc tay Vàng hồng 18k mang mãnh lực tình yêu.', '', 0, 4.80, 94, 0, 0, '2026-04-16 19:05:29'),
-(3, 'TIF-SMILE-YG', 'Tiffany T Smile Pendant', 1, 1, 25000000.00, NULL, 'Dây chuyền vàng mang nụ cười tinh tế.', 'Một lời nhắc nhở về niềm vui và sự lạc quan mỗi ngày.', 45, 5.00, 231, 0, 0, '2026-04-16 19:05:29'),
-(4, 'TIF-ELSA-PT', 'Elsa Peretti® Diamonds by the Yard® Earrings', 5, 4, 42000000.00, 48000000.00, 'Bông tai kim cương mang vẻ đẹp rực rỡ và thuần khiết.', 'Thiết kế của Elsa Peretti, mang phong cách tối giản nhưng vô cùng sang trọng.', 20, 4.70, 56, 1, 1, '2026-04-16 19:05:29'),
-(5, 'VEL-DIA-NECK', 'Velmora Diamond Heart', 1, 4, 85000000.00, 95000000.00, 'Dây chuyền kim cương hình trái tim đại diện cho tình yêu nồng cháy.', 'Kiệt tác được chế tác thủ công trong 200 giờ bởi nghệ nhân Velmora.', 15, 4.90, 45, 1, 1, '2026-04-16 19:05:29'),
-(15, 'tmn', 'TMN', 5, NULL, 1400000.00, 0.00, 'Lấp lánh trên từng đôi tai, cửa sổ tâm hồn của bạn sẽ mang cảm giác nghèo nếu như nhìn hai bên tai mà chỉ có một bên đeo còn một bên mất', '', 0, 0.00, 0, 1, 0, '2026-04-18 13:55:11');
+(1, 'VEL-T1-RING', 'Velmora T1 Narrow Ring', 2, 2, 149000, 189000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Rhodium","stone":"Cubic Zirconia AAA","weight":"2.1 chỉ","style":"Hiện đại","description":"Biểu tượng chữ V huyền thoại đại diện cho sức mạnh và sự tự tin cá nhân."}', '', 50, 4.9, 12, 1, 1, '2026-04-16 19:05:29'),
+(2, 'VEL-KNOT-RING', 'Velmora Knot Ring', 2, 2, 169000, 219000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Platinum","stone":"Không đá","weight":"1.8 chỉ","style":"Thanh lịch","description":"Thiết kế nút thắt đặc trưng của dòng Velmora Knot tượng trưng cho sự gắn kết."}', '', 40, 4.8, 8, 1, 1, '2026-04-16 19:05:29'),
+(3, 'VEL-FORGE-WIDE', 'Velmora Forge Wide Ring', 2, 2, 219000, 259000, '{"brand":"VELMORA Luxury","material":"Bạc S925 Antique","stone":"Kim cương Lab","weight":"2.5 chỉ","style":"Cá tính","description":"Mẫu nhẫn mắt xích bản rộng mang phong cách Industrial độc đáo."}', '', 30, 4.7, 5, 1, 0, '2026-04-16 19:05:29'),
+(4, 'VEL-VIC-RING', 'Velmora Victoria Ring', 2, 4, 199000, 249000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Platin","stone":"Marquise cut Lab Diamond","weight":"2.0 chỉ","style":"Lộng lẫy","description":"Cụm hoa Victoria lấp lánh như những vì sao đêm rực rỡ."}', '', 25, 4.9, 14, 1, 1, '2026-04-16 19:05:29'),
+(5, 'VEL-SMILE-NK', 'Velmora Smile Necklace', 1, 2, 269000, 299000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Vàng trắng","stone":"Zirconia tấm","weight":"1.4 chỉ","style":"Trẻ trung","description":"Mặt dây chuyền nụ cười huyền thoại mang lại vẻ rạng rỡ và lạc quan."}', '', 60, 4.9, 42, 0, 1, '2026-04-16 19:05:29'),
+(6, 'VEL-HARD-NK', 'Velmora HardWear Pendant', 1, 2, 289000, 329000, '{"brand":"VELMORA Luxury","material":"Bạc S925","stone":"None","weight":"3.0 chỉ","style":"Phố thị","description":"Sự kết hợp giữa mắt xích công nghiệp và nét nữ tính sang trọng."}', '', 20, 4.8, 9, 1, 0, '2026-04-16 19:05:29'),
+(7, 'VEL-SOL-EAR', 'Velmora Solitaire Studs', 4, 4, 159000, 199000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Bạch kim","stone":"Kim cương Lab 0.1ct","weight":"0.5 chỉ","style":"Cổ điển","description":"Bông tai một viên đá tối giản, tối ưu hoá sự phản chiếu ánh sáng."}', '', 15, 5.0, 61, 1, 1, '2026-04-16 19:05:29'),
+(8, 'VEL-KNOT-BAN', 'Velmora Knot Wire Bangle', 3, 2, 295000, 359000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Vàng hồng","stone":"Zirconia tinh khiết","weight":"4.2 chỉ","style":"Sang trọng","description":"Vòng tay Wire Bangle với điểm nhấn nút thắt quấn đôi cực kỳ tinh xảo."}', '', 10, 4.9, 22, 1, 1, '2026-04-16 19:05:29'),
+(9, 'VEL-LOCK-RING', 'Velmora Lock Ring', 2, 2, 189000, 219000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Rhodium","stone":"None","weight":"1.6 chỉ","style":"Bình đẳng","description":"Mẫu nhẫn lấy cảm hứng từ ổ khoá, mang thông điệp đoàn kết và bảo vệ."}', '', 35, 4.7, 7, 1, 1, '2026-04-16 19:05:29'),
+(10, 'VEL-SMILE-RG', 'Velmora Smile Wire Ring', 2, 2, 139000, 169000, '{"brand":"VELMORA Luxury","material":"Bạc S925","stone":"Kim cương Lab nhỏ","weight":"1.1 chỉ","style":"Năng động","description":"Nụ cười trên ngón tay bạn - thiết kế thanh mảnh, dễ phối đồ."}', '', 45, 4.8, 19, 0, 1, '2026-04-16 19:05:29'),
+(11, 'VEL-KEY-PDT', 'Velmora Victoria Key Pendant', 1, 4, 289000, 339000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Platin","stone":"Lab Diamond Marquise","weight":"2.3 chỉ","style":"Quyền quý","description":"Chìa khoá mở ra những cơ hội mới. Biểu tượng của sự độc lập và lộng lẫy."}', '', 20, 4.9, 15, 1, 1, '2026-04-16 19:05:29'),
+(12, 'VEL-ATLAS-BAN', 'Velmora Atlas X Bangle', 3, 2, 299000, 369000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Vàng 18K","stone":"None","weight":"4.5 chỉ","style":"Cổ điển","description":"Ký tự La Mã tượng trưng cho thời gian vĩnh cửu. Thiết kế bản rộng đầy quyền năng."}', '', 12, 4.8, 26, 1, 0, '2026-04-16 19:05:29'),
+(13, 'VEL-RTT-NK', 'Return to VELMORA Heart', 1, 2, 179000, 219000, '{"brand":"VELMORA Luxury","material":"Bạc S925","stone":"Enamel Blue","weight":"1.6 chỉ","style":"Biểu tượng","description":"Thiết kế kinh điển với tag trái tim mang phong cách riêng của Velmora."}', '', 55, 5.0, 142, 0, 1, '2026-04-16 19:05:29'),
+(14, 'VEL-PAPER-EAR', 'Velmora Paper Flowers Earrings', 4, 4, 259000, 299000, '{"brand":"VELMORA Luxury","material":"Bạc S925","stone":"Fire Opal Lab","weight":"0.9 chỉ","style":"Nghệ thuật","description":"Sự chuyển động của những cánh hoa giấy trong gió, đính đá sang trọng."}', '', 18, 4.7, 11, 1, 1, '2026-04-16 19:05:29'),
+(15, 'VEL-HARD-BR', 'Velmora HardWear Link Bangle', 3, 2, 269000, 319000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Rhodium","stone":"None","weight":"3.8 chỉ","style":"Phá cách","description":"Những mắt xích táo bạo mang hơi thở của thời đại mới."}', '', 25, 4.8, 33, 1, 1, '2026-04-16 19:05:29'),
+(17, 'VEL-SIGN-ER', 'Velmora Signature Studs', 4, 2, 129000, 159000, '{"brand":"VELMORA Luxury","material":"Bạc S925 bóng","stone":"None","weight":"0.4 chỉ","style":"Tối giản","description":"Dành cho những người yêu thích sự đơn giản nhưng tinh tế đến từng chi tiết."}', '', 70, 4.6, 54, 0, 1, '2026-04-16 19:05:29'),
+(18, 'VEL-OLIVE-RG', 'Olive Leaf Velmora Edition', 2, 2, 199000, 239000, '{"brand":"VELMORA Luxury","material":"Bạc S925","stone":"Amethyst Lab","weight":"1.7 chỉ","style":"Thiên nhiên","description":"Nhành ô liu tượng trưng cho hoà bình và sự phục hồi. Thiết kế đầy chất thơ."}', '', 30, 4.85, 21, 1, 1, '2026-04-16 19:05:29'),
+(19, 'VEL-VIC-NK', 'Velmora Victoria Mixed Cluster', 1, 4, 299000, 389000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Platin","stone":"Diamond Lab Mixed Cut","weight":"3.1 chỉ","style":"Đẳng cấp","description":"Sự kết hợp của nhiều kiểu cắt đá tạo nên độ bắt sáng đa chiều rực rỡ."}', '', 8, 5.0, 17, 1, 0, '2026-04-16 19:05:29'),
+(20, 'VEL-HAR-RING', 'Velmora Harmony Ring Band', 2, 2, 149000, 179000, '{"brand":"VELMORA Luxury","material":"Bạc S925 mạ Rhodium","stone":"Zirconia tấm","weight":"1.2 chỉ","style":"Lãng mạn","description":"Nhẫn Harmony với đường cong ôm trọn viên đá, tượng trưng cho sự hoà quyện tình yêu."}', '', 50, 4.9, 65, 1, 1, '2026-04-16 19:05:29');
 
 -- --------------------------------------------------------
 
@@ -264,12 +276,84 @@ CREATE TABLE `product_images` (
 --
 
 INSERT INTO `product_images` (`id`, `productId`, `url`, `isMain`, `displayOrder`) VALUES
-(5, 3, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997784_ED_M.jpg', 1, 1),
-(6, 4, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/elsa-perettidiamonds-by-the-yardearrings-12818653_936173_ED.jpg', 1, 1),
-(7, 5, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-t-smilependant-62617659_997784_ED_M.jpg', 1, 1),
-(19, 15, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-knotring-68886364_1020084_ED_M.jpg', 0, 0),
-(46, 2, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-lockbangle-70180422_1052959_ED.jpg', 0, 0),
-(49, 1, 'https://media.tiffany.com/is/image/Tiffany/EcomItemL2/tiffany-knotring-68886364_1020084_ED_M.jpg', 0, 0);
+-- SP 1: Nhẫn T1 (4 ảnh)
+(1, 1, 'https://media.tiffany.com/is/image/tco/72149513_RG_ALT3X1?hei=615&wid=615&fmt=webp', 1, 1),
+(2, 1, 'https://media.tiffany.com/is/image/tco/72149513_RG_SIO2X1?hei=2000&wid=2000&fmt=webp', 0, 2),
+(3, 1, 'https://media.tiffany.com/is/image/tco/60147091_RG_MAIN1X1?hei=282&wid=282&fmt=webp', 0, 3),
+(4, 1, 'https://media.tiffany.com/is/image/tco/72149513_RG_ALT3X2?hei=615&wid=615&fmt=webp', 0, 4),
+
+-- SP 2: Nhẫn Knot (2 ảnh)
+(5, 2, 'https://media.tiffany.com/is/image/tco/70153238_RG_ALT3X1?hei=615&wid=615&fmt=webp', 1, 1),
+(6, 2, 'https://media.tiffany.com/is/image/tco/70153238_RG_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+
+-- SP 3: Nhẫn Rắn (4 ảnh)
+(7, 3, 'https://media.tiffany.com/is/image/tco/73903920_RG_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(8, 3, 'https://media.tiffany.com/is/image/tco/73903920_RG_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(9, 3, 'https://media.tiffany.com/is/image/tco/73903920_RG_SIO2X2?hei=615&wid=615&fmt=webp', 0, 3),
+(10, 3, 'https://media.tiffany.com/is/image/tco/73903920_RG_ALT3X1?hei=615&wid=615&fmt=webp', 0, 4),
+
+-- SP 4: Nhẫn Victoria (2 ảnh)
+(11, 4, 'https://media.tiffany.com/is/image/tco/60004097_RG_MAIN1X1?hei=2000&wid=2000&fmt=webp', 1, 1),
+(12, 4, 'https://media.tiffany.com/is/image/tco/60004097_RG_SIO2X1?hei=2000&wid=2000&fmt=webp', 0, 2),
+
+-- SP 5: Dây chuyền Smile (4 ảnh)
+(13, 5, 'https://media.tiffany.com/is/image/tco/67544412_RG_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(14, 5, 'https://media.tiffany.com/is/image/tco/67544412_RG_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(15, 5, 'https://media.tiffany.com/is/image/tco/67544412_RG_ALT3X1?hei=615&wid=615&fmt=webp', 0, 3),
+(16, 5, 'https://media.tiffany.com/is/image/tco/67544412_RG_ALT3X2?hei=615&wid=615&fmt=webp', 0, 4),
+
+-- SP 6: Dây chuyền Ngọc trai (4 ảnh)
+(17, 6, 'https://media.tiffany.com/is/image/tco/60022674_PDT_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(18, 6, 'https://media.tiffany.com/is/image/tco/60022674_PDT_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(19, 6, 'https://media.tiffany.com/is/image/tco/60022674_PDT_ALT3X1?hei=615&wid=615&fmt=webp', 0, 3),
+(20, 6, 'https://media.tiffany.com/is/image/tco/60022674_PDT_ALT3X2?hei=615&wid=615&fmt=webp', 0, 4),
+
+-- SP 7: Bông tai Solitaire (2 ảnh)
+(21, 7, 'https://media.tiffany.com/is/image/tco/60090615_ER_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(22, 7, 'https://media.tiffany.com/is/image/tco/60090615_ER_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+
+-- SP 8: Vòng Knot (5 ảnh)
+(23, 8, 'https://media.tiffany.com/is/image/tco/69526012_BLT_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(24, 8, 'https://media.tiffany.com/is/image/tco/69526012_BLT_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(25, 8, 'https://media.tiffany.com/is/image/tco/69526012_BLT_SIO2X2?hei=615&wid=615&fmt=webp', 0, 3),
+(26, 8, 'https://media.tiffany.com/is/image/tco/69526012_BLT_ALT3X1?hei=615&wid=615&fmt=webp', 0, 4),
+(27, 8, 'https://media.tiffany.com/is/image/tco/69526012_BLT_ALT3X3?hei=1300&wid=1300&fmt=webp', 0, 5),
+
+-- SP 9: Nhẫn Lock (4 ảnh)
+(28, 9, 'https://media.tiffany.com/is/image/tco/72149513_RG_ALT3X1?hei=615&wid=615&fmt=webp', 1, 1),
+(29, 9, 'https://media.tiffany.com/is/image/tco/72149513_RG_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+
+-- SP 11: Dây chuyền Key (5 ảnh)
+(30, 11, 'https://media.tiffany.com/is/image/tco/74627234_PDT_MAIN1X1?hei=2000&wid=2000&fmt=webp', 1, 1),
+(31, 11, 'https://media.tiffany.com/is/image/tco/74627234_PDT_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(32, 11, 'https://media.tiffany.com/is/image/tco/74627234_PDT_ALT3X1?hei=615&wid=615&fmt=webp', 0, 3),
+(33, 11, 'https://media.tiffany.com/is/image/tco/74627234_PDT_ALT3X3?hei=1300&wid=1300&fmt=webp', 0, 4),
+
+-- SP 13: Dây RTT (4 ảnh)
+(34, 13, 'https://media.tiffany.com/is/image/tco/60018402_PDT_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(35, 13, 'https://media.tiffany.com/is/image/tco/60018402_PDT_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+
+-- SP 20: Nhẫn Harmony (4 ảnh)
+(36, 20, 'https://media.tiffany.com/is/image/tco/72149513_RG_ALT3X1?hei=615&wid=615&fmt=webp', 1, 1),
+(37, 20, 'https://media.tiffany.com/is/image/tco/72149513_RG_SIO2X1?hei=2000&wid=2000&fmt=webp', 0, 2),
+(38, 20, 'https://media.tiffany.com/is/image/tco/60147091_RG_MAIN1X1?hei=282&wid=282&fmt=webp', 0, 3),
+(39, 20, 'https://media.tiffany.com/is/image/tco/72149513_RG_ALT3X2?hei=615&wid=615&fmt=webp', 0, 4),
+
+-- Bổ sung cho các sản phẩm còn lại
+(40, 10, 'https://media.tiffany.com/is/image/tco/72149513_RG_ALT3X2?hei=615&wid=615&fmt=webp', 1, 1),
+(41, 10, 'https://media.tiffany.com/is/image/tco/72149513_RG_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(42, 12, 'https://media.tiffany.com/is/image/tco/60149788_BLT_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(43, 12, 'https://media.tiffany.com/is/image/tco/60149788_BLT_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(44, 14, 'https://media.tiffany.com/is/image/tco/66912167_ER_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(45, 14, 'https://media.tiffany.com/is/image/tco/66912167_ER_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(46, 15, 'https://media.tiffany.com/is/image/tco/60153083_BLT_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(47, 15, 'https://media.tiffany.com/is/image/tco/60153083_BLT_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(48, 17, 'https://media.tiffany.com/is/image/tco/40304914_ER_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(49, 17, 'https://media.tiffany.com/is/image/tco/40304914_ER_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(50, 18, 'https://media.tiffany.com/is/image/tco/60132211_ER_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(51, 18, 'https://media.tiffany.com/is/image/tco/60132211_ER_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
+(52, 19, 'https://media.tiffany.com/is/image/tco/60022674_PDT_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
+(53, 19, 'https://media.tiffany.com/is/image/tco/60022674_PDT_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2);
 
 -- --------------------------------------------------------
 
@@ -294,14 +378,33 @@ CREATE TABLE `product_variants` (
 --
 
 INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`, `createdAt`) VALUES
-(301, 3, 'TIF-SMILE-YG-16', '16\"', 25000000.00, NULL, 15, 0, '2026-04-16 19:05:29'),
-(401, 4, 'TIF-ELSA-PT-OS', 'One Size', 42000000.00, 48000000.00, 20, 1, '2026-04-16 19:05:29'),
-(501, 5, 'VEL-DIA-NECK-OS', 'One Size', 85000000.00, 95000000.00, 15, 1, '2026-04-16 19:05:29'),
-(522, 15, 'tmn-one-size', 'One size', 1400000.00, NULL, 12, 0, '2026-04-18 13:55:11'),
-(593, 2, 'TIF-LOCK-RG-S', 'S', 190000000.00, NULL, 0, 0, '2026-04-18 16:27:53'),
-(600, 1, 'TIF-KNOT-WG-3', '3', 145000000.00, NULL, 0, 1, '2026-04-18 16:38:03'),
-(601, 1, 'TIF-KNOT-WG-5', '5', 145000000.00, NULL, 5, 1, '2026-04-18 16:38:03'),
-(602, 1, 'TIF-KNOT-WG-7', '7', 145000000.00, NULL, 11, 0, '2026-04-18 16:38:03');
+(1, 1, 'VEL-T1-RING-5', '5 (49mm)', 149000, 189000, 100, 1, NOW()),
+(2, 1, 'VEL-T1-RING-6', '6 (51mm)', 149000, 189000, 100, 1, NOW()),
+(3, 1, 'VEL-T1-RING-7', '7 (53mm)', 149000, 189000, 100, 1, NOW()),
+(4, 2, 'VEL-KNOT-RG-5', '5 (49mm)', 169000, 219000, 100, 1, NOW()),
+(5, 2, 'VEL-KNOT-RG-6', '6 (51mm)', 169000, 219000, 100, 1, NOW()),
+(6, 3, 'VEL-FORGE-W-6', '6 (51mm)', 219000, 259000, 100, 1, NOW()),
+(7, 3, 'VEL-FORGE-W-7', '7 (53mm)', 219000, 259000, 100, 1, NOW()),
+(8, 4, 'VEL-VIC-RG-5', '5 (49mm)', 199000, 249000, 100, 1, NOW()),
+(9, 4, 'VEL-VIC-RG-6', '6 (51mm)', 199000, 249000, 100, 1, NOW()),
+(10, 9, 'VEL-LOCK-R-6', '6 (51mm)', 189000, 219000, 100, 1, NOW()),
+(11, 10, 'VEL-SMILE-R-5', '5 (49mm)', 149000, 179000, 100, 1, NOW()),
+(12, 18, 'VEL-OLIVE-R-6', '6 (51mm)', 199000, 239000, 100, 1, NOW()),
+(13, 20, 'VEL-HAR-R-5', '5 (49mm)', 149000, 179000, 100, 1, NOW()),
+(14, 5, 'VEL-SMILE-40', '40cm', 269000, 299000, 100, 1, NOW()),
+(15, 5, 'VEL-SMILE-45', '45cm', 269000, 299000, 100, 1, NOW()),
+(16, 6, 'VEL-HARD-45', '45cm', 289000, 329000, 100, 1, NOW()),
+(17, 11, 'VEL-KEY-45', '45cm', 289000, 339000, 100, 1, NOW()),
+(18, 13, 'VEL-RTT-40', '40cm', 179000, 219000, 100, 1, NOW()),
+(19, 13, 'VEL-RTT-45', '45cm', 189000, 229000, 100, 1, NOW()),
+(20, 19, 'VEL-VIC-NK-42', '42cm', 299000, 389000, 100, 0, NOW()),
+(21, 7, 'VEL-SOL-OS', 'Freesize', 159000, 199000, 100, 1, NOW()),
+(22, 14, 'VEL-PAPER-OS', 'Freesize', 259000, 299000, 100, 1, NOW()),
+(23, 17, 'VEL-SIGN-OS', 'Freesize', 129000, 159000, 100, 1, NOW()),
+(24, 8, 'VEL-KNOT-BAN-S', 'S (15cm)', 295000, 359000, 100, 1, NOW()),
+(25, 8, 'VEL-KNOT-BAN-M', 'M (16cm)', 295000, 359000, 100, 1, NOW()),
+(26, 12, 'VEL-ATLAS-BAN-S', 'S (15cm)', 199000, 249000, 100, 1, NOW()),
+(27, 15, 'VEL-HARD-BR-M', 'M (16cm)', 269000, 319000, 100, 1, NOW());
 
 -- --------------------------------------------------------
 

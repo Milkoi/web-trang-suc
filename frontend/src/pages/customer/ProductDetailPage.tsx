@@ -15,7 +15,7 @@ import './ProductDetailPage.css';
 const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
 
 const MATERIAL_MAP: Record<string, string> = {
-  gold: 'Vàng', silver: 'Bạc', platinum: 'Bạch Kim', diamond: 'Kim Cương',
+  gold: 'Vàng 10K', silver: 'Bạc S925', platinum: 'Bạch Kim', diamond: 'Kim Cương Lab',
 };
 const CATEGORY_MAP: Record<string, string> = {
   necklace: 'Dây Chuyền', ring: 'Nhẫn', bracelet: 'Lắc Tay', anklet: 'Lắc Chân', earring: 'Bông Tai',
@@ -228,7 +228,24 @@ const ProductDetailPage: React.FC = () => {
 
             {/* Description & Origin Story */}
             <div className="product-detail__descriptions">
-              <p className="product-detail__desc">{product.description}</p>
+              {(() => {
+                try {
+                  const descData = JSON.parse(product.description);
+                  return (
+                    <div className="parsed-desc">
+                      <p className="product-detail__desc">{descData.description || product.description}</p>
+                      <div className="product-detail__specs" style={{ marginTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        {descData.brand && <div style={{ fontSize: '13px' }}><strong>Bộ sưu tập:</strong> {descData.brand}</div>}
+                        {descData.stone && <div style={{ fontSize: '13px' }}><strong>Loại đá:</strong> {descData.stone}</div>}
+                        {descData.weight && <div style={{ fontSize: '13px' }}><strong>Trọng lượng:</strong> {descData.weight}</div>}
+                        {descData.certificate && <div style={{ fontSize: '13px' }}><strong>Kiểm định:</strong> {descData.certificate}</div>}
+                      </div>
+                    </div>
+                  );
+                } catch {
+                  return <p className="product-detail__desc">{product.description}</p>;
+                }
+              })()}
               
               {product.originStory && (
                 <div className="product-detail__origin">
@@ -393,7 +410,33 @@ const ProductDetailPage: React.FC = () => {
             {activeTab === 'description' && (
               <div className="tab-content description-content">
                 <div className="description-text">
-                  {product.description}
+                  {(() => {
+                    try {
+                      const descData = JSON.parse(product.description);
+                      return (
+                        <div className="tab-parsed-desc">
+                          <p style={{ marginBottom: '24px' }}>{descData.description || product.description}</p>
+                          <h4 style={{ fontFamily: 'var(--font-serif)', marginBottom: '16px' }}>Thông số kỹ thuật</h4>
+                          <table className="specs-table" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px' }}>
+                            <tbody>
+                              {Object.entries(descData).map(([key, value]) => {
+                                if (key === 'description') return null;
+                                const labels: any = { brand: 'Bộ sưu tập', material: 'Chất liệu', stone: 'Đá đính kết', weight: 'Trọng lượng', style: 'Phong cách', certificate: 'Kiểm định', care: 'Bảo quản' };
+                                return (
+                                  <tr key={key} style={{ borderBottom: '1px solid #eee' }}>
+                                    <td style={{ padding: '12px 0', fontWeight: '500', color: '#666', width: '30%' }}>{labels[key] || key}</td>
+                                    <td style={{ padding: '12px 0', color: 'var(--color-charcoal)' }}>{value as string}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      );
+                    } catch {
+                      return <p>{product.description}</p>;
+                    }
+                  })()}
                 </div>
                 {product.originStory && (
                   <div className="origin-story">
@@ -431,8 +474,8 @@ const ProductDetailPage: React.FC = () => {
             )}
 
             {activeTab === 'reviews' && (
-              <div className="tab-content reviews-content">
-                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+              <div className="tab-content reviews-content" style={{ width: '100%', maxWidth: 'none' }}>
+                <div style={{ width: '100%' }}>
                   {isAuthenticated ? (
                     <form onSubmit={submitReview} className="review-form">
                       <h4 style={{ marginBottom: 16 }}>Viết đánh giá của bạn</h4>
@@ -441,7 +484,7 @@ const ProductDetailPage: React.FC = () => {
                            value={newReview.rating} 
                            onChange={e => setNewReview({...newReview, rating: Number(e.target.value)})}
                            className="form-control"
-                           style={{ width: '150px' }}
+                           style={{ width: '160px' }}
                         >
                            <option value="5">5 Sao (Tuyệt vời)</option>
                            <option value="4">4 Sao (Khá tốt)</option>

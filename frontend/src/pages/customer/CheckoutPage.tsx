@@ -46,6 +46,7 @@ const CheckoutPage: React.FC = () => {
   const [loadingVouchers, setLoadingVouchers] = useState(false);
   const [showVietQR, setShowVietQR] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState('');
+  const [qrAmount, setQrAmount] = useState(0); // Snapshot giá trị trước khi clear cart
 
   useEffect(() => {
     setDiscountInput(state.discountCode);
@@ -203,10 +204,14 @@ const CheckoutPage: React.FC = () => {
         }
       }
 
+      // Snapshot tổng tiền TRƯỚC khi clear giỏ hàng (sau khi clear thì grandTotal = 0)
+      const finalAmount = grandTotal;
+
       clearSelectedItems();
       clearDiscount();
 
       if (form.payment.method === 'vietqr' && res.data.orderId) {
+        setQrAmount(finalAmount);
         setCreatedOrderId(res.data.orderId);
         setShowVietQR(true);
         setIsProcessing(false);
@@ -228,7 +233,7 @@ const CheckoutPage: React.FC = () => {
   const formatExpiry = (v: string) =>
     v.replace(/\D/g, '').replace(/^(.{2})/, '$1/').slice(0, 5);
 
-  if (selectedItems.length === 0 && !isProcessing) {
+  if (selectedItems.length === 0 && !isProcessing && !showVietQR) {
     return (
       <div className="page-content checkout-empty">
         <div>
@@ -570,19 +575,44 @@ const CheckoutPage: React.FC = () => {
                     onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'vietqr' } }))}
                   />
                   <span className="checkout-payment-method__radio" />
-                  <div className="checkout-payment-method__label" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ color: '#005baa', fontWeight: '800', fontSize: '1.1rem' }}>Viet</span>
-                    <span style={{ color: '#ea1e26', fontWeight: '800', fontSize: '1.1rem' }}>QR</span>
-                    <span style={{ 
-                      fontSize: '0.7rem', 
-                      background: '#eee', 
-                      padding: '2px 6px', 
-                      borderRadius: '4px',
-                      color: '#666',
-                      fontWeight: '600'
-                    }}>NAPAS 24/7</span>
+                  <div className="vietqr-method-label">
+                    <div className="vietqr-logo-inline">
+                      <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="6" fill="#005baa"/>
+                        <rect x="6" y="6" width="8" height="8" rx="1" fill="white"/>
+                        <rect x="18" y="6" width="8" height="8" rx="1" fill="white"/>
+                        <rect x="6" y="18" width="8" height="8" rx="1" fill="white"/>
+                        <rect x="20" y="20" width="4" height="4" rx="0.5" fill="white"/>
+                        <rect x="18" y="18" width="4" height="4" rx="0.5" fill="white"/>
+                        <rect x="26" y="18" width="2" height="8" rx="0.5" fill="white"/>
+                        <rect x="18" y="26" width="8" height="2" rx="0.5" fill="white"/>
+                      </svg>
+                      <span className="vietqr-text-blue">Viet</span><span className="vietqr-text-red">QR</span>
+                    </div>
+                    <span className="napas-tag">NAPAS 24/7</span>
+                  </div>
+                  <div className="checkout-payment-method__icons">
+                    <span className="vietqr-bank-tag">MB</span>
+                    <span className="vietqr-bank-tag">TCB</span>
+                    <span className="vietqr-bank-tag">VCB</span>
                   </div>
                 </label>
+
+                {/* VietQR Info Panel */}
+                {form.payment.method === 'vietqr' && (
+                  <div className="vietqr-info-panel">
+                    <div className="vietqr-info-panel__icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                      </svg>
+                    </div>
+                    <div className="vietqr-info-panel__content">
+                      <p className="vietqr-info-panel__title">Thanh toán bằng chuyển khoản QR</p>
+                      <p className="vietqr-info-panel__desc">Sau khi đặt hàng, bạn sẽ nhận được mã QR để quét bằng app ngân hàng. 
+                        Hỗ trợ <strong>tất cả ngân hàng Việt Nam</strong> qua chuẩn NAPAS.</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="checkout-form__footer">
@@ -767,7 +797,7 @@ const CheckoutPage: React.FC = () => {
             <div className="vietqr-modal__content">
               <div className="vietqr-image-wrapper">
                 <img 
-                  src={`https://img.vietqr.io/image/MB-0901234567-compact2.png?amount=${grandTotal}&addInfo=${encodeURIComponent(`Thanh toan don hang ${createdOrderId}`)}&accountName=${encodeURIComponent('VELMORA JEWELRY')}`} 
+                  src={`https://img.vietqr.io/image/MB-4000676869-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(`Thanh toan don hang ${createdOrderId}`)}&accountName=${encodeURIComponent('Le Minh Quan')}`} 
                   alt="VietQR Payment" 
                 />
               </div>
@@ -778,12 +808,16 @@ const CheckoutPage: React.FC = () => {
                   <span className="value">MB Bank (Quân Đội)</span>
                 </div>
                 <div className="vietqr-detail-item">
-                  <span className="label">Số tài khoản:</span>
-                  <span className="value">0901234567</span>
-                </div>
+                   <span className="label">Chủ tài khoản:</span>
+                   <span className="value">Lê Minh Quân</span>
+                 </div>
+                 <div className="vietqr-detail-item">
+                   <span className="label">Số tài khoản:</span>
+                   <span className="value vietqr-account-num">4000676869</span>
+                 </div>
                 <div className="vietqr-detail-item">
                   <span className="label">Số tiền:</span>
-                  <span className="value" style={{color: '#c9a96e', fontWeight: '700'}}>{formatPrice(grandTotal)}</span>
+                  <span className="value" style={{color: '#c9a96e', fontWeight: '700'}}>{formatPrice(qrAmount)}</span>
                 </div>
                 <div className="vietqr-detail-item">
                   <span className="label">Nội dung:</span>

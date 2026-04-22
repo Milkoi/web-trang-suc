@@ -933,6 +933,101 @@
   margin-left: 2px;
 }
 
+/* VietQR Method label */
+.vietqr-method-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.vietqr-logo-inline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.vietqr-text-blue {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #005baa;
+  letter-spacing: -0.5px;
+}
+
+.vietqr-text-red {
+  font-weight: 800;
+  font-size: 1rem;
+  color: #ea1e26;
+  letter-spacing: -0.5px;
+}
+
+.napas-tag {
+  font-size: 9px;
+  background: #e8f4fd;
+  border: 1px solid #b3d9f7;
+  color: #005baa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.vietqr-bank-tag {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
+  color: #444;
+  letter-spacing: 0.3px;
+}
+
+/* VietQR Info Panel */
+.vietqr-info-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: linear-gradient(135deg, #f0f7ff 0%, #fef9f0 100%);
+  border: 1px solid #b3d9f7;
+  border-top: none;
+  padding: 14px 16px;
+  animation: vietqrPanelIn 0.2s ease-out;
+}
+
+@keyframes vietqrPanelIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vietqr-info-panel__icon {
+  flex-shrink: 0;
+  color: #005baa;
+  margin-top: 2px;
+}
+
+.vietqr-info-panel__content {
+  flex: 1;
+}
+
+.vietqr-info-panel__title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #005baa;
+  margin: 0 0 4px;
+  letter-spacing: 0.2px;
+}
+
+.vietqr-info-panel__desc {
+  font-size: 12px;
+  color: #555;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.vietqr-info-panel__desc strong {
+  color: #333;
+}
+
 .vietqr-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1031,6 +1126,17 @@
 .vietqr-detail-item .value {
   color: #1a1a1a;
   font-weight: 600;
+}
+
+.vietqr-account-num {
+  font-family: 'Courier New', monospace;
+  font-size: 15px;
+  letter-spacing: 1.5px;
+  color: #005baa !important;
+  font-weight: 700 !important;
+  background: #e8f4fd;
+  padding: 1px 6px;
+  border-radius: 4px;
 }
 
 .vietqr-modal__footer {
