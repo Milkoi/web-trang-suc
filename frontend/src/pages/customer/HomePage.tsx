@@ -34,13 +34,15 @@ const HomePage: React.FC = () => {
         const [catRes, prodRes, bannerRes] = await Promise.all([
           api.get('/categories'),
           api.get('/products'),
-          api.get('/banners/active').catch(() => ({ data: null })), // Fallback if no active banner
+          api.get('/banners/active').catch(() => ({ data: null })),
         ]);
+        
         setCategories(catRes.data);
         setProducts(prodRes.data);
-        // API returns an array, take the first active banner
+        
         const bannerArr = bannerRes.data;
         if (Array.isArray(bannerArr) && bannerArr.length > 0) {
+          // Take the first active banner and its specific content
           setBanner(bannerArr[0]);
         } else if (bannerArr && !Array.isArray(bannerArr) && bannerArr.title) {
           setBanner(bannerArr);
@@ -66,17 +68,16 @@ const HomePage: React.FC = () => {
     .filter(p => p.isSale)
     .slice(0, 4);
 
-  // Categories: show first 4, or all if "Xem tất cả" was clicked
   const visibleCategories = showAllCategories
     ? categories
     : categories.slice(0, INITIAL_CATEGORY_COUNT);
 
   const hasMoreCategories = categories.length > INITIAL_CATEGORY_COUNT;
 
-  // Fallback banner content
+  // Final fallback if no banner exists in DB at all
   const currentBanner = banner || {
     imageUrl: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80',
-    subtitle: 'Bộ sưu tập mới 2025',
+    subtitle: 'Bộ sưu tập mới 2026',
     title: 'Tinh Hoa\nTrang Sức Việt',
     description: 'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\nSang trọng, tinh tế, vĩnh cửu.'
   };
@@ -86,15 +87,13 @@ const HomePage: React.FC = () => {
       {/* ===== HERO ===== */}
       <section className="hero">
         <div className="hero__bg">
-          <img src={currentBanner.imageUrl} alt="Luxury Jewelry" className="hero__image" />
+          <img src={currentBanner.imageUrl} alt={currentBanner.title} className="hero__image" />
           <div className="hero__overlay" />
         </div>
         <div className="hero__content">
-          <p className="hero__subtitle">{currentBanner.subtitle}</p>
-          <h1 className="hero__title" dangerouslySetInnerHTML={{ __html: currentBanner.title.replace(/\n/g, '<br />') }} />
-          <p className="hero__desc">
-            {currentBanner.description}
-          </p>
+          {currentBanner.subtitle && <p className="hero__subtitle">{currentBanner.subtitle}</p>}
+          <h1 className="hero__title" dangerouslySetInnerHTML={{ __html: (currentBanner.title || '').replace(/\\r\\n/g, '<br />').replace(/\n/g, '<br />') }} />
+          <p className="hero__desc" dangerouslySetInnerHTML={{ __html: (currentBanner.description || '').replace(/\\r\\n/g, '<br />').replace(/\n/g, '<br />') }} />
           <div className="hero__actions">
             <Link to="/products" className="btn-primary hero__cta">
               Khám Phá Ngay
@@ -104,7 +103,6 @@ const HomePage: React.FC = () => {
             </Link>
           </div>
         </div>
-        {/* Scroll indicator */}
         <div className="hero__scroll">
           <span />
         </div>
