@@ -204,5 +204,27 @@ namespace web_Trang_suc_BE.Controllers
                 return StatusCode(500, "Lỗi máy chủ khi xử lý đơn hàng: " + ex.Message);
             }
         }
+
+        [HttpPatch("{id}/status")]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> UpdateOrderStatus(string id, [FromBody] UpdateOrderStatusDto dto)
+        {
+            var order = await _context.Orders!.FindAsync(id);
+            if (order == null) return NotFound(new { message = "Đơn hàng không tồn tại" });
+
+            var allowedStatuses = new[] { "Pending", "Confirmed", "Shipping", "Completed", "Cancelled" };
+            if (!allowedStatuses.Contains(dto.Status))
+                return BadRequest(new { message = "Trạng thái không hợp lệ" });
+
+            order.OrderStatus = dto.Status;
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Cập nhật trạng thái thành công", status = order.OrderStatus });
+        }
+    }
+
+    public class UpdateOrderStatusDto
+    {
+        public string Status { get; set; } = string.Empty;
     }
 }
