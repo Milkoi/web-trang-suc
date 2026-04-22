@@ -261,9 +261,11 @@ const ProductDetailPage: React.FC = () => {
                 <div className="product-detail__size-selector">
                   <div className="size-selector-header">
                     <span className="size-label">Kích thước</span>
-                    <button className="btn-size-guide" onClick={() => setIsSizeGuideOpen(true)}>
-                      Hướng dẫn chọn size
-                    </button>
+                      {['ring', 'necklace', 'bracelet', 'anklet'].includes(product.category) && (
+                        <button className="btn-size-guide" onClick={() => setIsSizeGuideOpen(true)}>
+                          Hướng dẫn chọn size
+                        </button>
+                      )}
                   </div>
                   
                   <div className="size-options">
@@ -551,6 +553,7 @@ const ProductDetailPage: React.FC = () => {
       <SizeGuideDrawer 
         isOpen={isSizeGuideOpen} 
         onClose={() => setIsSizeGuideOpen(false)} 
+        category={product.category}
         availableSizes={product.availableSizes || []}
         selectedSize={selectedSize}
         onSelectSize={(size) => setSelectedSize(size)}

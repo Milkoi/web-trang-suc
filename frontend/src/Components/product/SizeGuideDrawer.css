@@ -103,124 +103,155 @@
 /* Tab 1: Select */
 .size-table-header {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.5fr 1fr;
-  font-size: 10px;
+  grid-template-columns: 1fr 1fr 1fr 0.5fr;
+  font-size: 11px;
   text-transform: uppercase;
-  color: #666;
-  letter-spacing: 0.5px;
+  color: #888;
+  letter-spacing: 1px;
   margin-bottom: 16px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: 1px solid #f0f0f0;
+  font-weight: 600;
 }
 
 .size-table-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1.5fr 1fr;
-  padding: 24px 0;
-  border-bottom: 1px solid #e5e5e5;
+  grid-template-columns: 1fr 1fr 1fr 0.5fr;
+  padding: 20px 0;
+  border-bottom: 1px solid #f0f0f0;
   align-items: center;
   cursor: pointer;
-  transition: background-color 0.2s;
-  font-size: 14px;
+  transition: all 0.3s ease;
+  font-size: 15px;
+}
+
+.size-cell-bold {
+  font-weight: 600;
+  color: var(--color-charcoal);
 }
 
 .size-table-row:hover:not(.disabled) {
-  background-color: #fcfcfc;
+  background-color: #fafafa;
+  padding-left: 8px;
+  padding-right: 8px;
+  margin: 0 -8px;
+}
+
+.size-table-row.selected {
+  background-color: #f8f5ee;
+  border-bottom-color: var(--color-gold);
 }
 
 .size-table-row.disabled {
-  opacity: 0.5;
+  opacity: 0.3;
   cursor: not-allowed;
 }
 
-.size-select-col {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.notify-me {
-  text-decoration: underline;
-  font-size: 12px;
-  color: #666;
-  cursor: pointer;
-}
-
-.radio-circle {
-  width: 20px;
-  height: 20px;
-  border: 1px solid #ccc;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.radio-circle.checked {
-  border-color: #111;
-}
-
-.radio-circle .inner-dot {
-  width: 10px;
-  height: 10px;
-  background-color: #111;
-  border-radius: 50%;
-}
-
 /* Tab 2: Guide */
-.guide-title {
-  font-family: var(--font-serif);
-  font-size: 20px;
+.full-guide-image-container {
   margin-bottom: 32px;
-  font-weight: 500;
-}
-
-.guide-section {
-  margin-bottom: 48px;
-}
-
-.guide-section h3 {
-  font-family: var(--font-serif);
-  font-size: 18px;
-  margin-bottom: 24px;
-  font-weight: normal;
-}
-
-.guide-image-container {
-  margin-bottom: 24px;
-  background: #f7f7f7;
-  border-radius: 4px;
+  border-radius: 12px;
   overflow: hidden;
+  border: 1px solid #f0f0f0;
+  background: #fff;
 }
 
-.guide-illustration {
+.full-guide-image {
   width: 100%;
   height: auto;
   display: block;
 }
 
-.guide-list {
-  padding-left: 20px;
-  margin: 0;
-  color: #333;
+/* Calculator */
+.guide-calculator {
+  background: #f8f8f8;
+  padding: 32px;
+  border-radius: 16px;
+  margin-top: 40px;
 }
 
-.guide-list li {
-  font-size: 14px;
-  line-height: 1.6;
-  margin-bottom: 16px;
-}
-
-.guide-footer h3 {
+.calc-title {
   font-family: var(--font-serif);
   font-size: 18px;
-  margin-bottom: 16px;
-  font-weight: normal;
+  margin-bottom: 24px;
+  color: #111;
 }
 
-.guide-footer p {
+.calc-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.calc-option-label {
+  cursor: pointer;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+  transition: all 0.2s ease;
   font-size: 14px;
-  line-height: 1.6;
-  color: #333;
+}
+
+.calc-option-label:hover {
+  border-color: var(--color-gold);
+}
+
+.calc-option-label.active {
+  background: var(--color-gold);
+  border-color: var(--color-gold);
+  color: #fff;
+}
+
+.calc-option-label input {
+  display: none;
+}
+
+.calc-result-box {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #ddd;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeIn 0.4s ease;
+}
+
+.result-size-badge {
+  font-size: 32px;
+  font-family: var(--font-serif);
+  color: var(--color-gold);
+  font-weight: 600;
+}
+
+.btn-apply-size {
+  width: 100%;
+  padding: 14px;
+  background: #111;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-apply-size:hover {
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.size-guide-note {
+  font-size: 12px;
+  color: #999;
+  font-style: italic;
+  margin-top: 24px;
+  text-align: center;
 }
