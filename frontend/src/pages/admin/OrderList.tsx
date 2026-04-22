@@ -5,10 +5,11 @@ import './AdminLayout.css';
 
 
 interface Order {
-  id: number;
-  customerName: string;
-  totalPrice: number;
-  status: string;
+  id: string;
+  firstName: string;
+  lastName: string;
+  totalAmount: number;
+  orderStatus: string;
   createdAt: string;
   items: any[];
 }
@@ -35,7 +36,7 @@ const OrderList: React.FC = () => {
     fetchOrders();
   }, []);
 
-  const updateStatus = async (id: number, newStatus: string) => {
+  const updateStatus = async (id: string, newStatus: string) => {
     try {
       await api.patch(`/orders/${id}/status`, { status: newStatus });
       fetchOrders();
@@ -80,18 +81,18 @@ const OrderList: React.FC = () => {
             ) : orders.map(o => (
               <tr key={o.id}>
                 <td>#{o.id}</td>
-                <td style={{ fontWeight: 600 }}>{o.customerName}</td>
-                <td>{new Intl.NumberFormat('vi-VN').format(o.totalPrice)}₫</td>
+                <td style={{ fontWeight: 600 }}>{o.firstName} {o.lastName}</td>
+                <td>{new Intl.NumberFormat('vi-VN').format(o.totalAmount)}₫</td>
                 <td>{new Date(o.createdAt).toLocaleDateString('vi-VN')}</td>
                 <td>
-                  <span className="badge" style={{ backgroundColor: getStatusColor(o.status), color: 'white' }}>
-                    {o.status}
+                  <span className="badge" style={{ backgroundColor: getStatusColor(o.orderStatus), color: 'white' }}>
+                    {o.orderStatus}
                   </span>
                 </td>
                 <td>
                   <select 
                     className="status-select"
-                    value={o.status}
+                    value={o.orderStatus}
                     onChange={(e) => updateStatus(o.id, e.target.value)}
                     style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd' }}
                   >

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using web_Trang_suc_BE.Models;
+using web_Trang_suc_BE.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -108,6 +109,13 @@ app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Seed admin user
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await SeedData.SeedAdminUser(context);
+}
 
 app.MapControllers();
 
