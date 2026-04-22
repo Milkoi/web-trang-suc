@@ -45,7 +45,14 @@ namespace web_Trang_suc_BE.Controllers
             return Ok(new AuthResponseDto
             {
                 Token = CreateToken(user),
-                User = new UserDto { Id = user.Id, Name = user.FullName, Email = user.Email, Role = user.Role }
+                User = new UserDto { 
+                    Id = user.Id, 
+                    Name = user.FullName, 
+                    Email = user.Email, 
+                    Role = user.Role,
+                    Phone = user.Phone,
+                    Address = user.DefaultAddress
+                }
             });
         }
 
@@ -92,7 +99,9 @@ namespace web_Trang_suc_BE.Controllers
                         Name = user.FullName,
                         Email = user.Email,
                         Role = user.Role,
-                        Avatar = user.Avatar
+                        Avatar = user.Avatar,
+                        Phone = user.Phone,
+                        Address = user.DefaultAddress
                     }
                 });
             }
@@ -180,7 +189,9 @@ namespace web_Trang_suc_BE.Controllers
                         Email = user.Email,
                         Role = user.Role,
                         Avatar = user.Avatar,
-                        Provider = user.Provider
+                        Provider = user.Provider,
+                        Phone = user.Phone,
+                        Address = user.DefaultAddress
                     }
                 });
             }
@@ -200,6 +211,65 @@ namespace web_Trang_suc_BE.Controllers
             public string? Picture { get; set; }
         }
 
+
+        public class UpdateProfileDto
+        {
+            public string? Phone { get; set; }
+            public string? Address { get; set; }
+        }
+
+        [HttpGet("profile")]
+        public async Task<IActionResult> GetProfile()
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại." });
+
+            var user = await _context.Users!.FindAsync(userId);
+            if (user == null)
+                return NotFound(new { message = "Không tìm thấy tài khoản." });
+
+            return Ok(new UserDto
+            {
+                Id = user.Id,
+                Name = user.FullName,
+                Email = user.Email,
+                Role = user.Role,
+                Avatar = user.Avatar,
+                Provider = user.Provider,
+                Phone = user.Phone,
+                Address = user.DefaultAddress
+            });
+        }
+
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile(UpdateProfileDto dto)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized(new { message = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại." });
+
+            var user = await _context.Users!.FindAsync(userId);
+            if (user == null)
+                return NotFound(new { message = "Không tìm thấy tài khoản." });
+
+            user.Phone = dto.Phone;
+            user.DefaultAddress = dto.Address;
+            
+            await _context.SaveChangesAsync();
+
+            return Ok(new UserDto
+            {
+                Id = user.Id,
+                Name = user.FullName,
+                Email = user.Email,
+                Role = user.Role,
+                Avatar = user.Avatar,
+                Provider = user.Provider,
+                Phone = user.Phone,
+                Address = user.DefaultAddress
+            });
+        }
 
         private string CreateToken(User user)
         {

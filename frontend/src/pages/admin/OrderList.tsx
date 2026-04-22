@@ -45,13 +45,26 @@ const OrderList: React.FC = () => {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending': return 'Chờ xác nhận';
+      case 'processing': return 'Đang chuẩn bị';
+      case 'shipping': return 'Đang vận chuyển';
+      case 'completed': return 'Hoàn tất';
+      case 'cancelled': return 'Đã hủy';
+      case 'returned': return 'Hoàn tiền';
+      default: return status;
+    }
+  };
+
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Pending': return '#f59e0b';
-      case 'Confirmed': return '#3b82f6';
-      case 'Shipping': return '#8b5cf6';
-      case 'Completed': return '#10b981';
-      case 'Cancelled': return '#ef4444';
+    switch (status.toLowerCase()) {
+      case 'pending': return '#f59e0b'; // orange
+      case 'processing': return '#3b82f6'; // blue
+      case 'shipping': return '#8b5cf6'; // purple
+      case 'completed': return '#10b981'; // green
+      case 'cancelled': return '#ef4444'; // red
+      case 'returned': return '#6b7280'; // gray
       default: return '#6b7280';
     }
   };
@@ -79,13 +92,13 @@ const OrderList: React.FC = () => {
               <tr><td colSpan={6} style={{ textAlign: 'center' }}>Đang tải...</td></tr>
             ) : orders.map(o => (
               <tr key={o.id}>
-                <td>#{o.id}</td>
+                <td>#{o.id.toString().startsWith('ORD') ? o.id : `ORD-${o.id}`}</td>
                 <td style={{ fontWeight: 600 }}>{o.customerName}</td>
                 <td>{new Intl.NumberFormat('vi-VN').format(o.totalPrice)}₫</td>
                 <td>{new Date(o.createdAt).toLocaleDateString('vi-VN')}</td>
                 <td>
                   <span className="badge" style={{ backgroundColor: getStatusColor(o.status), color: 'white' }}>
-                    {o.status}
+                    {getStatusText(o.status)}
                   </span>
                 </td>
                 <td>
@@ -95,11 +108,12 @@ const OrderList: React.FC = () => {
                     onChange={(e) => updateStatus(o.id, e.target.value)}
                     style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd' }}
                   >
-                    <option value="Pending">Chờ xử lý</option>
-                    <option value="Confirmed">Xác nhận</option>
-                    <option value="Shipping">Đang giao</option>
-                    <option value="Completed">Hoàn tất</option>
-                    <option value="Cancelled">Hủy</option>
+                    <option value="pending">Chờ xác nhận</option>
+                    <option value="processing">Đang chuẩn bị</option>
+                    <option value="shipping">Đang vận chuyển</option>
+                    <option value="completed">Hoàn tất</option>
+                    <option value="cancelled">Đã hủy</option>
+                    <option value="returned">Hoàn tiền</option>
                   </select>
                 </td>
               </tr>

@@ -14,12 +14,16 @@ const AccountPage: React.FC = () => {
   // Profile form state
   const [profileName, setProfileName] = useState(user?.name || '');
   const [profileEmail, setProfileEmail] = useState(user?.email || '');
+  const [profilePhone, setProfilePhone] = useState(user?.phone || '');
+  const [profileAddress, setProfileAddress] = useState(user?.address || '');
   const [profileSuccess, setProfileSuccess] = useState('');
 
   React.useEffect(() => {
     if (user) {
       setProfileName(user.name || '');
       setProfileEmail(user.email || '');
+      setProfilePhone(user.phone || '');
+      setProfileAddress(user.address || '');
     }
   }, [user]);
 
@@ -59,12 +63,30 @@ const AccountPage: React.FC = () => {
   const getInitials = (name: string) =>
     name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
-  const handleProfileSave = (e: React.FormEvent) => {
+  const handleProfileSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profileName.trim()) return;
-    updateUser({ name: profileName.trim(), email: profileEmail.trim() });
-    setProfileSuccess('Thông tin đã được cập nhật thành công.');
-    setTimeout(() => setProfileSuccess(''), 3000);
+    
+    try {
+      // Call API to update phone and address
+      await api.put('/account/profile', {
+        phone: profilePhone.trim(),
+        address: profileAddress.trim()
+      });
+
+      // Update context and local storage
+      updateUser({ 
+        name: profileName.trim(), 
+        email: profileEmail.trim(),
+        phone: profilePhone.trim(),
+        address: profileAddress.trim()
+      });
+      
+      setProfileSuccess('Thông tin đã được cập nhật thành công.');
+      setTimeout(() => setProfileSuccess(''), 3000);
+    } catch (err) {
+      console.error('Failed to update profile', err);
+    }
   };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
@@ -284,6 +306,30 @@ const AccountPage: React.FC = () => {
                     Email đăng nhập không thể thay đổi tại đây.
                   </span>
                 </div>
+                
+                <h3 style={{ marginTop: '20px', marginBottom: '15px', fontSize: '14px', fontWeight: '600', color: 'var(--color-text)' }}>Thông Tin Giao Hàng Mặc Định</h3>
+                
+                <div className="account-form__group">
+                  <label className="account-form__label">Số Điện Thoại</label>
+                  <input
+                    type="tel"
+                    className="account-form__input"
+                    value={profilePhone}
+                    onChange={e => setProfilePhone(e.target.value)}
+                    placeholder="Nhập số điện thoại"
+                  />
+                </div>
+                <div className="account-form__group">
+                  <label className="account-form__label">Địa Chỉ Chi Tiết</label>
+                  <textarea
+                    className="account-form__input"
+                    value={profileAddress}
+                    onChange={e => setProfileAddress(e.target.value)}
+                    placeholder="Nhập địa chỉ nhận hàng mặc định (số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố)"
+                    style={{ minHeight: '80px', resize: 'vertical', padding: '12px 16px' }}
+                  />
+                </div>
+
                 <div className="account-form__group">
                   <label className="account-form__label">Phương Thức Đăng Nhập</label>
                   <div className="account-form__badge">

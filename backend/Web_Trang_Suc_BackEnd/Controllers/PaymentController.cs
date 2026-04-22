@@ -146,7 +146,48 @@ namespace web_Trang_suc_BE.Controllers
 
                 var createPaymentResult = await payOS.PaymentRequests.CreateAsync(createPaymentLinkRequest);
 
-                return Ok(new { url = createPaymentResult.CheckoutUrl });
+                return Ok(new { 
+                    url = createPaymentResult.CheckoutUrl,
+                    qrCode = createPaymentResult.QrCode,
+                    bin = createPaymentResult.Bin,
+                    accountNumber = createPaymentResult.AccountNumber,
+                    accountName = createPaymentResult.AccountName,
+                    amount = createPaymentResult.Amount,
+                    description = createPaymentResult.Description,
+                    orderCode = createPaymentResult.OrderCode
+                });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [HttpGet("payos-status/{orderCode}")]
+        public async Task<IActionResult> GetPayOSStatus(long orderCode)
+        {
+            try
+            {
+                var clientId = _configuration["PayOS:ClientId"];
+                var apiKey = _configuration["PayOS:ApiKey"];
+                var checksumKey = _configuration["PayOS:ChecksumKey"];
+
+                if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(checksumKey))
+                {
+                    return BadRequest("PayOS configuration is missing.");
+                }
+
+                var payOSOptions = new PayOSOptions
+                {
+                    ClientId = clientId,
+                    ApiKey = apiKey,
+                    ChecksumKey = checksumKey
+                };
+                var payOS = new PayOSClient(payOSOptions);
+
+                var paymentInfo = await payOS.PaymentRequests.GetAsync(orderCode);
+
+                return Ok(new { status = paymentInfo.Status.ToString() });
             }
             catch (System.Exception ex)
             {

@@ -58,6 +58,8 @@ export interface User {
   avatar?: string;
   provider: 'email' | 'google';
   role?: 'admin' | 'customer';
+  phone?: string;
+  address?: string;
 }
 
 // Auth types

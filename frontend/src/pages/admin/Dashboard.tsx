@@ -63,6 +63,18 @@ const Dashboard: React.FC = () => {
     },
   ];
 
+  const getStatusText = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'pending': return 'Chờ xác nhận';
+      case 'processing': return 'Đang chuẩn bị';
+      case 'shipping': return 'Đang vận chuyển';
+      case 'completed': return 'Hoàn tất';
+      case 'cancelled': return 'Đã hủy';
+      case 'returned': return 'Hoàn tiền';
+      default: return status;
+    }
+  };
+
   return (
     <div className="admin-dashboard">
       <div className="admin-dashboard__header">
@@ -105,12 +117,12 @@ const Dashboard: React.FC = () => {
             <tbody>
               {data.recentOrders.map(order => (
                 <tr key={order.id}>
-                  <td><strong>ORD-{order.id}</strong></td>
+                  <td><strong>{order.id.toString().startsWith('ORD') ? order.id : `ORD-${order.id}`}</strong></td>
                   <td>{order.customerName}</td>
                   <td>{new Intl.NumberFormat('vi-VN').format(order.totalPrice)}₫</td>
                   <td>
                     <span className={`admin-status-badge ${order.status.toLowerCase()}`}>
-                      {order.status}
+                      {getStatusText(order.status)}
                     </span>
                   </td>
                 </tr>

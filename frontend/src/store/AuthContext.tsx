@@ -13,7 +13,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   loginWithGoogle: (token: string) => Promise<boolean>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-  updateUser: (data: Partial<Pick<User, 'name' | 'email'>>) => void;
+  updateUser: (data: Partial<Pick<User, 'name' | 'email' | 'phone' | 'address'>>) => void;
   logout: () => void;
 }
 
@@ -51,7 +51,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: userData.email,
         avatar: userData.avatar || userData.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=c9a96e&color=fff`,
         provider: 'email',
-        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer'
+        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer',
+        phone: userData.phone,
+        address: userData.address
       };
 
       setUser(formattedUser);
@@ -77,7 +79,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: userData.email,
         avatar: userData.avatar || userData.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=c9a96e&color=fff`,
         provider: 'google',
-        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer'
+        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer',
+        phone: userData.phone,
+        address: userData.address
       };
 
       setUser(formattedUser);
@@ -108,7 +112,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         name: userName,
         email: userData.email,
         provider: 'email',
-        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer'
+        role: userData.role ? userData.role.toLowerCase() as 'admin' | 'customer' : 'customer',
+        phone: userData.phone,
+        address: userData.address
       };
 
       setUser(formattedUser);
@@ -122,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateUser = (data: Partial<Pick<User, 'name' | 'email'>>) => {
+  const updateUser = (data: Partial<Pick<User, 'name' | 'email' | 'phone' | 'address'>>) => {
     if (!user) return;
     const updated = { ...user, ...data };
     setUser(updated);

@@ -23,6 +23,8 @@ namespace web_Trang_suc_BE.Models.DTOs
         public string Role { get; set; } = string.Empty;
         public string? Avatar { get; set; }
         public string Provider { get; set; } = "email";
+        public string? Phone { get; set; }
+        public string? Address { get; set; }
     }
 
     public class AuthResponseDto

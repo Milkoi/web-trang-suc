@@ -47,6 +47,53 @@ const CheckoutPage: React.FC = () => {
   const [showVietQR, setShowVietQR] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState('');
   const [qrAmount, setQrAmount] = useState(0); // Snapshot giá trị trước khi clear cart
+  const [payOSData, setPayOSData] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      setForm(prev => {
+        let firstName = '';
+        let lastName = '';
+        if (user.name) {
+          const parts = user.name.split(' ');
+          lastName = parts.pop() || '';
+          firstName = parts.join(' ');
+        }
+        
+        return {
+          ...prev,
+          email: prev.email || user.email || '',
+          shipping: {
+            ...prev.shipping,
+            firstName: prev.shipping.firstName || firstName,
+            lastName: prev.shipping.lastName || lastName,
+            phone: prev.shipping.phone || user.phone || '',
+            address: prev.shipping.address || user.address || ''
+          }
+        };
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (showVietQR && payOSData?.orderCode) {
+      interval = setInterval(async () => {
+        try {
+          const res = await api.get(`/payment/payos-status/${payOSData.orderCode}`);
+          if (res.data.status === 'PAID' || res.data.status === 'Paid') {
+            setShowVietQR(false);
+            navigate('/checkout/success');
+          }
+        } catch (err) {
+          console.error('Lỗi khi kiểm tra trạng thái PayOS', err);
+        }
+      }, 3000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [showVietQR, payOSData, navigate]);
 
   useEffect(() => {
     setDiscountInput(state.discountCode);
@@ -214,10 +261,14 @@ const CheckoutPage: React.FC = () => {
         try {
           const payosRes = await api.post('/payment/create-payos-link', {
             orderId: res.data.orderId,
-            amount: finalAmount
+            amount: res.data.total
           });
-          if (payosRes.data.url) {
-            window.location.href = payosRes.data.url;
+          if (payosRes.data) {
+            setPayOSData(payosRes.data);
+            setCreatedOrderId(res.data.orderId);
+            setQrAmount(res.data.total);
+            setShowVietQR(true);
+            setIsProcessing(false);
             return;
           }
         } catch (payErr) {
@@ -241,7 +292,7 @@ const CheckoutPage: React.FC = () => {
   const formatExpiry = (v: string) =>
     v.replace(/\D/g, '').replace(/^(.{2})/, '$1/').slice(0, 5);
 
-  if (selectedItems.length === 0 && !isProcessing) {
+  if (selectedItems.length === 0 && !isProcessing && !showVietQR) {
     return (
       <div className="page-content checkout-empty">
         <div>
@@ -710,6 +761,61 @@ const CheckoutPage: React.FC = () => {
                   );
                 })
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* === PAYOS MODAL === */}
+      {showVietQR && payOSData && (
+        <div className="vietqr-modal-overlay">
+          <div className="vietqr-modal">
+            <div className="vietqr-modal__header">
+              <h3>Thanh Toán Qua PayOS</h3>
+              <p>Vui lòng quét mã QR bên dưới để thanh toán đơn hàng <strong>{createdOrderId}</strong></p>
+            </div>
+            
+            <div className="vietqr-modal__content">
+              <div className="vietqr-image-wrapper">
+                <img 
+                  src={`https://img.vietqr.io/image/${payOSData.bin}-${payOSData.accountNumber}-compact2.png?amount=${payOSData.amount}&addInfo=${encodeURIComponent(payOSData.description)}&accountName=${encodeURIComponent(payOSData.accountName)}`} 
+                  alt="PayOS QR" 
+                />
+              </div>
+              
+              <div className="vietqr-details">
+                <div className="vietqr-detail-item">
+                  <span className="label">Mã ngân hàng (BIN):</span>
+                  <span className="value">{payOSData.bin}</span>
+                </div>
+                <div className="vietqr-detail-item">
+                   <span className="label">Chủ tài khoản:</span>
+                   <span className="value">{payOSData.accountName}</span>
+                 </div>
+                 <div className="vietqr-detail-item">
+                   <span className="label">Số tài khoản:</span>
+                   <span className="value vietqr-account-num">{payOSData.accountNumber}</span>
+                 </div>
+                <div className="vietqr-detail-item">
+                  <span className="label">Số tiền:</span>
+                  <span className="value" style={{color: '#c9a96e', fontWeight: '700'}}>{formatPrice(payOSData.amount)}</span>
+                </div>
+                <div className="vietqr-detail-item">
+                  <span className="label">Nội dung (BẮT BUỘC):</span>
+                  <span className="value" style={{fontWeight: '600'}}>{payOSData.description}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="vietqr-modal__footer">
+              <p className="vietqr-hint">Hệ thống đang chờ nhận tiền... (Sẽ tự động chuyển trang khi thành công)</p>
+              <button 
+                className="btn-primary" 
+                onClick={() => navigate('/checkout/success')}
+                style={{width: '100%'}}
+              >
+                Tôi đã chuyển khoản
+              </button>
             </div>
           </div>
         </div>

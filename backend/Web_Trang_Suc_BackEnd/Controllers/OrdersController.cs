@@ -20,9 +20,14 @@ namespace web_Trang_suc_BE.Controllers
         public async Task<ActionResult<IEnumerable<object>>> GetAllOrders()
         {
             var list = await _context.Orders!
-                .Include(o => o.Items)
-                .ThenInclude(i => i.Product)
                 .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new {
+                    id = o.Id,
+                    customerName = o.FirstName + " " + o.LastName,
+                    totalPrice = o.TotalAmount,
+                    status = o.OrderStatus,
+                    createdAt = o.CreatedAt
+                })
                 .ToListAsync();
             return Ok(list);
         }
@@ -35,12 +40,23 @@ namespace web_Trang_suc_BE.Controllers
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
 
             var list = await _context.Orders!
-                .Include(o => o.Items)
-                    .ThenInclude(i => i.Product)
-                .Include(o => o.Items)
-                    .ThenInclude(i => i.Variant)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new {
+                    id = o.Id,
+                    createdAt = o.CreatedAt,
+                    totalPrice = o.TotalAmount,
+                    status = o.OrderStatus,
+                    customerName = o.FirstName + " " + o.LastName,
+                    address = o.Address,
+                    items = o.Items.Select(i => new {
+                        productName = i.Product != null ? i.Product.Name : "Sản phẩm",
+                        productImage = i.Product != null && i.Product.Images.Any() ? i.Product.Images.FirstOrDefault()!.Url : "",
+                        quantity = i.Quantity,
+                        size = i.Size,
+                        price = i.PriceAtPurchase
+                    })
+                })
                 .ToListAsync();
             return Ok(list);
         }
@@ -158,6 +174,19 @@ namespace web_Trang_suc_BE.Controllers
                         {
                             discount = promotion.MaxDiscountAmount.Value;
                         }
+                        
+                        // ĐẶC BIỆT: Cập nhật cho voucher MA1NEW luôn giảm sao cho tổng bằng 2000 VND
+                        if (promotion.Code == "MA1NEW")
+                        {
+                            // We want (subtotal + shippingFee - discount) = 2000
+                            // So discount = subtotal + shippingFee - 2000
+                            decimal totalBeforeDiscount = subtotal + order.ShippingFee;
+                            if (totalBeforeDiscount > 2000)
+                            {
+                                discount = totalBeforeDiscount - 2000;
+                            }
+                        }
+
                         order.DiscountAmount = discount;
                         promotion.UsedCount++;
                     }

@@ -8,11 +8,75 @@ import './OrdersPage.css';
 
 const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
 
+const STEPS = [
+  { id: 'pending', label: 'Chờ xác nhận' },
+  { id: 'processing', label: 'Đang chuẩn bị' },
+  { id: 'shipping', label: 'Đang vận chuyển' },
+  { id: 'completed', label: 'Hoàn tất' }
+];
+
+const OrderTimeline = ({ status }: { status: string }) => {
+  const currentStatus = status?.toLowerCase() || 'pending';
+  
+  if (currentStatus === 'cancelled') {
+    return <div className="order-timeline__alert order-timeline__alert--cancelled">Đơn hàng đã bị hủy</div>;
+  }
+  if (currentStatus === 'returned') {
+    return <div className="order-timeline__alert order-timeline__alert--returned">Đơn hàng đã được trả / hoàn tiền</div>;
+  }
+
+  const currentIndex = STEPS.findIndex(s => s.id === currentStatus);
+  const activeIndex = currentIndex >= 0 ? currentIndex : 0;
+
+  return (
+    <div className="order-timeline">
+      {STEPS.map((step, idx) => {
+        const isActive = idx <= activeIndex;
+        return (
+          <div key={step.id} className={`timeline-step ${isActive ? 'active' : ''}`}>
+            <div className="timeline-step__icon">
+              {isActive ? '✓' : ''}
+            </div>
+            <div className="timeline-step__label">{step.label}</div>
+            {idx < STEPS.length - 1 && <div className={`timeline-step__line ${idx < activeIndex ? 'active' : ''}`} />}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 const OrdersPage: React.FC = () => {
   const { user, isAuthenticated, openAuth } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [selectedInvoice, setSelectedInvoice] = useState<Order | null>(null);
+
+  const getCustomerStatusText = (status: string) => {
+    if (!status) return 'Đang chờ xác nhận';
+    switch (status.toLowerCase()) {
+      case 'pending': return 'Đang chờ xác nhận';
+      case 'processing': return 'Người bán đang chuẩn bị hàng';
+      case 'shipping': return 'Đơn hàng đang được giao';
+      case 'completed': return 'Giao hàng thành công';
+      case 'cancelled': return 'Đã hủy';
+      case 'returned': return 'Đã trả hàng / Hoàn tiền';
+      default: return status;
+    }
+  };
+
+  const getCustomerStatusClass = (status: string) => {
+    if (!status) return 'pending';
+    switch (status.toLowerCase()) {
+      case 'pending': return 'pending';
+      case 'processing': return 'processing';
+      case 'shipping': return 'shipping';
+      case 'completed': return 'completed';
+      case 'cancelled': return 'cancelled';
+      case 'returned': return 'returned';
+      default: return 'default';
+    }
+  };
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -20,7 +84,7 @@ const OrdersPage: React.FC = () => {
         const res = await api.get('/orders/my-orders');
         // Map API DTO to the local Order type
         const mappedOrders: Order[] = res.data.map((o: any) => ({
-          id: `ORD-${o.id}`,
+          id: o.id.startsWith('ORD-') ? o.id : `ORD-${o.id}`,
           date: o.createdAt,
           paymentDate: o.createdAt,
           items: o.items.map((item: any) => ({
@@ -83,8 +147,8 @@ const OrdersPage: React.FC = () => {
                   <div className="order-card__info-group">
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
                       <span className="order-card__id">{order.id}</span>
-                      <span className={`order-card__status status-${order.status === 'Đang xử lý' ? 'processing' : 'completed'}`}>
-                        {order.status}
+                      <span className={`order-card__status status-${getCustomerStatusClass(order.status)}`}>
+                        {getCustomerStatusText(order.status)}
                       </span>
                     </div>
                     <div className="order-card__date">
@@ -113,6 +177,8 @@ const OrdersPage: React.FC = () => {
 
                 {expandedOrderId === order.id && (
                   <div className="order-details" onClick={e => e.stopPropagation()}>
+                    <OrderTimeline status={order.status} />
+                    
                     <div className="order-details__section">
                       <h4>Thông tin giao hàng</h4>
                       <div className="order-details__grid">
