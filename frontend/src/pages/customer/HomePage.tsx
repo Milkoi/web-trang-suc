@@ -167,14 +167,30 @@ const HomePage: React.FC = () => {
         <div className="container">
           <div className="shipping-banner__inner">
             {[
-              { icon: '🚚', title: 'Miễn Phí Vận Chuyển', desc: 'Đơn hàng từ 10.000.000₫' },
-              { icon: '💎', title: 'Chính Hãng 100%', desc: 'Kiểm định chất lượng nghiêm ngặt' },
-              { icon: '🔄', title: 'Đổi Trả 30 Ngày', desc: 'Không hài lòng, hoàn tiền ngay' },
-              { icon: '✨', title: 'Bảo Hành Vĩnh Viễn', desc: 'Miễn phí đánh bóng & vệ sinh' },
+              { 
+                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>, 
+                title: 'Miễn Phí Vận Chuyển', 
+                desc: 'Đơn hàng từ 10.000.000₫' 
+              },
+              { 
+                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>, 
+                title: 'Chính Hãng 100%', 
+                desc: 'Kiểm định chất lượng nghiêm ngặt' 
+              },
+              { 
+                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>, 
+                title: 'Đổi Trả 30 Ngày', 
+                desc: 'Không hài lòng, hoàn tiền ngay' 
+              },
+              { 
+                icon: <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"></path><path d="M11 3 8 9l4 13 4-13-3-6"></path><path d="M2 9h20"></path></svg>, 
+                title: 'Bảo Hành Vĩnh Viễn', 
+                desc: 'Miễn phí đánh bóng & vệ sinh' 
+              },
             ].map(item => (
               <div key={item.title} className="shipping-banner__item">
                 <span className="shipping-banner__icon">{item.icon}</span>
-                <div>
+                <div className="shipping-banner__text">
                   <h4 className="shipping-banner__title">{item.title}</h4>
                   <p className="shipping-banner__desc">{item.desc}</p>
                 </div>
