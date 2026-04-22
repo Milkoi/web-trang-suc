@@ -1,0 +1,547 @@
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f8f9fa;
+  font-family: var(--font-sans);
+  --color-primary: #FE7A7A;
+  /* Màu đỏ san hô chuẩn Velmora */
+}
+
+/* Sidebar */
+.admin-sidebar {
+  width: 260px;
+  background: var(--color-white);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 1001;
+}
+
+.admin-sidebar__logo {
+  padding: 32px 24px;
+}
+
+.admin-sidebar__logo-text {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  letter-spacing: 4px;
+  color: var(--color-charcoal);
+  display: block;
+}
+
+.admin-sidebar__logo-sub {
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--color-gold);
+  text-transform: uppercase;
+}
+
+.admin-sidebar__nav {
+  flex: 1;
+  padding: 0 16px;
+}
+
+.admin-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: var(--color-muted);
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.admin-sidebar__link:hover {
+  background: var(--color-bg);
+  color: var(--color-charcoal);
+}
+
+.admin-sidebar__link.active {
+  background: var(--color-surface);
+  color: var(--color-gold-dark);
+  font-weight: 500;
+}
+
+.admin-sidebar__link-icon {
+  font-size: 18px;
+}
+
+.admin-sidebar__footer {
+  padding: 24px;
+  border-top: 1px solid var(--color-border);
+}
+
+.admin-sidebar__user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-sidebar__user-avatar {
+  width: 36px;
+  height: 36px;
+  background: var(--color-gold);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.admin-sidebar__user-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-sidebar__user-role {
+  display: block;
+  font-size: 11px;
+  color: var(--color-muted);
+}
+
+.admin-sidebar__logout {
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-muted);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-sidebar__logout:hover {
+  background: #fff5f5;
+  border-color: #feb2b2;
+  color: #c53030;
+}
+
+
+/* Main */
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  /* Fix flexbox expansion bug making overflow fail */
+}
+
+.admin-header {
+  height: 72px;
+  background: var(--color-white);
+  border-bottom: 1px solid var(--color-border);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.admin-header__search input {
+  border: none;
+  background: var(--color-bg);
+  padding: 10px 16px;
+  border-radius: 20px;
+  width: 300px;
+  font-size: 13px;
+  outline: none;
+}
+
+.admin-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.admin-header__store-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--color-charcoal);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.admin-header__store-btn:hover {
+  background: var(--color-surface);
+  border-color: var(--color-gold);
+  color: var(--color-gold-dark);
+}
+
+.admin-header__btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.admin-content {
+  padding: 32px;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ===================== ADMIN BUTTONS OVERRIDES ===================== */
+.admin-page .btn-primary {
+  padding: 10px 20px;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: none;
+  /* Keep it normal case for admin actions */
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.admin-page .btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.modal-actions .btn-primary {
+  background: var(--color-primary) !important;
+  color: white !important;
+  border: none !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(254, 122, 122, 0.2) !important;
+}
+
+.modal-actions .btn-primary:hover {
+  background: #e55555 !important;
+  transform: translateY(-1px);
+}
+
+.modal-actions .btn-primary:active {
+  transform: translateY(1px);
+}
+
+.modal-actions button[type="button"] {
+  background: var(--color-surface);
+  color: var(--color-charcoal);
+  border: none;
+  padding: 10px 20px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 13px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.modal-actions button[type="button"]:hover {
+  background: var(--color-border-dark);
+}
+
+/* ===================== TABLE ACTION BUTTONS ===================== */
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: var(--color-surface);
+  color: var(--color-charcoal);
+  border: 1px solid var(--color-border);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.btn-icon:hover {
+  background: var(--color-border-dark);
+  border-color: var(--color-muted);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.btn-icon.delete {
+  background: #fff5f5;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+}
+
+.btn-icon.delete:hover {
+  background: #fed7d7;
+  border-color: #fc8181;
+}
+
+/* ===================== MODAL ===================== */
+.admin-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+  padding: 20px;
+}
+
+.admin-modal {
+  background: var(--color-white);
+  padding: 32px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: scaleIn 0.2s ease;
+  position: relative;
+  /* Bắt buộc để đặt nút X */
+}
+
+.admin-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.admin-modal-close:hover {
+  background: var(--color-border);
+  color: var(--color-charcoal);
+  transform: rotate(90deg);
+}
+
+.required-star {
+  color: #e74c3c;
+  margin-left: 4px;
+  font-weight: bold;
+}
+
+.admin-modal h3 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  color: var(--color-charcoal);
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.admin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* ===================== RESPONSIVE TABLES (Trượt Ngang) ===================== */
+.admin-card {
+  background: var(--color-white);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02);
+  margin-bottom: 24px;
+  overflow-x: auto;
+  /* Kích hoạt trượt ngang */
+}
+
+/* Tùy chỉnh thanh cuộn cho đẹp */
+.admin-card::-webkit-scrollbar,
+.admin-dashboard__section::-webkit-scrollbar {
+  height: 10px;
+  /* Tăng độ dày lên để dễ nhìn hơn */
+}
+
+.admin-card::-webkit-scrollbar-track,
+.admin-dashboard__section::-webkit-scrollbar-track {
+  background: var(--color-bg);
+  border-radius: 4px;
+}
+
+.admin-card::-webkit-scrollbar-thumb,
+.admin-dashboard__section::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  /* Đổi màu xám bạc dễ thấy */
+  border-radius: 4px;
+}
+
+.admin-card::-webkit-scrollbar-thumb:hover,
+.admin-dashboard__section::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* Ép bảng phải đủ rộng để không bị bóp méo chữ, từ đó hiện thanh cuộn */
+.admin-table {
+  width: 100%;
+  min-width: 1000px;
+  /* Tăng lên để ép hiện scrollbar rõ ràng */
+  border-collapse: collapse;
+}
+
+.admin-table td {
+  padding: 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+  white-space: nowrap;
+  /* Không cho chữ rớt dòng để ép chiều ngang */
+}
+
+/* ===================== EXPANDABLE ROW STYLES ===================== */
+.product-row {
+  transition: background-color 0.2s;
+}
+
+.product-row:hover {
+  background-color: #fcfcfc;
+}
+
+.product-row.active {
+  background-color: #f8f9fa;
+}
+
+.expanded-row {
+  background-color: #fdfdfd;
+}
+
+.expanded-content {
+  padding: 30px 40px;
+  border-bottom: 2px solid var(--color-gold-light);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.expanded-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 40px;
+}
+
+.info-block {
+  margin-bottom: 24px;
+}
+
+.info-block label,
+.expanded-info-side label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--color-gold-dark);
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.story-text {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--color-charcoal);
+  font-style: italic;
+  padding-left: 15px;
+  border-left: 3px solid var(--color-gold-light);
+}
+
+.desc-text {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #555;
+  white-space: pre-line;
+}
+
+.mini-variant-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mini-variant-card {
+  display: grid;
+  grid-template-columns: 1fr 60px 100px 80px;
+  background: white;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  font-size: 13px;
+  align-items: center;
+}
+
+.m-sku {
+  font-weight: 600;
+  color: #333;
+}
+
+.m-price {
+  color: #c0392b;
+  font-weight: 700;
+}
+
+.m-stock {
+  color: #666;
+  font-size: 12px;
+}
+
+/* HIDE NUMBER SPINNERS */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}

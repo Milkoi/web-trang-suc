@@ -1,0 +1,115 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using web_Trang_suc_BE.Models;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
+builder.Services.AddControllers();
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy => policy.WithOrigins("http://localhost:5173", "http://localhost:5174", "http://localhost:5175", "http://localhost:3000") // Added ports to fix 5174 issue
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
+});
+
+// Configure Database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    if (connectionString != null)
+    {
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+    }
+});
+
+// Configure JWT
+var jwtKey = builder.Configuration["Jwt:Key"] ?? "Velmora_Secret_Key_2026_Project_Longer_Key_For_Security";
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
+
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    // Cấu hình thông tin Swagger
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "VELMORA API - Jewelry E-Commerce Platform",
+        Version = "v1.0",
+        Description = "API documentation cho hệ thống bán trang sức VELMORA. Bao gồm các endpoint quản lý sản phẩm, người dùng, đơn hàng và thanh toán.",
+        Contact = new Microsoft.OpenApi.Models.OpenApiContact
+        {
+            Name = "VELMORA Development Team",
+            Email = "support@velmora.com",
+            Url = new Uri("https://velmora.com")
+        },
+        License = new Microsoft.OpenApi.Models.OpenApiLicense
+        {
+            Name = "MIT",
+            Url = new Uri("https://opensource.org/licenses/MIT")
+        }
+    });
+
+    // Hỗ trợ XML Comments từ các file .xml
+    var xmlFile = System.IO.Path.Combine(System.AppContext.BaseDirectory, "web_Trang_suc_BE.xml");
+    if (System.IO.File.Exists(xmlFile))
+    {
+        options.IncludeXmlComments(xmlFile);
+    }
+
+    // Chia thành các groups theo chức năng
+    options.TagActionsBy(api =>
+    {
+        if (api.GroupName != null)
+            return new[] { api.GroupName };
+
+        var controllerActionDescriptor = api.ActionDescriptor as Microsoft.AspNetCore.Mvc.Controllers.ControllerActionDescriptor;
+        if (controllerActionDescriptor != null)
+        {
+            return new[] { controllerActionDescriptor.ControllerName };
+        }
+
+        return new[] { "Default" };
+    });
+
+    options.DocInclusionPredicate((name, api) => true);
+});
+
+var app = builder.Build();
+
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+else
+{
+    app.UseHttpsRedirection();
+}
+
+app.UseCors("AllowFrontend");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+

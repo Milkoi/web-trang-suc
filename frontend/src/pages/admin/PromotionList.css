@@ -1,0 +1,113 @@
+.promotion-mgmt {
+  padding: 0;
+}
+
+.promotion-list__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.promotion-list__header h1 {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  color: var(--color-dark);
+  margin: 0;
+}
+
+.promotion-table {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.promotion-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.promotion-table th {
+  background: var(--color-primary);
+  color: white;
+  padding: 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.promotion-table td {
+  padding: 16px;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+}
+
+.promotion-table tr:hover {
+  background: #f8f9fa;
+}
+
+.promotion-code {
+  background: #f1f3f4;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: #FE7A7A;
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Color Statuses */
+.status.active { background: #d4edda; color: #155724; }
+.status.upcoming { background: #cce5ff; color: #004085; }
+.status.expired { background: #f8d7da; color: #721c24; }
+.status.exhausted { background: #fff3cd; color: #856404; }
+.status.inactive { background: #e2e3e5; color: #383d41; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .promotion-list {
+    padding: 16px;
+  }
+  
+  .promotion-list__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .promotion-table {
+    overflow-x: auto;
+  }
+  
+  .promotion-table table {
+    min-width: 800px;
+  }
+  
+  .promotion-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .modal {
+    width: 95%;
+    margin: 16px;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
+}

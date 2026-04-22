@@ -1,0 +1,225 @@
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../../services/api';
+import { useAuth } from '../../store/AuthContext';
+import { CartItem, Order } from '../../types';
+import InvoiceModal from '../../Components/order/InvoiceModal';
+import './OrdersPage.css';
+
+const formatPrice = (n: number) => new Intl.NumberFormat('vi-VN').format(n) + '₫';
+
+const OrdersPage: React.FC = () => {
+  const { user, isAuthenticated, openAuth } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<Order | null>(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await api.get('/orders/my-orders');
+        // Map API DTO to the local Order type
+        const mappedOrders: Order[] = res.data.map((o: any) => ({
+          id: `ORD-${o.id}`,
+          date: o.createdAt,
+          paymentDate: o.createdAt,
+          items: o.items.map((item: any) => ({
+            product: { name: item.productName, images: [item.productImage || ''] },
+            quantity: item.quantity,
+            size: item.size,
+            priceAtPurchase: item.price
+          })),
+          total: o.totalPrice,
+          status: o.status,
+          recipientName: o.customerName,
+          address: o.address || '',
+        }));
+        setOrders(mappedOrders);
+      } catch (err) {
+        console.error('Failed to fetch orders', err);
+      }
+    };
+
+    if (isAuthenticated && user) {
+      fetchOrders();
+    } else {
+      setOrders([]);
+    }
+  }, [isAuthenticated, user]);
+
+  if (!isAuthenticated) {
+    return (
+      <div className="page-content orders-page--empty">
+        <div style={{ textAlign: 'center', padding: '100px 20px', minHeight: '60vh' }}>
+          <h2>Vui lòng đăng nhập</h2>
+          <p style={{ marginTop: '16px', color: 'var(--color-muted)' }}>Bạn cần đăng nhập để xem lịch sử đơn hàng của mình.</p>
+          <button className="btn-primary" style={{ marginTop: '24px' }} onClick={() => openAuth('login')}>Đăng Nhập Ngay</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-content orders-page">
+      <div className="orders-page__inner wrapper">
+        <h1 className="orders-page__title">Đơn hàng của tôi</h1>
+        
+        {orders.length === 0 ? (
+          <div className="orders-page--empty">
+            <div style={{ textAlign: 'center', padding: '60px 20px', background: 'var(--color-surface)', borderRadius: '8px' }}>
+              <p style={{ color: 'var(--color-muted)' }}>Bạn chưa có đơn hàng nào.</p>
+              <Link to="/products" className="btn-outline" style={{ marginTop: '24px', display: 'inline-block' }}>Mua Sắm Ngay</Link>
+            </div>
+          </div>
+        ) : (
+          <div className="orders-list">
+            {orders.map(order => (
+              <div
+                key={order.id}
+                className={`order-card ${expandedOrderId === order.id ? 'order-card--expanded' : ''}`}
+                onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
+              >
+                <div className="order-card__header">
+                  <div className="order-card__info-group">
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                      <span className="order-card__id">{order.id}</span>
+                      <span className={`order-card__status status-${order.status === 'Đang xử lý' ? 'processing' : 'completed'}`}>
+                        {order.status}
+                      </span>
+                    </div>
+                    <div className="order-card__date">
+                      <span>Ngày đặt: {new Date(order.date).toLocaleDateString('vi-VN')}</span>
+                    </div>
+                  </div>
+
+                  <div className="order-card__summary-images">
+                    {order.items.slice(0, 4).map((item, idx) => (
+                      <div key={idx} className="order-card__summary-img-wrap">
+                        <img src={item.product.images[0]} alt={item.product.name} />
+                      </div>
+                    ))}
+                    {order.items.length > 4 && (
+                      <div className="order-card__summary-more">
+                        +{order.items.length - 4}
+                      </div>
+                    )}
+                  </div>
+                  <div className="order-card__toggle-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polyline points={expandedOrderId === order.id ? "18 15 12 9 6 15" : "6 9 12 15 18 9"} />
+                    </svg>
+                  </div>
+                </div>
+
+                {expandedOrderId === order.id && (
+                  <div className="order-details" onClick={e => e.stopPropagation()}>
+                    <div className="order-details__section">
+                      <h4>Thông tin giao hàng</h4>
+                      <div className="order-details__grid">
+                        <div className="order-details__item">
+                          <label>Người nhận</label>
+                          <span>{order.recipientName || user?.name}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Email</label>
+                          <span>{order.email || user?.email}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Số điện thoại</label>
+                          <span>{order.phone || 'Chưa cập nhật'}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Địa chỉ</label>
+                          <span>
+                            {order.address}
+                            {order.apartment && `, ${order.apartment}`}
+                            {order.company && ` (${order.company})`}
+                            <br />
+                            {[order.city, order.postalCode, order.country].filter(Boolean).join(', ')}
+                          </span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Phương thức vận chuyển</label>
+                          <span>{order.shippingMethod || 'Tiêu chuẩn'}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Dự kiến giao hàng</label>
+                          <span className="order-details__highlight">
+                            {order.estimatedDelivery 
+                              ? new Date(order.estimatedDelivery).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+                              : 'Đang cập nhật'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="order-details__section">
+                      <h4>Thanh toán</h4>
+                      <div className="order-details__grid">
+                        <div className="order-details__item">
+                          <label>Phương thức</label>
+                          <span>{order.paymentMethod || 'Thẻ tín dụng'}</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Tình trạng thanh toán</label>
+                          <span style={{ color: '#27ae60', fontWeight: '600' }}>Đã thanh toán</span>
+                        </div>
+                        <div className="order-details__item">
+                          <label>Thời gian thanh toán</label>
+                          <span>{new Date(order.paymentDate || order.date).toLocaleString('vi-VN')}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="order-details__section">
+                      <h4>Sản phẩm đã chọn</h4>
+                      <div className="order-card__items">
+                        {order.items.map((item, index) => (
+                          <div key={`${item.product.id}-${item.size || 'default'}-${index}`} className="order-item">
+                            <img src={item.product.images[0]} alt={item.product.name} className="order-item__image" />
+                            <div className="order-item__info">
+                              <p className="order-item__name">{item.product.name}</p>
+                              <p className="order-item__qty">Số lượng: {item.quantity}</p>
+                              {item.size && <p className="order-item__size">Kích thước: {item.size}</p>}
+                            </div>
+                            <span className="order-item__price">{formatPrice((item.priceAtPurchase ?? item.variant?.price ?? item.product.price) * item.quantity)}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                <div className="order-card__footer">
+                  <div className="order-card__footer-left">
+                    <span className="order-card__total-label">Tổng thanh toán:</span>
+                    <span className="order-card__total-value">{formatPrice(order.total)}</span>
+                  </div>
+                  <button 
+                    className="btn-invoice-link"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedInvoice(order);
+                    }}
+                  >
+                    Xem hóa đơn
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Invoice Modal Overlay */}
+      {selectedInvoice && (
+        <InvoiceModal 
+          order={selectedInvoice} 
+          onClose={() => setSelectedInvoice(null)} 
+        />
+      )}
+    </div>
+  );
+};
+
+export default OrdersPage;
