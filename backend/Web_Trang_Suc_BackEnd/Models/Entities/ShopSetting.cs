@@ -26,6 +26,10 @@ namespace web_Trang_suc_BE.Models.Entities
         [MaxLength(255)]
         public string? SiteName { get; set; }
 
+        [Column("siteSubtitle")]
+        [MaxLength(255)]
+        public string? SiteSubtitle { get; set; }
+
         [Column("siteDescription")]
         public string? SiteDescription { get; set; }
 

@@ -22,6 +22,9 @@ namespace web_Trang_suc_BE.Models.Entities
         [MaxLength(255)]
         public string? Title { get; set; }
 
+        [Column("description")]
+        public string? Description { get; set; }
+
         [Column("isActive")]
         public bool IsActive { get; set; } = true;
     }

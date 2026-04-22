@@ -7,13 +7,12 @@ interface Banner {
   title: string;
   subtitle?: string;
   imageUrl: string;
+  description?: string;
   isActive: boolean;
 }
 
 interface ShopSettings {
   id: number;
-  siteName?: string;
-  siteDescription?: string;
   email: string;
   phone: string;
   address?: string;
@@ -26,7 +25,6 @@ const ContentManagement: React.FC = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [settings, setSettings] = useState<ShopSettings>({
     id: 1,
-    siteName: 'VELMORA',
     email: '',
     phone: '',
     workingHours: ''
@@ -39,6 +37,7 @@ const ContentManagement: React.FC = () => {
     title: '',
     subtitle: '',
     imageUrl: '',
+    description: '',
     isActive: true
   });
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -77,7 +76,11 @@ const ContentManagement: React.FC = () => {
     e.preventDefault();
     try {
       if (editingBanner) {
-        await api.put(`/banners/${editingBanner.id}`, { ...editingBanner, ...bannerForm, id: editingBanner.id });
+        await api.put(`/banners/${editingBanner.id}`, { 
+          ...editingBanner, 
+          ...bannerForm, 
+          id: editingBanner.id 
+        });
         showToast('Cập nhật banner thành công!');
       }
 
@@ -95,6 +98,7 @@ const ContentManagement: React.FC = () => {
       title: banner.title,
       subtitle: banner.subtitle || '',
       imageUrl: banner.imageUrl,
+      description: banner.description || '',
       isActive: banner.isActive
     });
     setShowBannerModal(true);
@@ -117,8 +121,8 @@ const ContentManagement: React.FC = () => {
     e.preventDefault();
     try {
       const response = await api.put('/shopsettings', settings);
-      setSettings(response.data); // update UI with saved data from server
-      showToast('✅ Cài đặt đã được lưu thành công!');
+      setSettings(response.data); 
+      showToast('✅ Cài đặt hệ thống đã được lưu!');
     } catch (error: any) {
       showToast(error.response?.data?.message || 'Lỗi khi lưu cài đặt', 'error');
     }
@@ -166,13 +170,13 @@ const ContentManagement: React.FC = () => {
             className={`tab-btn ${activeTab === 'banners' ? 'active' : ''}`}
             onClick={() => setActiveTab('banners')}
           >
-            Banner
+            Banner & Quảng cáo
           </button>
           <button
             className={`tab-btn ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
-            Cài đặt
+            Thông tin liên hệ
           </button>
         </div>
       </div>
@@ -180,7 +184,8 @@ const ContentManagement: React.FC = () => {
       {activeTab === 'banners' && (
         <div className="content-management__content admin-card">
           <div className="section-header">
-            <h2>Quản lý Banner</h2>
+            <h2>Quản lý Banner trang chủ</h2>
+            <p className="section-desc">Mỗi banner bao gồm hình ảnh, tiêu đề và mô tả riêng biệt hiển thị tại Hero Section.</p>
           </div>
 
           <div className="banner-list">
@@ -193,10 +198,11 @@ const ContentManagement: React.FC = () => {
                   <div className="banner-info__main">
                     <h3>{banner.title}</h3>
                     {banner.subtitle && <p className="subtitle">{banner.subtitle}</p>}
+                    {banner.description && <p className="desc-preview">{banner.description.substring(0, 100)}...</p>}
                   </div>
                   <div className="banner-status">
                     <span className={`status ${banner.isActive ? 'active' : 'inactive'}`}>
-                      {banner.isActive ? 'Hiển thị' : 'Ẩn'}
+                      {banner.isActive ? 'Đang hiển thị' : 'Đang ẩn'}
                     </span>
                   </div>
                   <div className="banner-actions">
@@ -204,7 +210,7 @@ const ContentManagement: React.FC = () => {
                       className="btn-edit"
                       onClick={() => handleEditBanner(banner)}
                     >
-                      Sửa
+                      Sửa nội dung
                     </button>
                     <button
                       className={`btn-toggle ${banner.isActive ? 'btn-hide' : 'btn-show'}`}
@@ -223,20 +229,12 @@ const ContentManagement: React.FC = () => {
       {activeTab === 'settings' && (
         <div className="content-management__content admin-card">
           <div className="section-header">
-            <h2>Cài đặt Website</h2>
+            <h2>Thông tin liên hệ Shop</h2>
+            <p className="section-desc">Thông tin này sẽ hiển thị tại Footer và trang Liên hệ của Website.</p>
           </div>
 
           <form onSubmit={handleSettingsSubmit} className="settings-form admin-form">
             <div className="form-row">
-              <div className="form-group">
-                <label>Tên Website</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  value={settings.siteName || ''}
-                  onChange={(e) => handleSettingsChange('siteName', e.target.value)}
-                />
-              </div>
               <div className="form-group">
                 <label>Email Liên hệ <span className="required-star">*</span></label>
                 <input
@@ -247,9 +245,6 @@ const ContentManagement: React.FC = () => {
                   required
                 />
               </div>
-            </div>
-
-            <div className="form-row">
               <div className="form-group">
                 <label>Số điện thoại <span className="required-star">*</span></label>
                 <input
@@ -260,6 +255,9 @@ const ContentManagement: React.FC = () => {
                   required
                 />
               </div>
+            </div>
+
+            <div className="form-row">
               <div className="form-group">
                 <label>Giờ làm việc <span className="required-star">*</span></label>
                 <input
@@ -270,17 +268,15 @@ const ContentManagement: React.FC = () => {
                   required
                 />
               </div>
-            </div>
-
-
-            <div className="form-group">
-              <label>Địa chỉ Trụ sở</label>
-              <input
-                type="text"
-                className="form-control"
-                value={settings.address || ''}
-                onChange={(e) => handleSettingsChange('address', e.target.value)}
-              />
+              <div className="form-group">
+                <label>Địa chỉ Trụ sở</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={settings.address || ''}
+                  onChange={(e) => handleSettingsChange('address', e.target.value)}
+                />
+              </div>
             </div>
 
             <div className="form-row">
@@ -306,7 +302,7 @@ const ContentManagement: React.FC = () => {
 
             <div style={{ marginTop: '24px' }}>
               <button type="submit" className="btn-primary">
-                Lưu Cài đặt Hệ thống
+                Lưu Thông tin liên hệ
               </button>
             </div>
           </form>
@@ -318,7 +314,7 @@ const ContentManagement: React.FC = () => {
         <div className="admin-modal-overlay">
           <div className="admin-modal" style={{ maxWidth: 600 }}>
             <button className="admin-modal-close" onClick={() => setShowBannerModal(false)}>×</button>
-            <h3>Sửa Banner</h3>
+            <h3>Sửa nội dung Banner</h3>
 
             <form onSubmit={handleBannerSubmit} className="admin-form">
               <div className="form-group">
@@ -339,6 +335,18 @@ const ContentManagement: React.FC = () => {
                   className="form-control"
                   value={bannerForm.subtitle}
                   onChange={(e) => setBannerForm({ ...bannerForm, subtitle: e.target.value })}
+                  placeholder="Ví dụ: Bộ sưu tập 2026"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Mô tả chi tiết</label>
+                <textarea
+                  className="form-control"
+                  value={bannerForm.description}
+                  onChange={(e) => setBannerForm({ ...bannerForm, description: e.target.value })}
+                  rows={4}
+                  placeholder="Nhập mô tả hiển thị trên banner..."
                 />
               </div>
 

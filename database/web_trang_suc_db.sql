@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 22, 2026 lúc 08:09 PM
+-- Thời gian đã tạo: Th4 22, 2026 lúc 09:05 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -41,7 +41,7 @@ CREATE TABLE `banners` (
 --
 
 INSERT INTO `banners` (`id`, `imageUrl`, `subtitle`, `title`, `description`, `isActive`) VALUES
-(1, 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80', 'Bộ sưu tập mới 2026', 'Tinh Hoa Trang Sức Việt', 'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\r\nSang trọng, tinh tế, vĩnh cửu.', 1);
+(1, 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80', 'Bộ sưu tập mới 2026', 'Tinh Hoa Trang Sức Việt', 'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\nSang trọng, tinh tế, vĩnh cửu', 1);
 
 -- --------------------------------------------------------
 
@@ -438,8 +438,6 @@ CREATE TABLE `services` (
 
 CREATE TABLE `shop_settings` (
   `id` int(11) NOT NULL,
-  `siteName` varchar(255) DEFAULT NULL,
-  `siteDescription` text DEFAULT NULL,
   `phone` varchar(50) NOT NULL,
   `email` varchar(255) NOT NULL,
   `workingHours` varchar(255) NOT NULL,
@@ -453,8 +451,8 @@ CREATE TABLE `shop_settings` (
 -- Đang đổ dữ liệu cho bảng `shop_settings`
 --
 
-INSERT INTO `shop_settings` (`id`, `siteName`, `siteDescription`, `phone`, `email`, `workingHours`, `address`, `facebookUrl`, `instagramUrl`, `updatedAt`) VALUES
-(1, NULL, 'Tinh Hoa\\r\\nTrang Sức Việt\', \'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\\r\\nSang trọng, tinh tế, vĩnh cửu.', '1900 520 131', 'luxelum@gmail.com', 'T2-CN: 8:00 - 23:00', '235 Hoàng Quốc Việt - Bắc Từ Liêm', NULL, NULL, '2026-04-22 18:04:07');
+INSERT INTO `shop_settings` (`id`, `phone`, `email`, `workingHours`, `address`, `facebookUrl`, `instagramUrl`, `updatedAt`) VALUES
+(1, '1900 520 131', 'luxelum@gmail.com', 'T2-CN: 8:00 - 23:00', '235 Hoàng Quốc Việt - Bắc Từ Liêm', NULL, NULL, '2026-04-22 18:04:07');
 
 -- --------------------------------------------------------
 

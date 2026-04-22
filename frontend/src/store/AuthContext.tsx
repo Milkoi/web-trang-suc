@@ -21,7 +21,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(() => {
-    const saved = localStorage.getItem('user');
+    const saved = sessionStorage.getItem('user');
     return saved ? JSON.parse(saved) : null;
   });
   const [isAuthOpen, setIsAuthOpen] = useState(false);
@@ -55,8 +55,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(formattedUser);
-      localStorage.setItem('user', JSON.stringify(formattedUser));
-      localStorage.setItem('token', token);
+      sessionStorage.setItem('user', JSON.stringify(formattedUser));
+      sessionStorage.setItem('token', token);
       closeAuth();
       return true;
     } catch (err) {
@@ -81,8 +81,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(formattedUser);
-      localStorage.setItem('user', JSON.stringify(formattedUser));
-      localStorage.setItem('token', jwtToken);
+      sessionStorage.setItem('user', JSON.stringify(formattedUser));
+      sessionStorage.setItem('token', jwtToken);
       closeAuth();
       return true;
     } catch (err) {
@@ -112,8 +112,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
 
       setUser(formattedUser);
-      localStorage.setItem('user', JSON.stringify(formattedUser));
-      localStorage.setItem('token', token);
+      sessionStorage.setItem('user', JSON.stringify(formattedUser));
+      sessionStorage.setItem('token', token);
       closeAuth();
       return true;
     } catch (err) {
@@ -126,13 +126,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
     const updated = { ...user, ...data };
     setUser(updated);
-    localStorage.setItem('user', JSON.stringify(updated));
+    sessionStorage.setItem('user', JSON.stringify(updated));
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('token');
   };
 
   return (
