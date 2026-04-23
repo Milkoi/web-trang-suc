@@ -81,10 +81,14 @@ namespace web_Trang_suc_BE.Controllers
             var vnp_ResponseCode = vnpay.GetResponseData("vnp_ResponseCode");
             var vnp_TransactionStatus = vnpay.GetResponseData("vnp_TransactionStatus");
 
+            Console.WriteLine($"VNPAY RETURN: OrderId={vnp_orderId}, ResponseCode={vnp_ResponseCode}, Status={vnp_TransactionStatus}");
+
             var vnp_HashSecret = _configuration["Vnpay:HashSecret"];
             if (string.IsNullOrEmpty(vnp_HashSecret)) return BadRequest("Missing Vnpay config");
 
             bool checkSignature = vnpay.ValidateSignature(vnp_SecureHash, vnp_HashSecret);
+
+            string frontendUrl = _configuration["Vnpay:FrontendRedirectUrl"] ?? "http://localhost:5173";
 
             if (checkSignature)
             {
@@ -92,42 +96,43 @@ namespace web_Trang_suc_BE.Controllers
                     .Include(o => o.Items)
                     .FirstOrDefaultAsync(o => o.Id == vnp_orderId);
 
-                if (order == null) return NotFound("Order not found");
+                if (order == null) return Redirect($"{frontendUrl}/checkout/failure?error=OrderNotFound");
 
                 if (vnp_ResponseCode == "00" && vnp_TransactionStatus == "00")
                 {
-                    // Payment success, update order db
-                    order.PaymentStatus = "Paid";
-                    order.OrderStatus = "Processing";
-                    order.PaidAt = DateTime.Now;
-                    await _context.SaveChangesAsync();
-
-                    return Ok(new { message = "Giao dịch thành công", orderId = vnp_orderId });
+                    if (order.PaymentStatus != "Paid")
+                    {
+                        order.PaymentStatus = "Paid";
+                        order.OrderStatus = "Processing";
+                        order.PaidAt = DateTime.Now;
+                        await _context.SaveChangesAsync();
+                    }
+                    return Redirect($"{frontendUrl}/checkout/success?orderId={vnp_orderId}");
                 }
                 else
                 {
-                    // Payment failed, update order status and RESTORE STOCK
-                    order.PaymentStatus = "Failed";
-                    order.OrderStatus = "Cancelled";
-
-                    foreach (var item in order.Items)
+                    if (order.PaymentStatus != "Paid")
                     {
-                        var variant = await _context.ProductVariants!
-                            .FirstOrDefaultAsync(v => v.Id == item.VariantId);
-                        if (variant != null)
+                        order.PaymentStatus = "Failed";
+                        order.OrderStatus = "Cancelled";
+
+                        foreach (var item in order.Items)
                         {
-                            variant.StockQuantity += item.Quantity;
+                            var variant = await _context.ProductVariants!
+                                .FirstOrDefaultAsync(v => v.Id == item.VariantId);
+                            if (variant != null)
+                            {
+                                variant.StockQuantity += item.Quantity;
+                            }
                         }
+                        await _context.SaveChangesAsync();
                     }
-
-                    await _context.SaveChangesAsync();
-
-                    return BadRequest(new { message = "Giao dịch bị từ chối hoặc lỗi", orderId = vnp_orderId });
+                    return Redirect($"{frontendUrl}/checkout/failure?orderId={vnp_orderId}&code={vnp_ResponseCode}");
                 }
             }
             else
             {
-                return BadRequest("Invalid Signature");
+                return Redirect($"{frontendUrl}/checkout/failure?error=InvalidSignature");
             }
         }
     }

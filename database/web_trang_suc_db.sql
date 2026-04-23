@@ -452,7 +452,7 @@ CREATE TABLE `shop_settings` (
 --
 
 INSERT INTO `shop_settings` (`id`, `phone`, `email`, `workingHours`, `address`, `facebookUrl`, `instagramUrl`, `updatedAt`) VALUES
-(1, '1900 520 131', 'luxelum@gmail.com', 'T2-CN: 8:00 - 23:00', '235 Hoàng Quốc Việt - Bắc Từ Liêm', NULL, NULL, '2026-04-22 18:04:07');
+(1, '1900 520 131', 'contact@velmora.com', 'T2-CN: 8:00 - 23:00', '235 Hoàng Quốc Việt - Bắc Từ Liêm', NULL, NULL, '2026-04-22 18:04:07');
 
 -- --------------------------------------------------------
 
@@ -482,6 +482,7 @@ CREATE TABLE `users` (
   `phone` varchar(20) DEFAULT NULL,
   `defaultAddress` text DEFAULT NULL,
   `newsletterOptin` tinyint(1) DEFAULT 0,
+  `isActive` tinyint(1) DEFAULT 1,
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

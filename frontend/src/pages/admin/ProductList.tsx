@@ -163,6 +163,34 @@ const ProductList: React.FC = () => {
     });
   };
 
+  const renderDescription = (desc: string) => {
+    if (!desc) return <p className="desc-text">Chưa có mô tả.</p>;
+    
+    try {
+      if (desc.startsWith('{') && desc.endsWith('}')) {
+        const details = JSON.parse(desc);
+        return (
+          <div className="desc-details-grid">
+            {Object.entries(details).map(([key, value]) => {
+              const itemValue = String(value);
+              const isLong = key.toLowerCase().includes('description') || key.toLowerCase().includes('mô tả') || itemValue.length > 50;
+              return (
+                <div key={key} className={`desc-detail-item ${isLong ? 'span-full' : ''}`}>
+                  <span className="detail-label">{key}:</span>
+                  <span className="detail-value">{itemValue}</span>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+    } catch (e) {
+      // Fallback to simple text if parse fails
+    }
+    
+    return <p className="desc-text">{desc}</p>;
+  };
+
   return (
     <div className="admin-page">
       <div className="admin-header">
@@ -266,49 +294,49 @@ const ProductList: React.FC = () => {
                     <button className="btn-icon delete" onClick={() => handleDelete(p.id)}>Xóa</button>
                   </div>
                 </td>
-              </tr>
-              {expandedRowId === p.id && (
-                <tr className="expanded-row">
-                  <td colSpan={11}>
-                    <div className="expanded-content">
-                      <div className="expanded-grid">
-                        <div className="expanded-info-main">
-                          <div className="info-block">
-                            <label>Câu chuyện sản phẩm (Origin Story)</label>
-                            <p className="story-text">{p.originStory || 'Chưa có câu chuyện.'}</p>
+                </tr>
+                {expandedRowId === p.id && (
+                  <tr className="expanded-row">
+                    <td colSpan={11}>
+                      <div className="expanded-content">
+                        <div className="expanded-grid">
+                          <div className="expanded-info-main">
+                            <div className="info-block">
+                              <label>Câu chuyện sản phẩm (Origin Story)</label>
+                              <p className="story-text">{p.originStory || 'Chưa có câu chuyện.'}</p>
+                            </div>
+                            <div className="info-block">
+                              <label>Mô tả chi tiết</label>
+                              {renderDescription(p.description)}
+                            </div>
                           </div>
-                          <div className="info-block">
-                            <label>Mô tả chi tiết</label>
-                            <p className="desc-text">{p.description || 'Chưa có mô tả.'}</p>
-                          </div>
-                        </div>
-                        <div className="expanded-info-side">
-                          <label>Biến thể chi tiết</label>
-                          <div className="mini-variant-list">
-                            {p.variants.map((v, idx) => (
-                              <div key={idx} className="mini-variant-card">
-                                <span className="m-sku">{v.sku}</span>
-                                <span className="m-size">S: {v.size}</span>
-                                <span className="m-price">{new Intl.NumberFormat('vi-VN').format(v.price)}₫</span>
-                                <span className="m-stock">Tồn: {v.stockQuantity}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="expanded-images" style={{ marginTop: 16 }}>
-                            <label>Hình ảnh ({p.images.length})</label>
-                            <div style={{ display: 'flex', gap: 8, marginTop: 8, overflowX: 'auto' }}>
-                              {p.images.map((img, idx) => (
-                                <img key={idx} src={img} alt="" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #eee' }} />
+                          <div className="expanded-info-side">
+                            <label>Biến thể chi tiết</label>
+                            <div className="mini-variant-list">
+                              {p.variants.map((v, idx) => (
+                                <div key={idx} className="mini-variant-card">
+                                  <span className="m-sku" title={v.sku}>{v.sku}</span>
+                                  <span className="m-size">S: {v.size}</span>
+                                  <span className="m-price">{new Intl.NumberFormat('vi-VN').format(v.price)}₫</span>
+                                  <span className="m-stock">Tồn: {v.stockQuantity}</span>
+                                </div>
                               ))}
+                            </div>
+                            <div className="expanded-images" style={{ marginTop: 24 }}>
+                              <label>Hình ảnh ({p.images.length})</label>
+                              <div style={{ display: 'flex', gap: 8, marginTop: 8, overflowX: 'auto', paddingBottom: 8 }}>
+                                {p.images.map((img, idx) => (
+                                  <img key={idx} src={img} alt="" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 4, border: '1px solid #eee' }} />
+                                ))}
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </React.Fragment>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
             ))}
           </tbody>
         </table>

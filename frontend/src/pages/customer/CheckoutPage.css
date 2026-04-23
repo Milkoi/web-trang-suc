@@ -752,6 +752,99 @@
   to { transform: rotate(360deg); }
 }
 
+/* VietQR & VNPAY Methods */
+.vietqr-method-label, .vnpay-method-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vietqr-logo-inline {
+  display: flex;
+  align-items: center;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.vietqr-text-blue { color: #005baa; }
+.vietqr-text-red { color: #ed1c24; }
+
+.napas-tag {
+  background: #0056a0;
+  color: white;
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+.vietqr-bank-tag {
+  font-size: 10px;
+  color: var(--color-muted);
+  border: 1px solid var(--color-border);
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: var(--color-bg);
+}
+
+/* Info Panels */
+.vietqr-info-panel, .vnpay-info-panel {
+  padding: 20px;
+  background: #f8faff;
+  border: 1px solid #e1e8f5;
+  border-top: none;
+  display: flex;
+  gap: 16px;
+  animation: slideDown 0.3s ease-out;
+}
+
+.vnpay-info-panel {
+  background: #fff9f9;
+  border-color: #fbeaea;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.vietqr-info-panel__icon, .vnpay-info-panel__icon {
+  color: #005baa;
+  flex-shrink: 0;
+}
+
+.vnpay-info-panel__icon {
+  display: flex;
+  align-items: center;
+}
+
+.vietqr-info-panel__title, .vnpay-info-panel__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-charcoal);
+  margin-bottom: 4px;
+}
+
+.vietqr-info-panel__desc, .vnpay-info-panel__desc {
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.vietqr-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
 /* Voucher Selector Modal Styles */
 .voucher-selector-overlay {
   position: fixed;

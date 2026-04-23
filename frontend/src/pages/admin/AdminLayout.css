@@ -464,6 +464,7 @@
   padding: 30px 40px;
   border-bottom: 2px solid var(--color-gold-light);
   animation: slideDown 0.3s ease-out;
+  white-space: normal; /* Reset the nowrap from table cells */
 }
 
 @keyframes slideDown {
@@ -516,6 +517,41 @@
   white-space: pre-line;
 }
 
+.desc-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
+}
+
+.desc-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  word-break: break-word; /* Ensure long words don't break the layout */
+}
+
+.desc-detail-item.span-full {
+  grid-column: 1 / -1;
+}
+
+.detail-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+}
+
 .mini-variant-list {
   display: flex;
   flex-direction: column;
@@ -524,28 +560,40 @@
 
 .mini-variant-card {
   display: grid;
-  grid-template-columns: 1fr 60px 100px 80px;
+  grid-template-columns: minmax(140px, 1fr) 80px 110px 100px;
   background: white;
-  padding: 12px;
+  padding: 14px 16px;
   border-radius: 8px;
   border: 1px solid #eee;
   font-size: 13px;
   align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
 }
 
 .m-sku {
   font-weight: 600;
   color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.m-size {
+  color: #111;
+  font-weight: 500;
 }
 
 .m-price {
   color: #c0392b;
   font-weight: 700;
+  text-align: right;
 }
 
 .m-stock {
   color: #666;
   font-size: 12px;
+  text-align: right;
 }
 
 /* HIDE NUMBER SPINNERS */

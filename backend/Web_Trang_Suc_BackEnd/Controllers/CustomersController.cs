@@ -24,7 +24,7 @@ namespace web_Trang_suc_BE.Controllers
                     email = u.Email,
                     phone = u.Phone,
                     role = u.Role,
-                    isActive = true, // Default to true since User entity doesn't have IsActive
+                    isActive = u.IsActive,
                     createdAt = u.CreatedAt
                 })
                 .OrderByDescending(u => u.createdAt)
@@ -44,7 +44,7 @@ namespace web_Trang_suc_BE.Controllers
                     email = u.Email,
                     phone = u.Phone,
                     role = u.Role,
-                    isActive = true, // Default to true since User entity doesn't have IsActive
+                    isActive = u.IsActive,
                     createdAt = u.CreatedAt
                 })
                 .FirstOrDefaultAsync();
@@ -57,7 +57,7 @@ namespace web_Trang_suc_BE.Controllers
             return Ok(user);
         }
 
-        [HttpPut("users/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUser(string id, UpdateUserDto updateDto)
         {
             var user = await _context.Users!.FindAsync(id);
@@ -66,7 +66,6 @@ namespace web_Trang_suc_BE.Controllers
                 return NotFound();
             }
 
-            // Check if email is being changed and if it conflicts with existing user
             if (!string.IsNullOrEmpty(updateDto.Email) && updateDto.Email.ToLower() != user.Email.ToLower())
             {
                 var existingUser = await _context.Users!
@@ -89,7 +88,8 @@ namespace web_Trang_suc_BE.Controllers
             if (!string.IsNullOrEmpty(updateDto.Role))
                 user.Role = updateDto.Role;
 
-            // User entity doesn't have IsActive property, skipping status update
+            if (updateDto.IsActive.HasValue)
+                user.IsActive = updateDto.IsActive.Value;
 
             try
             {
@@ -100,7 +100,7 @@ namespace web_Trang_suc_BE.Controllers
                     email = user.Email,
                     phone = user.Phone,
                     role = user.Role,
-                    isActive = true, // User entity doesn't have IsActive property
+                    isActive = user.IsActive,
                     createdAt = user.CreatedAt
                 });
             }
@@ -110,7 +110,18 @@ namespace web_Trang_suc_BE.Controllers
             }
         }
 
-        [HttpDelete("users/{id}")]
+        [HttpPatch("{id}/toggle-status")]
+        public async Task<IActionResult> ToggleStatus(string id)
+        {
+            var user = await _context.Users!.FindAsync(id);
+            if (user == null) return NotFound();
+
+            user.IsActive = !user.IsActive;
+            await _context.SaveChangesAsync();
+            return Ok(new { isActive = user.IsActive });
+        }
+
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(string id)
         {
             var user = await _context.Users!.FindAsync(id);
@@ -174,18 +185,18 @@ namespace web_Trang_suc_BE.Controllers
         {
             var totalCustomers = await _context.Users!.CountAsync();
             var adminUsers = await _context.Users!.CountAsync(u => u.Role == "admin");
-            var customerUsers = totalCustomers - adminUsers;
-            // Since User entity doesn't have IsActive, all users are considered active
+            var activeCustomers = await _context.Users!.CountAsync(u => u.IsActive);
+            var inactiveCustomers = totalCustomers - activeCustomers;
 
             var newCustomersThisMonth = await _context.Users!
                 .CountAsync(u => u.CreatedAt >= DateTime.UtcNow.AddDays(-30));
 
             return Ok(new {
                 totalCustomers = totalCustomers,
-                activeCustomers = totalCustomers, // All users considered active
-                inactiveCustomers = 0, // No inactive users since no IsActive property
+                activeCustomers = activeCustomers,
+                inactiveCustomers = inactiveCustomers,
                 adminUsers = adminUsers,
-                customerUsers = customerUsers,
+                customerUsers = totalCustomers - adminUsers,
                 newCustomersThisMonth = newCustomersThisMonth
             });
         }

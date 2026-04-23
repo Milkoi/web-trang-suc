@@ -8,7 +8,12 @@ using web_Trang_suc_BE.Data;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -110,10 +115,21 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Seed admin user
+// Seed admin user and update schema
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    
+    // Auto-update schema for users table
+    try {
+        await context.Database.ExecuteSqlRawAsync("ALTER TABLE users ADD COLUMN IF NOT EXISTS isActive TINYINT(1) DEFAULT 1;");
+        // Fallback for some MySQL versions that don't support ADD COLUMN IF NOT EXISTS
+    } catch {
+        try {
+            await context.Database.ExecuteSqlRawAsync("ALTER TABLE users ADD isActive TINYINT(1) DEFAULT 1;");
+        } catch { /* Already exists */ }
+    }
+
     await SeedData.SeedAdminUser(context);
 }
 

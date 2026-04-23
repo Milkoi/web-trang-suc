@@ -29,7 +29,7 @@ const NewsPage: React.FC = () => {
       excerpt: 'Velmora chính thức ra mắt không gian trải nghiệm đẳng cấp tại Crescent Mall với hàng ngàn ưu đãi hấp dẫn...',
       date: '10/04/2026',
       category: 'Sự kiện',
-      image: 'https://images.unsplash.com/photo-1588444837495-c6cfaf504821?auto=format&fit=crop&q=80&w=800'
+      image: '/news/showroom-q7.png'
     },
     {
       id: 4,
@@ -45,7 +45,7 @@ const NewsPage: React.FC = () => {
       excerpt: 'Lựa chọn trang sức phù hợp sẽ giúp bạn trở nên chuyên nghiệp và cuốn hút hơn trong môi trường làm việc...',
       date: '01/04/2026',
       category: 'Phong cách',
-      image: 'https://images.unsplash.com/photo-1598560912005-59a465b93d97?auto=format&fit=crop&q=80&w=800'
+      image: '/news/office-style.png'
     },
     {
       id: 6,

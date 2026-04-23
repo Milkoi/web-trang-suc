@@ -20,7 +20,7 @@ const OrdersPage: React.FC = () => {
         const res = await api.get('/orders/my-orders');
         // Map API DTO to the local Order type
         const mappedOrders: Order[] = res.data.map((o: any) => ({
-          id: `ORD-${o.id}`,
+          id: o.id,
           date: o.createdAt,
           paymentDate: o.createdAt,
           items: o.items.map((item: any) => ({
@@ -29,9 +29,11 @@ const OrdersPage: React.FC = () => {
             size: item.size,
             priceAtPurchase: item.price
           })),
-          total: o.totalPrice,
-          status: o.status,
-          recipientName: o.customerName,
+          total: o.totalAmount,
+          status: o.orderStatus === 'Processing' ? 'Đang xử lý' : 
+                  o.orderStatus === 'Pending' ? 'Chờ xử lý' :
+                  o.orderStatus === 'Completed' ? 'Hoàn tất' : o.orderStatus,
+          recipientName: o.recipientName,
           address: o.address || '',
         }));
         setOrders(mappedOrders);

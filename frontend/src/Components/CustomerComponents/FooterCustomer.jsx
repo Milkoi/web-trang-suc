@@ -11,7 +11,7 @@ const FooterCustomer = () => {
 
                     <p className="icon-f"><i className="fas fa-mobile"></i> (+84) 352 234 487</p>
                     <p className="icon-f"><i className="fas fa-phone-alt"></i> 1900 520 131</p>
-                    <p className="icon-f"><i className="fas fa-envelope"></i> luxury@gmail.com</p>
+                    <p className="icon-f"><i className="fas fa-envelope"></i> Velmora@gmail.com</p>
                     <p className="icon-f">
                         <i className="fas fa-map-marker-alt"></i> 51 P. Nguyễn Hoàng, Mỹ Đình, Nam Từ Liêm, Hà Nội
                     </p>
