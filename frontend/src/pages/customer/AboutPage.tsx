@@ -1,8 +1,8 @@
 import React from 'react';
 import './AboutPage.css';
 
-const aboutHero = 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=1600&q=80';
-const craftImage = 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80';
+const aboutHero = 'https://png.pngtree.com/background/20210710/original/pngtree-taobao-jewelry-fresh-and-simple-gold-jewelry-poster-picture-image_1034493.jpg';
+const craftImage = 'https://i.pinimg.com/474x/8f/60/27/8f6027035b85554cccf98cc19bf4a1b6.jpg?nii=t';
 
 const AboutPage: React.FC = () => {
   return (
