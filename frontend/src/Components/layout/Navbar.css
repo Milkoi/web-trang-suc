@@ -102,12 +102,13 @@
   transition: width var(--transition);
 }
 
-.navbar__link:hover::after {
-  width: 100%;
+.navbar__link:hover,
+.navbar__link.active {
+  color: var(--color-gold-dark);
 }
 
-.navbar__link:hover {
-  color: var(--color-gold-dark);
+.navbar__link.active::after {
+  width: 100%;
 }
 
 /* ===================== DROPDOWN ===================== */
@@ -332,6 +333,12 @@
   border-top: 1px solid var(--color-border);
   padding: 16px 0;
   animation: slideInUp 0.2s ease;
+}
+
+@media (min-width: 901px) {
+  .navbar__mobile-menu {
+    display: none !important;
+  }
 }
 
 .navbar__mobile-menu a,

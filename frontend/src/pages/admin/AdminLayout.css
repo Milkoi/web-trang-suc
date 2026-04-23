@@ -206,12 +206,13 @@
   font-size: 13px;
   letter-spacing: 0.5px;
   text-transform: none;
-  /* Keep it normal case for admin actions */
   border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   border: none;
   font-weight: 600;
   transition: all 0.2s ease;
+  background: #111;
+  color: white;
 }
 
 .admin-page .btn-primary:active {
@@ -229,16 +230,17 @@
 }
 
 .modal-actions .btn-primary {
-  background: var(--color-primary) !important;
+  background: #111 !important;
   color: white !important;
   border: none !important;
   font-weight: 600 !important;
-  box-shadow: 0 4px 12px rgba(254, 122, 122, 0.2) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
 .modal-actions .btn-primary:hover {
-  background: #e55555 !important;
-  transform: translateY(-1px);
+  background: #333 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3) !important;
 }
 
 .modal-actions .btn-primary:active {
@@ -314,15 +316,26 @@
 .admin-modal {
   background: var(--color-white);
   padding: 32px;
-  border-radius: 12px;
+  border-radius: 16px;
   width: 100%;
   max-width: 500px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   max-height: 90vh;
   overflow-y: auto;
-  animation: scaleIn 0.2s ease;
+  animation: modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
-  /* Bắt buộc để đặt nút X */
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+@keyframes modalPopIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.92) translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) translateY(0); 
+  }
 }
 
 .admin-modal-close {

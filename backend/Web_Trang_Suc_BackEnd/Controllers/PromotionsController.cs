@@ -22,11 +22,22 @@ namespace web_Trang_suc_BE.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Promotion>>> GetPromotions()
+        public async Task<ActionResult<IEnumerable<Promotion>>> GetPromotions([FromQuery] string? search)
         {
             try 
             {
-                var promotions = await _context.Promotions!
+                var query = _context.Promotions!.AsQueryable();
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    var searchLower = search.ToLower();
+                    query = query.Where(p => 
+                        p.Name.ToLower().Contains(searchLower) || 
+                        p.Code.ToLower().Contains(searchLower) ||
+                        (p.Description != null && p.Description.ToLower().Contains(searchLower)));
+                }
+
+                var promotions = await query
                     .OrderByDescending(p => p.CreatedAt)
                     .ToListAsync();
                 return Ok(promotions);

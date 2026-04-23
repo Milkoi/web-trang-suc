@@ -105,7 +105,7 @@ const Footer: React.FC = () => {
                 <li><Link to="#">Tin tức trang sức</Link></li>
                 <li><Link to="#">Quyền lợi thành viên</Link></li>
                 <li><Link to="#">Ưu đãi đánh giá</Link></li>
-                <li><Link to="#">Liên hệ</Link></li>
+                <li><Link to="/contact">Liên hệ</Link></li>
               </ul>
               <div className="footer__contact">
                 <p><span>📞</span> {shopInfo.phone}</p>

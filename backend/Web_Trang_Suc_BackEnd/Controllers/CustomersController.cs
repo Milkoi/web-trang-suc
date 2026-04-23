@@ -151,7 +151,8 @@ namespace web_Trang_suc_BE.Controllers
             var users = await _context.Users!
                 .Where(u => 
                     u.FullName.ToLower().Contains(query.ToLower()) ||
-                    u.Email.ToLower().Contains(query.ToLower()))
+                    u.Email.ToLower().Contains(query.ToLower()) ||
+                    (u.Phone != null && u.Phone.Contains(query)))
                 .Select(u => new {
                     id = u.Id,
                     fullName = u.FullName,

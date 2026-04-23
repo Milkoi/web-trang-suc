@@ -17,11 +17,25 @@ namespace web_Trang_suc_BE.Controllers
 
         [HttpGet]
         [Authorize(Roles = "admin")]
-        public async Task<ActionResult<IEnumerable<object>>> GetAllOrders()
+        public async Task<ActionResult<IEnumerable<object>>> GetAllOrders([FromQuery] string? search)
         {
-            var list = await _context.Orders!
+            var query = _context.Orders!
                 .Include(o => o.Items)
                 .ThenInclude(i => i.Product)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var searchLower = search.ToLower();
+                query = query.Where(o => 
+                    o.Id.ToLower().Contains(searchLower) || 
+                    o.FirstName.ToLower().Contains(searchLower) || 
+                    o.LastName.ToLower().Contains(searchLower) ||
+                    (o.Email != null && o.Email.ToLower().Contains(searchLower)) ||
+                    (o.Phone != null && o.Phone.Contains(searchLower)));
+            }
+
+            var list = await query
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
             return Ok(list);

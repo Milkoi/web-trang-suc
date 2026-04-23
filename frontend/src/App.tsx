@@ -23,6 +23,8 @@ import CheckoutSuccess from './pages/customer/CheckoutSuccess';
 import FavoritesPage from './pages/customer/FavoritesPage';
 import OrdersPage from './pages/customer/OrdersPage';
 import AccountPage from './pages/customer/AccountPage';
+import ContactPage from './pages/customer/ContactPage';
+import NewsPage from './pages/customer/NewsPage';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import ProductList from './pages/admin/ProductList';
@@ -84,13 +86,15 @@ function AppContent() {
               <Route path="/" element={<HomePage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/faq" element={<FAQPage />} />
-              <Route path="/products" element={<ProductsPage />} />
+              <Route path="/products" element={<ProductsPage key={window.location.search} />} />
               <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/checkout/success" element={<CheckoutSuccess />} />
               <Route path="/orders" element={<OrdersPage />} />
               <Route path="/favorites" element={<FavoritesPage />} />
               <Route path="/account" element={<AccountPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/news" element={<NewsPage />} />
             </Routes>
           </main>
           <Footer />

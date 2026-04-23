@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { Link, useLocation } from 'react-router-dom';
 import { useCart } from '../../store/CartContext';
 import { useNotification } from '../../store/NotificationContext';
 import './AdminLayout.css';
@@ -48,6 +49,10 @@ const cleanNumberInput = (value: string) => {
 };
 
 const ProductList: React.FC = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const searchKeyword = searchParams.get('search') || '';
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,7 +82,7 @@ const ProductList: React.FC = () => {
     try {
       setIsLoading(true);
       const [pRes, cRes] = await Promise.all([
-        api.get('/products'),
+        api.get(`/products?search=${encodeURIComponent(searchKeyword)}`),
         api.get('/categories')
       ]);
       setProducts(pRes.data);
@@ -91,7 +96,7 @@ const ProductList: React.FC = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [searchKeyword]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

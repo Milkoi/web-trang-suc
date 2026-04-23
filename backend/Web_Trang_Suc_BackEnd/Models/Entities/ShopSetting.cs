@@ -22,16 +22,6 @@ namespace web_Trang_suc_BE.Models.Entities
         [MaxLength(255)]
         public string WorkingHours { get; set; } = string.Empty;
 
-        [Column("siteName")]
-        [MaxLength(255)]
-        public string? SiteName { get; set; }
-
-        [Column("siteSubtitle")]
-        [MaxLength(255)]
-        public string? SiteSubtitle { get; set; }
-
-        [Column("siteDescription")]
-        public string? SiteDescription { get; set; }
 
         [Column("address")]
         [MaxLength(500)]

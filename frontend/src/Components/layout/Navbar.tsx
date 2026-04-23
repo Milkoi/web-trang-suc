@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useCart } from '../../store/CartContext';
 import { useAuth } from '../../store/AuthContext';
 import { useVouchers } from '../../store/VoucherContext';
@@ -61,9 +61,11 @@ const Navbar: React.FC = () => {
 
           {/* Left: Nav Links */}
           <nav className="navbar__nav navbar__nav--left">
-            <Link to="/" className="navbar__link">Trang Chủ</Link>
-            <Link to="/about" className="navbar__link">Giới Thiệu</Link>
-            <Link to="/products" className="navbar__link">Sản Phẩm</Link>
+            <NavLink to="/" className="navbar__link">Trang Chủ</NavLink>
+            <NavLink to="/about" className="navbar__link">Giới Thiệu</NavLink>
+            <NavLink to="/products" className="navbar__link">Sản Phẩm</NavLink>
+            <NavLink to="/news" className="navbar__link">Tin Tức</NavLink>
+            <NavLink to="/contact" className="navbar__link">Liên Hệ</NavLink>
           </nav>
 
           {/* Center: Logo */}
@@ -159,6 +161,8 @@ const Navbar: React.FC = () => {
             <Link to="/" onClick={() => setMenuOpen(false)}>Trang Chủ</Link>
             <Link to="/about" onClick={() => setMenuOpen(false)}>Giới Thiệu</Link>
             <Link to="/products" onClick={() => setMenuOpen(false)}>Tất Cả Sản Phẩm</Link>
+            <Link to="/news" onClick={() => setMenuOpen(false)}>Tin Tức</Link>
+            <Link to="/contact" onClick={() => setMenuOpen(false)}>Liên Hệ</Link>
             {isAuthenticated ? (
               <>
                 <Link to="/account" onClick={() => setMenuOpen(false)}>Tài Khoản Của Tôi</Link>

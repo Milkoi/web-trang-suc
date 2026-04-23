@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../services/api';
+import { useLocation } from 'react-router-dom';
 import { useNotification } from '../../store/NotificationContext';
 import './AdminLayout.css';
 
@@ -15,6 +16,10 @@ interface Order {
 }
 
 const OrderList: React.FC = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const searchKeyword = searchParams.get('search') || '';
+
   const [orders, setOrders] = useState<Order[]>([]);
   const { showNotification } = useNotification();
   const [isLoading, setIsLoading] = useState(true);
@@ -23,7 +28,7 @@ const OrderList: React.FC = () => {
   const fetchOrders = async () => {
     try {
       setIsLoading(true);
-      const res = await api.get('/orders');
+      const res = await api.get(`/orders?search=${encodeURIComponent(searchKeyword)}`);
       setOrders(res.data);
     } catch (err) {
       console.error(err);
@@ -34,7 +39,7 @@ const OrderList: React.FC = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [searchKeyword]);
 
   const updateStatus = async (id: string, newStatus: string) => {
     try {

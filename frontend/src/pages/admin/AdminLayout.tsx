@@ -1,26 +1,65 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, Navigate, Outlet } from 'react-router-dom';
+import { Link, useLocation, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../store/AuthContext';
+import { 
+  LayoutDashboard, 
+  Gem, 
+  FolderTree, 
+  Gift, 
+  Users, 
+  FileText, 
+  ShoppingBag, 
+  Settings,
+  LogOut,
+  Home,
+  Bell,
+  Moon,
+  Search
+} from 'lucide-react';
 import './AdminLayout.css';
 
 const AdminLayout: React.FC = () => {
   const { user, isAuthenticated, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Protect the route
   if (!isAuthenticated || user?.role !== 'admin') {
     return <Navigate to="/" replace />;
   }
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) {
+      // Clear search if empty
+      const params = new URLSearchParams(location.search);
+      params.delete('search');
+      navigate({ pathname: location.pathname, search: params.toString() });
+      return;
+    }
+
+    // Redirect or update current page with search param
+    const params = new URLSearchParams(location.search);
+    params.set('search', searchQuery.trim());
+    navigate({ pathname: location.pathname, search: params.toString() });
+  };
+
+  // Sync search input with URL params on navigation
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    setSearchQuery(params.get('search') || '');
+  }, [location.search]);
+
   const navItems = [
-    { path: '/admin', label: 'Tổng quan', icon: '📊' },
-    { path: '/admin/products', label: 'Sản phẩm', icon: '💎' },
-    { path: '/admin/categories', label: 'Danh mục', icon: '📁' },
-    { path: '/admin/promotions', label: 'Khuyến mãi', icon: '🎁' },
-    { path: '/admin/customers', label: 'Khách hàng', icon: '�' },
-    { path: '/admin/content', label: 'Nội dung', icon: '📝' },
-    { path: '/admin/orders', label: 'Đơn hàng', icon: '�' },
-    { path: '/admin/settings', label: 'Cấu hình', icon: '⚙️' },
+    { path: '/admin', label: 'Tổng quan', icon: <LayoutDashboard size={20} /> },
+    { path: '/admin/products', label: 'Sản phẩm', icon: <Gem size={20} /> },
+    { path: '/admin/categories', label: 'Danh mục', icon: <FolderTree size={20} /> },
+    { path: '/admin/promotions', label: 'Khuyến mãi', icon: <Gift size={20} /> },
+    { path: '/admin/customers', label: 'Khách hàng', icon: <Users size={20} /> },
+    { path: '/admin/content', label: 'Nội dung', icon: <FileText size={20} /> },
+    { path: '/admin/orders', label: 'Đơn hàng', icon: <ShoppingBag size={20} /> },
+    { path: '/admin/settings', label: 'Cấu hình', icon: <Settings size={20} /> },
   ];
 
   return (
@@ -58,7 +97,7 @@ const AdminLayout: React.FC = () => {
             </div>
           </div>
           <button className="admin-sidebar__logout" onClick={logout}>
-            <span>🚪</span> Đăng xuất
+            <LogOut size={16} /> Đăng xuất
           </button>
         </div>
       </aside>
@@ -66,15 +105,21 @@ const AdminLayout: React.FC = () => {
       {/* Main Content */}
       <main className="admin-main">
         <header className="admin-header">
-          <div className="admin-header__search">
-            <input type="text" placeholder="Tìm kiếm nhanh..." />
-          </div>
+          <form className="admin-header__search" onSubmit={handleSearch}>
+            <Search size={18} className="search-icon" />
+            <input 
+              type="text" 
+              placeholder="Tìm kiếm nhanh..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </form>
           <div className="admin-header__actions">
             <Link to="/" className="admin-header__store-btn">
-              <span>🏠</span> Quay lại cửa hàng
+              <Home size={16} /> Quay lại cửa hàng
             </Link>
-            <button className="admin-header__btn">🔔</button>
-            <button className="admin-header__btn">🌙</button>
+            <button className="admin-header__btn"><Bell size={20} /></button>
+            <button className="admin-header__btn"><Moon size={20} /></button>
           </div>
         </header>
 

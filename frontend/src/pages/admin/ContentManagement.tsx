@@ -72,14 +72,15 @@ const ContentManagement: React.FC = () => {
     }
   };
 
+
   const handleBannerSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       if (editingBanner) {
-        await api.put(`/banners/${editingBanner.id}`, { 
-          ...editingBanner, 
-          ...bannerForm, 
-          id: editingBanner.id 
+        await api.put(`/banners/${editingBanner.id}`, {
+          ...editingBanner,
+          ...bannerForm,
+          id: editingBanner.id
         });
         showToast('Cập nhật banner thành công!');
       }
@@ -104,24 +105,12 @@ const ContentManagement: React.FC = () => {
     setShowBannerModal(true);
   };
 
-  const handleToggleBanner = async (banner: Banner) => {
-    try {
-      await api.put(`/banners/${banner.id}`, {
-        ...banner,
-        isActive: !banner.isActive
-      });
-      fetchBanners();
-      showToast(banner.isActive ? 'Đã ẩn banner' : 'Đã hiện banner');
-    } catch (error) {
-      showToast('Lỗi khi cập nhật trạng thái banner', 'error');
-    }
-  };
 
   const handleSettingsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await api.put('/shopsettings', settings);
-      setSettings(response.data); 
+      setSettings(response.data);
       showToast('✅ Cài đặt hệ thống đã được lưu!');
     } catch (error: any) {
       showToast(error.response?.data?.message || 'Lỗi khi lưu cài đặt', 'error');
@@ -200,23 +189,12 @@ const ContentManagement: React.FC = () => {
                     {banner.subtitle && <p className="subtitle">{banner.subtitle}</p>}
                     {banner.description && <p className="desc-preview">{banner.description.substring(0, 100)}...</p>}
                   </div>
-                  <div className="banner-status">
-                    <span className={`status ${banner.isActive ? 'active' : 'inactive'}`}>
-                      {banner.isActive ? 'Đang hiển thị' : 'Đang ẩn'}
-                    </span>
-                  </div>
                   <div className="banner-actions">
                     <button
                       className="btn-edit"
                       onClick={() => handleEditBanner(banner)}
                     >
                       Sửa nội dung
-                    </button>
-                    <button
-                      className={`btn-toggle ${banner.isActive ? 'btn-hide' : 'btn-show'}`}
-                      onClick={() => handleToggleBanner(banner)}
-                    >
-                      {banner.isActive ? 'Ẩn' : 'Hiện'}
                     </button>
                   </div>
                 </div>

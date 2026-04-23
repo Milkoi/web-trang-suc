@@ -52,9 +52,6 @@ namespace web_Trang_suc_BE.Controllers
                 existing.Email = settings.Email;
                 existing.Phone = settings.Phone;
                 existing.WorkingHours = settings.WorkingHours;
-                existing.SiteName = settings.SiteName;
-                existing.SiteSubtitle = settings.SiteSubtitle;
-                existing.SiteDescription = settings.SiteDescription;
                 existing.Address = settings.Address;
                 existing.FacebookUrl = settings.FacebookUrl;
                 existing.InstagramUrl = settings.InstagramUrl;

@@ -55,18 +55,24 @@ const ProductsPage: React.FC = () => {
 
   // Sync URL params to filter
   useEffect(() => {
+    const search = window.location.search;
+    if (!search) {
+      setFilters(DEFAULT_FILTERS);
+      setSort('newest');
+      return;
+    }
+
     const cat = searchParams.get('category');
-    const q = searchParams.get('q');
     const isNew = searchParams.get('isNew');
     const isSale = searchParams.get('isSale');
 
     setFilters((prev: ProductFilters) => ({
       ...prev,
-      categories: cat ? [cat] : prev.categories,
-      isNew: isNew === 'true' ? true : prev.isNew,
-      isSale: isSale === 'true' ? true : prev.isSale,
+      categories: cat ? [cat] : [],
+      isNew: isNew === 'true',
+      isSale: isSale === 'true',
     }));
-  }, [searchParams]);
+  }, [searchParams, window.location.search]);
 
   const searchQuery = searchParams.get('q') || '';
 

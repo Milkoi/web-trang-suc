@@ -42,9 +42,12 @@ const HomePage: React.FC = () => {
         
         const bannerArr = bannerRes.data;
         if (Array.isArray(bannerArr) && bannerArr.length > 0) {
-          // Take the first active banner and its specific content
-          setBanner(bannerArr[0]);
-        } else if (bannerArr && !Array.isArray(bannerArr) && bannerArr.title) {
+          // Take the first banner that is ACTIVE
+          const activeBanner = bannerArr.find(b => b.isActive);
+          if (activeBanner) {
+            setBanner(activeBanner);
+          }
+        } else if (bannerArr && !Array.isArray(bannerArr) && bannerArr.title && bannerArr.isActive) {
           setBanner(bannerArr);
         }
       } catch (err) {
