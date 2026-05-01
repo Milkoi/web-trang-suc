@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import './NewsPage.css';
+import './Blog.css';
 
-const NewsPage: React.FC = () => {
+const Blog: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('Tất cả');
 
   const categories = ['Tất cả', 'Xu hướng', 'Cẩm nang', 'Sự kiện', 'Bộ sưu tập', 'Phong cách'];
@@ -109,4 +109,4 @@ const NewsPage: React.FC = () => {
   );
 };
 
-export default NewsPage;
+export default Blog;

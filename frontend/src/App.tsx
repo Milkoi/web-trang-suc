@@ -24,7 +24,7 @@ import FavoritesPage from './pages/customer/FavoritesPage';
 import OrdersPage from './pages/customer/OrdersPage';
 import AccountPage from './pages/customer/AccountPage';
 import ContactPage from './pages/customer/ContactPage';
-import NewsPage from './pages/customer/NewsPage';
+import Blog from './pages/customer/Blog';
 import AdminLayout from './pages/admin/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import ProductList from './pages/admin/ProductList';
@@ -94,7 +94,7 @@ function AppContent() {
               <Route path="/favorites" element={<FavoritesPage />} />
               <Route path="/account" element={<AccountPage />} />
               <Route path="/contact" element={<ContactPage />} />
-              <Route path="/news" element={<NewsPage />} />
+              <Route path="/blog" element={<Blog />} />
             </Routes>
           </main>
           <Footer />
