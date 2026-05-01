@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 23, 2026 lúc 04:17 PM
+-- Thời gian đã tạo: Th4 23, 2026 lúc 06:17 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -83,11 +83,10 @@ CREATE TABLE `cart_items` (
 --
 
 INSERT INTO `cart_items` (`id`, `cartId`, `productId`, `variantId`, `quantity`, `size`) VALUES
-(25, 4, 1, 589, 1, '7'),
-(26, 4, 2, 201, 1, 'S'),
 (28, 5, 4, 401, 1, NULL),
 (29, 4, 1, 601, 1, NULL),
-(30, 4, 1, 1, 1, NULL);
+(30, 4, 1, 1, 1, NULL),
+(31, 4, 15, 27, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -314,9 +313,9 @@ INSERT INTO `product_images` (`id`, `productId`, `url`, `isMain`, `displayOrder`
 (52, 19, 'https://media.tiffany.com/is/image/tco/60022674_PDT_MAIN1X1?hei=628&wid=628&fmt=webp', 1, 1),
 (53, 19, 'https://media.tiffany.com/is/image/tco/60022674_PDT_SIO2X1?hei=1300&wid=1300&fmt=webp', 0, 2),
 (56, 17, 'https://media.tiffany.com/is/image/tco/40304914_ER_MAIN1X1?hei=628&wid=628&fmt=webp', 0, 0),
-(58, 1, 'https://media.tiffany.com/is/image/tco/72149513_RG_ALT3X1?hei=615&wid=615&fmt=webp', 0, 0),
 (59, 14, 'https://media.tiffany.com/is/image/tco/66912167_ER_MAIN1X1?hei=628&wid=628&fmt=webp', 0, 0),
-(61, 12, 'https://media.tiffany.com/is/image/tco/60149788_BLT_MAIN1X1?hei=628&wid=628&fmt=webp', 0, 0);
+(61, 12, 'https://media.tiffany.com/is/image/tco/60149788_BLT_MAIN1X1?hei=628&wid=628&fmt=webp', 0, 0),
+(62, 1, 'https://media.tiffany.com/is/image/tco/72149513_RG_ALT3X1?hei=615&wid=615&fmt=webp', 0, 0);
 
 -- --------------------------------------------------------
 
@@ -341,7 +340,7 @@ CREATE TABLE `product_variants` (
 --
 
 INSERT INTO `product_variants` (`id`, `productId`, `sku`, `size`, `price`, `originalPrice`, `stockQuantity`, `isSale`, `createdAt`) VALUES
-(1, 1, 'VEL-T1-RING-5', '5 (49mm)', 149000.00, 189000.00, 100, 1, '2026-04-22 14:27:57'),
+(1, 1, 'VEL-T1-RING-5', '5 (49mm)', 149000.00, 189000.00, 99, 1, '2026-04-22 14:27:57'),
 (2, 1, 'VEL-T1-RING-6', '6 (51mm)', 149000.00, 189000.00, 100, 1, '2026-04-22 14:27:57'),
 (3, 1, 'VEL-T1-RING-7', '7 (53mm)', 149000.00, 189000.00, 100, 1, '2026-04-22 14:27:57'),
 (4, 2, 'VEL-KNOT-RG-5', '5 (49mm)', 169000.00, 219000.00, 100, 1, '2026-04-22 14:27:57'),
@@ -691,7 +690,7 @@ ALTER TABLE `carts`
 -- AUTO_INCREMENT cho bảng `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT cho bảng `categories`
@@ -721,7 +720,7 @@ ALTER TABLE `products`
 -- AUTO_INCREMENT cho bảng `product_images`
 --
 ALTER TABLE `product_images`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=62;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
 
 --
 -- AUTO_INCREMENT cho bảng `product_variants`
