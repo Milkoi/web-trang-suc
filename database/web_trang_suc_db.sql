@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th4 22, 2026 lúc 09:05 PM
+-- Thời gian đã tạo: Th4 23, 2026 lúc 04:17 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -41,7 +41,7 @@ CREATE TABLE `banners` (
 --
 
 INSERT INTO `banners` (`id`, `imageUrl`, `subtitle`, `title`, `description`, `isActive`) VALUES
-(1, 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80', 'Bộ sưu tập mới 2026', 'Tinh Hoa Trang Sức Việt', 'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\nSang trọng, tinh tế, vĩnh cửu', 1);
+(1, 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=1600&q=80', 'Bộ sưu tập mới 2026', 'Tinh Hoa Trang Sức Việt', 'Nơi hội tụ những kiệt tác từ bàn tay nghệ nhân lành nghề —\nSang trọng, tinh tế, vĩnh cửu\n', 0);
 
 -- --------------------------------------------------------
 
@@ -109,10 +109,10 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `slug`, `name`, `imageUrl`, `description`, `createdAt`) VALUES
-(1, 'necklace', 'Dây Chuyền', 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=800&q=80', 'Những mẫu dây chuyền tinh tế, tôn vinh vẻ đẹp vùng cổ.', '2026-04-16 19:05:28'),
-(2, 'ring', 'Nhẫn', 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=800&q=80', 'Biểu tượng của tình yêu và sự cam kết vĩnh cửu.', '2026-04-16 19:05:28'),
-(3, 'bracelet', 'Lắc Tay', 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=800&q=80', 'Điểm nhấn sang trọng cho đôi tay phái đẹp.', '2026-04-16 19:05:28'),
-(4, 'earring', 'Bông Tai', 'https://media.tiffany.com/is/image/tco/2026_MKT_MDAY_STILL_4X5_28', 'Lấp lánh và rạng rỡ, làm nổi bật khuôn mặt.', '2026-04-16 19:05:28');
+(1, 'necklace', 'Dây Chuyền', 'https://th.bing.com/th/id/R.43c8732d49a631675fcd2e81a1071c9f?rik=Psk4WKL%2f7d2Kjw&riu=http%3a%2f%2fimg.ltwebstatic.com%2fimages3_spmp%2f2023%2f08%2f19%2fd5%2f16924187712a18d0c0f978cbffe30bc40384a5de43_thumbnail_600x.jpg&ehk=j%2fPbcUHmWyuy%2f01nuwtsmc5sLuUTzTKE2bk8dwP5%2fSs%3d&risl=&pid=ImgRaw&r=0', 'Những mẫu dây chuyền tinh tế, tôn vinh vẻ đẹp vùng cổ.', '2026-04-16 19:05:28'),
+(2, 'ring', 'Nhẫn', 'https://i.etsystatic.com/5306257/r/il/fc30e9/1449851507/il_1080xN.1449851507_cx2t.jpg', 'Biểu tượng của tình yêu và sự cam kết vĩnh cửu.', '2026-04-16 19:05:28'),
+(3, 'bracelet', 'Lắc Tay', 'https://i.pinimg.com/736x/4c/5d/3d/4c5d3d16528b170ea79e97e402dcdf9e.jpg', 'Điểm nhấn sang trọng cho đôi tay phái đẹp.', '2026-04-16 19:05:28'),
+(4, 'earring', 'Bông Tai', 'https://dygtyjqp7pi0m.cloudfront.net/i/70710/55563408_1.jpg?v=8DD43253DF277F0', 'Lấp lánh và rạng rỡ, làm nổi bật khuôn mặt.', '2026-04-16 19:05:28');
 
 -- --------------------------------------------------------
 
@@ -452,7 +452,7 @@ CREATE TABLE `shop_settings` (
 --
 
 INSERT INTO `shop_settings` (`id`, `phone`, `email`, `workingHours`, `address`, `facebookUrl`, `instagramUrl`, `updatedAt`) VALUES
-(1, '1900 520 131', 'contact@velmora.com', 'T2-CN: 8:00 - 23:00', '235 Hoàng Quốc Việt - Bắc Từ Liêm', NULL, NULL, '2026-04-22 18:04:07');
+(1, '1900 520 131m', 'luxelum@gmail.comm', 'T2-CN: 8:00 - 23:000', '235 Hoàng Quốc Việt - Bắc Từ Liêmm', NULL, NULL, '2026-04-23 12:07:31');
 
 -- --------------------------------------------------------
 
