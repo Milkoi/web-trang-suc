@@ -481,6 +481,7 @@ CREATE TABLE `users` (
   `phone` varchar(20) DEFAULT NULL,
   `defaultAddress` text DEFAULT NULL,
   `newsletterOptin` tinyint(1) DEFAULT 0,
+  `isActive` tinyint(1) DEFAULT 1,
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

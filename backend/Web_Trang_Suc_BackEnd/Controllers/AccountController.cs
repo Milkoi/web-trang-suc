@@ -83,6 +83,10 @@ namespace web_Trang_suc_BE.Controllers
                     return Unauthorized("Email hoặc mật khẩu không chính xác.");
                 }
 
+                if (!user.IsActive) {
+                    return Unauthorized("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
+                }
+
                 return Ok(new AuthResponseDto
                 {
                     Token = CreateToken(user),
@@ -163,11 +167,16 @@ namespace web_Trang_suc_BE.Controllers
                         Email = payload.Email,
                         Avatar = payload.Picture,
                         Role = "customer",
-                        Provider = "google"
+                        Provider = "google",
+                        IsActive = true
                     };
 
                     _context.Users!.Add(user);
                     await _context.SaveChangesAsync();
+                }
+
+                if (!user.IsActive) {
+                    return Unauthorized("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.");
                 }
 
                 return Ok(new AuthResponseDto

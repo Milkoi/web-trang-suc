@@ -17,7 +17,9 @@ namespace web_Trang_suc_BE.Controllers
         public async Task<ActionResult<object>> GetDashboardStats()
         {
             var totalOrders = await _context.Orders!.CountAsync();
-            var totalRevenue = await _context.Orders!.Where(o => o.OrderStatus == "completed").SumAsync(o => o.TotalAmount);
+            var totalRevenue = await _context.Orders!
+                .Where(o => o.OrderStatus == "completed" || o.PaymentStatus == "Paid")
+                .SumAsync(o => o.TotalAmount);
             var newUsers = await _context.Users!.CountAsync();
             var productCount = await _context.Products!.CountAsync();
             
@@ -69,7 +71,7 @@ namespace web_Trang_suc_BE.Controllers
             }
 
             var revenueDataQuery = _context.Orders!
-                .Where(o => o.OrderStatus == "completed" && o.CreatedAt >= startDate && o.CreatedAt <= endDate);
+                .Where(o => (o.OrderStatus == "completed" || o.PaymentStatus == "Paid") && o.CreatedAt >= startDate && o.CreatedAt <= endDate);
 
             if (period.ToLower() == "week")
             {

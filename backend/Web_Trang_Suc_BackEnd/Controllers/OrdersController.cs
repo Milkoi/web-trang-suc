@@ -19,10 +19,7 @@ namespace web_Trang_suc_BE.Controllers
         [Authorize(Roles = "admin")]
         public async Task<ActionResult<IEnumerable<object>>> GetAllOrders([FromQuery] string? search)
         {
-            var query = _context.Orders!
-                .Include(o => o.Items)
-                .ThenInclude(i => i.Product)
-                .AsQueryable();
+            var query = _context.Orders!.AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -37,6 +34,17 @@ namespace web_Trang_suc_BE.Controllers
 
             var list = await query
                 .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new {
+                    id = o.Id,
+                    firstName = o.FirstName,
+                    lastName = o.LastName,
+                    email = o.Email,
+                    phone = o.Phone,
+                    totalAmount = o.TotalAmount,
+                    orderStatus = o.OrderStatus,
+                    paymentStatus = o.PaymentStatus,
+                    createdAt = o.CreatedAt
+                })
                 .ToListAsync();
             return Ok(list);
         }
@@ -50,11 +58,25 @@ namespace web_Trang_suc_BE.Controllers
 
             var list = await _context.Orders!
                 .Include(o => o.Items)
-                    .ThenInclude(i => i.Product)
-                .Include(o => o.Items)
-                    .ThenInclude(i => i.Variant)
+                .ThenInclude(i => i.Product)
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new {
+                    id = o.Id,
+                    totalAmount = o.TotalAmount,
+                    orderStatus = o.OrderStatus,
+                    paymentStatus = o.PaymentStatus,
+                    createdAt = o.CreatedAt,
+                    recipientName = o.FirstName + " " + o.LastName,
+                    address = o.Address,
+                    items = o.Items.Select(i => new {
+                        productName = i.Product != null ? i.Product.Name : "Sản phẩm",
+                        productImage = (i.Product != null && i.Product.Images != null && i.Product.Images.Count > 0) ? i.Product.Images.First().Url : "",
+                        quantity = i.Quantity,
+                        size = i.Size,
+                        price = i.PriceAtPurchase
+                    }).ToList()
+                })
                 .ToListAsync();
             return Ok(list);
         }
@@ -226,7 +248,7 @@ namespace web_Trang_suc_BE.Controllers
             var order = await _context.Orders!.FindAsync(id);
             if (order == null) return NotFound(new { message = "Đơn hàng không tồn tại" });
 
-            var allowedStatuses = new[] { "Pending", "Confirmed", "Shipping", "Completed", "Cancelled" };
+            var allowedStatuses = new[] { "Pending", "Confirmed", "Processing", "Shipping", "Completed", "Cancelled" };
             if (!allowedStatuses.Contains(dto.Status))
                 return BadRequest(new { message = "Trạng thái không hợp lệ" });
 

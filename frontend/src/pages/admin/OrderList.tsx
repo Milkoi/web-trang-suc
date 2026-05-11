@@ -83,7 +83,7 @@ const OrderList: React.FC = () => {
           <tbody>
             {isLoading ? (
               <tr><td colSpan={6} style={{ textAlign: 'center' }}>Đang tải...</td></tr>
-            ) : orders.map(o => (
+            ) : (orders && Array.isArray(orders) && orders.length > 0) ? orders.map(o => (
               <tr key={o.id}>
                 <td>#{o.id}</td>
                 <td style={{ fontWeight: 600 }}>{o.firstName} {o.lastName}</td>
@@ -91,7 +91,12 @@ const OrderList: React.FC = () => {
                 <td>{new Date(o.createdAt).toLocaleDateString('vi-VN')}</td>
                 <td>
                   <span className="badge" style={{ backgroundColor: getStatusColor(o.orderStatus), color: 'white' }}>
-                    {o.orderStatus}
+                    {o.orderStatus === 'Processing' ? 'Đang xử lý' : 
+                     o.orderStatus === 'Pending' ? 'Chờ xử lý' :
+                     o.orderStatus === 'Confirmed' ? 'Đã xác nhận' :
+                     o.orderStatus === 'Shipping' ? 'Đang giao' :
+                     o.orderStatus === 'Completed' ? 'Hoàn tất' :
+                     o.orderStatus === 'Cancelled' ? 'Đã hủy' : o.orderStatus}
                   </span>
                 </td>
                 <td>
@@ -102,6 +107,7 @@ const OrderList: React.FC = () => {
                     style={{ padding: '4px 8px', borderRadius: '4px', border: '1px solid #ddd' }}
                   >
                     <option value="Pending">Chờ xử lý</option>
+                    <option value="Processing">Đang xử lý (VNPAY)</option>
                     <option value="Confirmed">Xác nhận</option>
                     <option value="Shipping">Đang giao</option>
                     <option value="Completed">Hoàn tất</option>
@@ -109,7 +115,9 @@ const OrderList: React.FC = () => {
                   </select>
                 </td>
               </tr>
-            ))}
+            )) : (
+              <tr><td colSpan={6} style={{ textAlign: 'center' }}>Không có đơn hàng nào</td></tr>
+            )}
           </tbody>
         </table>
       </div>

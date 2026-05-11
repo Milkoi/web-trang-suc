@@ -4,7 +4,7 @@ import './ContactPage.css';
 
 const ContactPage: React.FC = () => {
   const [shopInfo, setShopInfo] = useState({
-    email: 'luxelum@gmail.com',
+    email: 'contact@velmora.com',
     phone: '1900 520 131',
     address: '235 Hoàng Quốc Việt, Cổ Nhuế, Bắc Từ Liêm, Hà Nội',
     workingHours: 'T2-CN: 8:00 - 23:00',

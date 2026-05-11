@@ -218,6 +218,23 @@ const CheckoutPage: React.FC = () => {
         return;
       }
 
+      if (form.payment.method === 'vnpay' && res.data.orderId) {
+        // Call backend to get VNPAY payment URL
+        try {
+          const vnpayRes = await api.post('/payment/create-vnpay-url', {
+            orderId: res.data.orderId,
+            amount: finalAmount
+          });
+          if (vnpayRes.data.url) {
+            window.location.href = vnpayRes.data.url;
+            return;
+          }
+        } catch (vnpErr) {
+          console.error('VNPAY Error:', vnpErr);
+          showNotification('Không thể khởi tạo thanh toán VNPAY. Vui lòng thử lại.', 'error');
+        }
+      }
+
       navigate('/checkout/success');
     } catch (err) {
       showNotification('Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại.', 'error');
@@ -578,14 +595,14 @@ const CheckoutPage: React.FC = () => {
                   <div className="vietqr-method-label">
                     <div className="vietqr-logo-inline">
                       <svg width="18" height="18" viewBox="0 0 32 32" fill="none">
-                        <rect width="32" height="32" rx="6" fill="#005baa"/>
-                        <rect x="6" y="6" width="8" height="8" rx="1" fill="white"/>
-                        <rect x="18" y="6" width="8" height="8" rx="1" fill="white"/>
-                        <rect x="6" y="18" width="8" height="8" rx="1" fill="white"/>
-                        <rect x="20" y="20" width="4" height="4" rx="0.5" fill="white"/>
-                        <rect x="18" y="18" width="4" height="4" rx="0.5" fill="white"/>
-                        <rect x="26" y="18" width="2" height="8" rx="0.5" fill="white"/>
-                        <rect x="18" y="26" width="8" height="2" rx="0.5" fill="white"/>
+                        <rect width="32" height="32" rx="6" fill="#005baa" />
+                        <rect x="6" y="6" width="8" height="8" rx="1" fill="white" />
+                        <rect x="18" y="6" width="8" height="8" rx="1" fill="white" />
+                        <rect x="6" y="18" width="8" height="8" rx="1" fill="white" />
+                        <rect x="20" y="20" width="4" height="4" rx="0.5" fill="white" />
+                        <rect x="18" y="18" width="4" height="4" rx="0.5" fill="white" />
+                        <rect x="26" y="18" width="2" height="8" rx="0.5" fill="white" />
+                        <rect x="18" y="26" width="8" height="2" rx="0.5" fill="white" />
                       </svg>
                       <span className="vietqr-text-blue">Viet</span><span className="vietqr-text-red">QR</span>
                     </div>
@@ -598,18 +615,47 @@ const CheckoutPage: React.FC = () => {
                   </div>
                 </label>
 
+                {/* VNPAY */}
+                <label className={`checkout-payment-method ${form.payment.method === 'vnpay' ? 'active' : ''}`}>
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="vnpay"
+                    checked={form.payment.method === 'vnpay'}
+                    onChange={() => setForm(p => ({ ...p, payment: { ...p.payment, method: 'vnpay' } }))}
+                  />
+                  <span className="checkout-payment-method__radio" />
+                  <div className="vnpay-method-label">
+                    <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png" alt="VNPAY" style={{ height: '18px' }} />
+                    <span style={{ marginLeft: '8px', fontSize: '14px', fontWeight: 500 }}>VNPAY (ATM / Visa / QR)</span>
+                  </div>
+                </label>
+
                 {/* VietQR Info Panel */}
                 {form.payment.method === 'vietqr' && (
                   <div className="vietqr-info-panel">
                     <div className="vietqr-info-panel__icon">
                       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                       </svg>
                     </div>
                     <div className="vietqr-info-panel__content">
                       <p className="vietqr-info-panel__title">Thanh toán bằng chuyển khoản QR</p>
-                      <p className="vietqr-info-panel__desc">Sau khi đặt hàng, bạn sẽ nhận được mã QR để quét bằng app ngân hàng. 
+                      <p className="vietqr-info-panel__desc">Sau khi đặt hàng, bạn sẽ nhận được mã QR để quét bằng app ngân hàng.
                         Hỗ trợ <strong>tất cả ngân hàng Việt Nam</strong> qua chuẩn NAPAS.</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* VNPAY Info Panel */}
+                {form.payment.method === 'vnpay' && (
+                  <div className="vnpay-info-panel">
+                    <div className="vnpay-info-panel__icon">
+                      <img src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Icon-VNPAY-QR.png" alt="VNPAY" style={{ height: '32px' }} />
+                    </div>
+                    <div className="vnpay-info-panel__content">
+                      <p className="vnpay-info-panel__title">Thanh toán qua cổng VNPAY</p>
+                      <p className="vnpay-info-panel__desc">Bạn sẽ được chuyển hướng đến cổng VNPAY để thanh toán bằng thẻ ATM, Visa, Master hoặc quét mã QR.</p>
                     </div>
                   </div>
                 )}
@@ -793,45 +839,45 @@ const CheckoutPage: React.FC = () => {
               <h3>Thanh Toán Qua VietQR</h3>
               <p>Vui lòng quét mã QR bên dưới để thanh toán đơn hàng <strong>{createdOrderId}</strong></p>
             </div>
-            
+
             <div className="vietqr-modal__content">
               <div className="vietqr-image-wrapper">
-                <img 
-                  src={`https://img.vietqr.io/image/MB-4000676869-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(`Thanh toan don hang ${createdOrderId}`)}&accountName=${encodeURIComponent('Le Minh Quan')}`} 
-                  alt="VietQR Payment" 
+                <img
+                  src={`https://img.vietqr.io/image/MB-4000676869-compact2.png?amount=${qrAmount}&addInfo=${encodeURIComponent(`Thanh toan don hang ${createdOrderId}`)}&accountName=${encodeURIComponent('Le Minh Quan')}`}
+                  alt="VietQR Payment"
                 />
               </div>
-              
+
               <div className="vietqr-details">
                 <div className="vietqr-detail-item">
                   <span className="label">Ngân hàng:</span>
                   <span className="value">MB Bank (Quân Đội)</span>
                 </div>
                 <div className="vietqr-detail-item">
-                   <span className="label">Chủ tài khoản:</span>
-                   <span className="value">Lê Minh Quân</span>
-                 </div>
-                 <div className="vietqr-detail-item">
-                   <span className="label">Số tài khoản:</span>
-                   <span className="value vietqr-account-num">4000676869</span>
-                 </div>
+                  <span className="label">Chủ tài khoản:</span>
+                  <span className="value">Lê Minh Quân</span>
+                </div>
+                <div className="vietqr-detail-item">
+                  <span className="label">Số tài khoản:</span>
+                  <span className="value vietqr-account-num">4000676869</span>
+                </div>
                 <div className="vietqr-detail-item">
                   <span className="label">Số tiền:</span>
-                  <span className="value" style={{color: '#c9a96e', fontWeight: '700'}}>{formatPrice(qrAmount)}</span>
+                  <span className="value" style={{ color: '#c9a96e', fontWeight: '700' }}>{formatPrice(qrAmount)}</span>
                 </div>
                 <div className="vietqr-detail-item">
                   <span className="label">Nội dung:</span>
-                  <span className="value" style={{fontWeight: '600'}}>Thanh toan don hang {createdOrderId}</span>
+                  <span className="value" style={{ fontWeight: '600' }}>Thanh toan don hang {createdOrderId}</span>
                 </div>
               </div>
             </div>
 
             <div className="vietqr-modal__footer">
               <p className="vietqr-hint">Hệ thống sẽ tự động xác nhận sau khi nhận được tiền.</p>
-              <button 
-                className="btn-primary" 
+              <button
+                className="btn-primary"
                 onClick={() => navigate('/checkout/success')}
-                style={{width: '100%'}}
+                style={{ width: '100%' }}
               >
                 Tôi đã chuyển khoản
               </button>

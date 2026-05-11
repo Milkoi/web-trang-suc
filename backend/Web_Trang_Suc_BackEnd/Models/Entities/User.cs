@@ -45,6 +45,9 @@ namespace web_Trang_suc_BE.Models.Entities
         [Column("newsletterOptin")]
         public bool NewsletterOptin { get; set; } = false;
 
+        [Column("isActive")]
+        public bool IsActive { get; set; } = true;
+        
         [Column("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

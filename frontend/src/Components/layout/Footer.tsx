@@ -15,7 +15,7 @@ const Footer: React.FC = () => {
   const [subscribed, setSubscribed] = useState(false);
   const [shopInfo, setShopInfo] = useState<ShopInfo>({
     phone: '1900 520 131',
-    email: 'luxelum@gmail.com',
+    email: 'contact@velmora.com',
     workingHours: 'T2–CN: 8:00 – 23:00',
     address: ''
   });
@@ -26,7 +26,7 @@ const Footer: React.FC = () => {
         if (res.data) {
           setShopInfo({
             phone: res.data.phone || '1900 520 131',
-            email: res.data.email || 'luxelum@gmail.com',
+            email: res.data.email || 'contact@velmora.com',
             workingHours: res.data.workingHours || 'T2–CN: 8:00 – 23:00',
             address: res.data.address || ''
           });

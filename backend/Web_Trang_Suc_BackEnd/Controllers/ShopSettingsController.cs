@@ -27,7 +27,7 @@ namespace web_Trang_suc_BE.Controllers
                 settings = new ShopSetting
                 {
                     Phone = "1900 520 131",
-                    Email = "luxelum@gmail.com",
+                    Email = "contact@velmora.com",
                     WorkingHours = "T2-CN: 8:00 - 23:00"
                 };
                 _context.ShopSettings.Add(settings);

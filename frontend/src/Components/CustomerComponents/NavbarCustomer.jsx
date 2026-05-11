@@ -14,7 +14,7 @@ const Navbar = () => {
       <header>
         <div className="giaohang">
           <span id="giao">Giao hàng miễn phí cho đơn trên 10.000.000đ</span>
-          <span id="inf">inf@luxelum.global</span>
+          <span id="inf">info@velmora.global</span>
         </div>
 
         <div className="thanhlogo">
